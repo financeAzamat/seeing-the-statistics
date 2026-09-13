@@ -115,9 +115,9 @@ def claim(label, quoted, measured, tol):
         fails.append(f"{label}: prose {quoted}, measured {measured:.3f}")
 
 # the headline false-positive rate
-m = re.search(r"<b>([\d.]+)%</b> of tests come out\s*\n?\s*\"significant\"", markup)
+m = re.search(r"(?:<b>)?([\d.]+)%(?:</b>)? of tests come out\s*\n?\s*\"significant\"", markup)
 if not m:
-    m = re.search(r"<b>([\d.]+)%</b> of tests come out", markup)
+    m = re.search(r"(?:<b>)?([\d.]+)%(?:</b>)? of tests come out", markup)
 if m:
     claim("false-positive rate, nothing going on", float(m.group(1)),
           ref["retail|0.0|500"]["rates"]["0.05"] * 100, 0.15)
@@ -125,7 +125,7 @@ else:
     fails.append("could not find the false-positive claim in the markup")
 
 # the headline power sentence
-m = re.search(r"each group</b> is caught (\d+)% of the time", markup)
+m = re.search(r"each group(?:</b>)? is caught (\d+)% of the time", markup)
 if m:
     claim("retail +5% power at n=2000", float(m.group(1)),
           ref["retail|0.05|2000"]["rates"]["0.05"] * 100, 0.6)
@@ -156,10 +156,10 @@ for dsid, want in re.findall(r"(retail orders|diamond prices|geyser waits)\s+spr
 # the 6.7x and 45x comparison
 cv_r = DS["retail"]["sd"] / DS["retail"]["mu"]
 cv_g = DS["geyser"]["sd"] / DS["geyser"]["mu"]
-m = re.search(r"<b>([\d.]+) times</b> larger relative", markup)
+m = re.search(r"(?:<b>)?([\d.]+) times(?:</b>)? larger relative", markup)
 if m:
     claim("retail noise vs geyser, ratio", float(m.group(1)), cv_r / cv_g, 0.06)
-m = re.search(r"<b>(\d+) times</b> as much data", markup)
+m = re.search(r"(?:<b>)?(\d+) times(?:</b>)? as much data", markup)
 if m:
     claim("sample-size multiplier (ratio squared)", float(m.group(1)), (cv_r / cv_g) ** 2, 0.6)
 

@@ -227,7 +227,7 @@ n_render = len(re.findall(r'^\s+"name": "', (HERE / "verify_render.py")
                           .read_text(encoding="utf-8"), re.M))
 flat_en = re.sub(r"\s+", " ", (OUT / "index.html").read_text(encoding="utf-8"))
 
-m = re.search(r"<b>Checks:</b> (\w+) verification scripts", flat_en)
+m = re.search(r"(?:<b>)?Checks:(?:</b>)? (\w+) verification scripts", flat_en)
 check("claimed verification-script count", m.group(1) if m else None,
       WORD.get(n_verify))
 m = re.search(r"executes all (\w+) renderers", flat_en)

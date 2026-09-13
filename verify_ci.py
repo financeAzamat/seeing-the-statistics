@@ -142,7 +142,7 @@ def claim(pattern: str, measured: float, tol: float, what: str) -> None:
         fails.append(f"{what}: prose says {q}, measurement says {measured:.2f}")
 
 r30 = ref["coverage"]["retail|0.95|30"]
-claim(r"gets you <b>(\d+)%</b>", r30["cov_t"] * 100, 0.6, "headline retail coverage")
+claim(r"gets you (?:<b>)?(\d+)%(?:</b>)?", r30["cov_t"] * 100, 0.6, "headline retail coverage")
 print("\n" + "=" * 66)
 if fails:
     print("FAILURES:")

@@ -149,15 +149,15 @@ if m:
           PAIRS["diamond"]["diag"]["sd_ratio"], 0.6)
 else:
     fails.append("could not find the retail fan comparison in the markup")
-m = re.search(r"R² collapses to\s*<b>([\d.]+)</b>", markup)
+m = re.search(r"R² collapses to\s*(?:<b>)?(\d+\.\d+)(?:</b>)?", markup)
 if m:
     claim("geyser within-cluster R² (short)", float(m.group(1)),
           PAIRS["geyser"]["diag"]["within_r2_lo"], 0.006)
-m = re.search(r"only the long ones, <b>([\d.]+)</b>", markup)
+m = re.search(r"only the long ones, (?:<b>)?(\d+\.\d+)(?:</b>)?", markup)
 if m:
     claim("geyser within-cluster R² (long)", float(m.group(1)),
           PAIRS["geyser"]["diag"]["within_r2_hi"], 0.006)
-m = re.search(r"worth\s+about\s+<b>£(\d+)</b>", markup)
+m = re.search(r"worth\s+about\s+(?:<b>)?£(\d+)(?:</b>)?", markup)
 if m:
     claim("retail slope, pounds per item", float(m.group(1)), PAIRS["retail"]["slope"], 0.5)
 else:

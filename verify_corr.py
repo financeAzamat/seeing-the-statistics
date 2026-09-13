@@ -196,7 +196,7 @@ claim("table: 0.99-1.01 r", r"<td>0\.99–1\.01 ct</td><td>[\d,]+</td><td class=
       at3("0.99–1.01 ct"), 1e-9)
 claim("how much of r is lost", r"loses (?:<b>)?(\d+)%(?:</b>)? of its size", lost, 0.51)
 claim("prose: r in the tightest window restated",
-      r"<b>r = \+(\d+\.\d+) is the correct answer", at3("0.99–1.01 ct"), 1e-9)
+      r"(?:<b>)?r = \+(\d+\.\d+) is the correct answer", at3("0.99–1.01 ct"), 1e-9)
 claim("geyser: pooled r", r"correlate at (?:<b>)?\+(\d+\.\d+)", at3("geyser"), 1e-9)
 claim("geyser table: all n", r"<td>all of them</td><td>(\d+)</td>", G["nAll"])
 claim("geyser table: all r", r"<td>all of them</td><td>\d+</td><td class=\"g\">\+(\d+\.\d+)</td>",
@@ -216,11 +216,11 @@ claim("three ways: log-log", r"taking logs of both</td><td class=\"g\">\+(\d+\.\
       at3("logr"), 1e-9)
 claim("pearson restated after the table", r"The (?:<b>)?\+(\d+\.\d+)(?:</b>)? is r being docked",
       at3("pearson"), 1e-9)
-claim("dirt: zero-dimension rows", r"<b>(\d+)</b> rows with a physically impossible",
+claim("dirt: zero-dimension rows", r"(?:<b>)?(\d+)(?:</b>)? rows with a physically impossible",
       DIRT["nZero"])
-claim("dirt: over-2cm stones", r"<b>(\d+)</b> stones recorded as over 2 cm", DIRT["nHuge"])
+claim("dirt: over-2cm stones", r"(?:<b>)?(\d+)(?:</b>)? stones recorded as over 2 cm", DIRT["nHuge"])
 claim("dirt: rows dropped", r"those (\d+) rows of 53,940", DIRT["nDropped"])
-claim("dirt: r before", r"correlation from <b>\+(\d+\.\d+)</b>", at3("dirty"), 1e-9)
+claim("dirt: r before", r"correlation from (?:<b>)?\+(\d+\.\d+)(?:</b>)?", at3("dirty"), 1e-9)
 claim("dirt: r after", r"to <b>\+(\d+\.\d+)</b>\. Twenty-three", at3("clean"), 1e-9)
 claim("note: drawn sample size", r"seeded random sample of ([\d,]+) stones", D["nDrawn"])
 

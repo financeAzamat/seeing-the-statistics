@@ -169,20 +169,20 @@ claim("table: diamond average", r"Diamonds <em>\(53,940\)</em></td><td class=\"b
 claim("table: diamond percent below", r"\$3,932\.80</td>\s*<td class=\"b\">(\d+\.\d+)%", DI["pctBelow"], 0.05)
 claim("table: geyser average", r"Geyser waits <em>\(272\)</em></td><td class=\"g\">(\d+\.\d+) min", G["mu"], 0.01)
 claim("table: geyser percent below", r"70\.90 min</td>\s*<td class=\"g\">(\d+\.\d+)%", G["pctBelow"], 0.05)
-claim("punch: retail below count", r"<b>([\d,]+) of 19,773</b> are below", R["below"])
+claim("punch: retail below count", r"(?:<b>)?([\d,]+) of 19,773(?:</b>)? are below", R["below"])
 claim("punch: retail percent", r"a customer that (\d+)% of them are not", round(R["pctBelow"]), 0.51)
 claim("median table: retail median", r"£519\.50</td><td class=\"g\">£([\d,]+\.\d+)", R["median"], 0.01)
 claim("median table: retail ratio", r"£302\.59</td>\s*<td class=\"b\">(\d+\.\d+)×", R["ratio"], 0.005)
 claim("median table: diamond median", r"\$3,932\.80</td><td class=\"g\">\$([\d,]+\.\d+)", DI["median"], 0.01)
 claim("median table: diamond ratio", r"\$2,401\.00</td>\s*<td class=\"b\">(\d+\.\d+)×", DI["ratio"], 0.005)
-claim("middle order restated", r"The middle order is <b>£([\d,]+\.\d+)</b>", R["median"], 0.01)
+claim("middle order restated", r"The middle order is (?:<b>)?£([\d,]+\.\d+)(?:</b>)?", R["median"], 0.01)
 claim("how much higher the average is", r"average is (\d+)% higher than it",
       round(100 * (R["ratio"] - 1)), 0.51)
 claim("geyser percent below restated", r"Only (\d+\.\d+)% of geyser waits", G["pctBelow"], 0.05)
 claim("geyser short cluster", r"cluster around <b>(\d+\.\d+) minutes</b>", G["modes"][0], 0.05)
 claim("geyser long cluster", r"long waits around <b>(\d+\.\d+) minutes</b>", G["modes"][1], 0.05)
 claim("geyser mean between", r"The average of the two habits is (\d+\.\d+) minutes", G["mu"], 0.01)
-claim("geyser near-mean share", r"Only <b>(\d+\.\d+)%</b> of waits land within",
+claim("geyser near-mean share", r"Only (?:<b>)?(\d+\.\d+)%(?:</b>)? of waits land within",
       round(100 * G["nearMean"] / G["n"], 1), 0.05)
 claim("geyser busier cluster share", r"against (\d+\.\d+)% at the busier cluster",
       round(100 * max(G["nearMode"]) / G["n"], 1), 0.05)
@@ -198,7 +198,7 @@ claim("common table: geyser near mean", r"Geyser waits</td><td class=\"b\">(\d+\
       round(100 * G["nearMean"] / G["n"], 1), 0.05)
 claim("common table: geyser near commonest", r"Geyser waits</td><td class=\"b\">7\.0%</td><td class=\"g\">(\d+\.\d+)%",
       round(100 * G["nearBusiest"] / G["n"], 1), 0.05)
-claim("commonest diamond price", r"commonest diamond price is about <b>\$(\d+)</b>",
+claim("commonest diamond price", r"commonest diamond price is about (?:<b>)?\$(\d+)(?:</b>)?",
       round(DI["busiest"]), 40)
 
 # the lede's fraction must be TRUE, not merely close. "more than three in every

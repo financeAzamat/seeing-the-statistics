@@ -172,35 +172,35 @@ def claim(label, quoted, measured, tol):
         fails.append(f"{label}: prose {quoted}, measured {measured:.4g}")
 
 dn, dl = REF["diamond|none"], REF["diamond|log both"]
-m = re.search(r"fan collapses from <b>([\d.]+)</b> to <b>([\d.]+)</b>", markup)
+m = re.search(r"fan collapses from (?:<b>)?(\d+\.\d+)(?:</b>)? to (?:<b>)?(\d+\.\d+)(?:</b>)?", markup)
 if m:
     claim("diamond fan before", float(m.group(1)), dn["fan"], 0.06)
     claim("diamond fan after", float(m.group(2)), dl["fan"], 0.06)
 else:
     fails.append("could not find the fan-collapse claim")
-m = re.search(r"kurtosis of <b>([\d.]+)</b> to <b>([\d.]+)</b>", markup)
+m = re.search(r"kurtosis of (?:<b>)?(\d+\.\d+)(?:</b>)? to (?:<b>)?(\d+\.\d+)(?:</b>)?", markup)
 if m:
     claim("diamond kurtosis before", float(m.group(1)), dn["kurt"], 0.06)
     claim("diamond kurtosis after", float(m.group(2)), dl["kurt"], 0.06)
-m = re.search(r"from 0\.84 to <b>([\d.]+)</b>", markup)
+m = re.search(r"from 0\.84 to (?:<b>)?(\d+\.\d+)(?:</b>)?", markup)
 if m:
     claim("diamond R² after log both", float(m.group(1)), dl["r2"], 0.006)
 # NB: patterns use (\d+\.\d+) rather than ([\d.]+) on purpose -- the looser form
 # swallows a sentence-ending full stop and turns "1.78." into a parse error.
-m = re.search(r"bend gets <b>worse</b>: (\d+\.\d+) → (\d+\.\d+)", markup)
+m = re.search(r"bend gets (?:<b>)?worse(?:</b>)?: (\d+\.\d+) → (\d+\.\d+)", markup)
 if m:
     claim("diamond bend, none", float(m.group(1)), dn["bend"], 0.006)
     claim("diamond bend, log y", float(m.group(2)), REF["diamond|log y"]["bend"], 0.006)
 else:
     fails.append("could not find the log-y bend trap claim")
 gn = REF["geyser|none"]
-m = re.search(r"correlate at\s*\n?\s*<b>−([\d.]+)</b>", markup)
+m = re.search(r"correlate at\s*\n?\s*(?:<b>)?−(\d+\.\d+)(?:</b>)?", markup)
 if m:
     claim("geyser lag-1 magnitude", float(m.group(1)), abs(gn["lag1"]), 0.006)
 m = re.search(r"Durbin-Watson ([\d.]+), where 2", markup)
 if m:
     claim("geyser Durbin-Watson", float(m.group(1)), gn["dw"], 0.006)
-m = re.search(r"<b>(\d+)% of\s*\n?\s*consecutive eruptions switch kind</b>", markup)
+m = re.search(r"(?:<b>)?(\d+)% of\s*\n?\s*consecutive eruptions switch kind(?:</b>)?", markup)
 if m:
     # recompute the alternation directly from the shipped points
     dur = PAIRS["geyser"]["x"]
@@ -209,7 +209,7 @@ if m:
     claim("geyser alternation rate", float(m.group(1)), alt * 100, 0.6)
 else:
     fails.append("could not find the alternation claim")
-m = re.search(r"moves the slope by\s*\n?\s*<b>([\d.]+)%</b>", markup)
+m = re.search(r"moves the slope by\s*\n?\s*(?:<b>)?([\d.]+)%(?:</b>)?", markup)
 if m:
     claim("retail slope shift from one point", float(m.group(1)),
           REF["retail|none"]["slope_shift_one"] * 100, 0.15)

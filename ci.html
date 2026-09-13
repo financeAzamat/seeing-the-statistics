@@ -181,19 +181,19 @@ table.cov td.g { color: var(--accent); }
     <h1>What "95% confident" actually buys you</h1>
     <p class="sub">And why, on real business data, it is often not 95%.</p>
 
-    <p class="lede">In real life you get <b>one sample</b>. You never see the true average,
+    <p class="lede">In real life you get one sample. You never see the true average,
       so you report a range and attach a number to it: "the average order is £430 to £490,
       95% confident." This page shows you exactly what that sentence promises — and then
       shows it failing on real data.</p>
 
     <h2>What you are looking at</h2>
     <p>Same real data as before, in the pile at the top. A sample of orders is picked, its
-      average is worked out, and a <b>bar</b> is drawn around that average — the range you
+      average is worked out, and a bar is drawn around that average — the range you
       would have reported if that had been your one sample.</p>
-    <p>The gold line running down the screen is the <b>true average</b>, the thing you are
+    <p>The gold line running down the screen is the true average, the thing you are
       trying to catch. In real life you cannot see it. Here you can, which is the only
       reason we can grade the answers.</p>
-    <p>Bars that catch the gold line stay <b>blue</b>. Bars that miss it turn
+    <p>Bars that catch the gold line stay blue. Bars that miss it turn
       <b style="color:var(--error)">red</b>. Then it happens again, and the bars stack up.</p>
 
     <h2>The thing almost everyone gets wrong</h2>
@@ -208,13 +208,13 @@ table.cov td.g { color: var(--accent); }
 
     <h2>Try it yourself</h2>
     <ol class="try">
-      <li>Leave it running on <b>95%</b> and watch the counter. Roughly 1 bar in 20 turns
+      <li>Leave it running on 95% and watch the counter. Roughly 1 bar in 20 turns
         red — that is the promise being kept.</li>
-      <li>Drop to <b>80%</b>. Bars get shorter, and far more of them turn red. Narrow
+      <li>Drop to 80%. Bars get shorter, and far more of them turn red. Narrow
         ranges are not better answers; they are bolder bets.</li>
-      <li>Go to <b>99%</b>. Almost nothing misses — because the range is now so wide it is
+      <li>Go to 99%. Almost nothing misses — because the range is now so wide it is
         barely a claim at all. That is the trade in full view.</li>
-      <li>Switch to <b>s from the sample</b>. This is what you actually do at work, because
+      <li>Switch to the sample's own spread. This is what you actually do at work, because
         nobody hands you the true spread. Watch what happens to the number.</li>
     </ol>
 
@@ -226,7 +226,7 @@ table.cov td.g { color: var(--accent); }
       do. The second uses the spread of your own sample, which is the honest version and the
       one you were taught to use.</p>
     <p class="punch warn">On the retail order data, asking for 95% and estimating the spread
-      from a sample of 30 gets you <b>86%</b>. One in seven of your "95% confident"
+      from a sample of 30 gets you 86%. One in seven of your "95% confident"
       statements is simply wrong.</p>
 
     <table class="cov">
@@ -244,24 +244,24 @@ table.cov td.g { color: var(--accent); }
     <h2>Why it breaks, in one sentence</h2>
     <p>Most orders are small and a few are huge. Draw 30 orders and miss the big ones, and
       two things go wrong <em>at the same time</em>: your average comes out too low, and
-      your spread comes out too small — so you build a <b>narrow</b> range in the
-      <b>wrong place</b>.</p>
+      your spread comes out too small — so you build a narrow range in the
+      wrong place.</p>
     <p>Confidently wrong, and always in the same direction. On retail orders at n = 30 the
-      misses split <b>13.6% too low against 0.2% too high</b>. The mean and the spread of a
-      sample move together on skewed data — their correlation is <b>+0.87</b>.</p>
+      misses split 13.6% too low against 0.2% too high. The mean and the spread of a
+      sample move together on skewed data — their correlation is +0.87.</p>
     <p class="punch">A confidence interval on skewed money data is not just unreliable, it
       is <em>biased</em>. It understates. If you have ever been surprised by costs coming in
       above a forecast range, this is one of the mechanisms.</p>
 
     <h2>What to do about it</h2>
     <ul class="uses">
-      <li><b>Get more data than the rule of thumb says.</b> The same retail interval reaches
+      <li>Get more data than the rule of thumb says. The same retail interval reaches
         94.5% at n = 300. Skew is paid for in sample size.</li>
-      <li><b>Check the shape before you trust the range.</b> Mean far above median is the
+      <li>Check the shape before trusting the range. Mean far above median is the
         warning sign, and it takes one line to check.</li>
-      <li><b>Expect the miss to be on the low side</b> and say so when you present the
+      <li>Expect the miss to be on the low side, and say so when presenting the
         range. A stated asymmetry is worth more than a false symmetry.</li>
-      <li><b>Prefer methods that do not assume symmetry</b> — bootstrap intervals, or work
+      <li>Prefer methods that do not assume symmetry: bootstrap intervals, or work
         on a log scale — when the money is skewed and the decision is real.</li>
     </ul>
 

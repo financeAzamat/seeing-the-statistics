@@ -112,11 +112,11 @@ if offered != tested:
     fails.append(f"offered sizes {offered} != verified sizes {tested}")
 
 # ---- claims in the prose that quote a sample size must name a real button
-for m in re.finditer(r"Click <b>(?:n = )?(\d+)</b>", markup):
+for m in re.finditer(r"Click (?:<b>)?(?:n = )?(\d+)(?:</b>)?", markup):
     if int(m.group(1)) not in offered:
         fails.append(f"prose tells the reader to click n={m.group(1)}, which has no button")
 print("prose-referenced sample sizes all have buttons:",
-      all(int(m.group(1)) in offered for m in re.finditer(r"Click <b>(?:n = )?(\d+)</b>", markup)))
+      all(int(m.group(1)) in offered for m in re.finditer(r"Click (?:<b>)?(?:n = )?(\d+)(?:</b>)?", markup)))
 
 print("\n" + "=" * 60)
 if fails:

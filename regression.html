@@ -190,28 +190,28 @@ table.cov td.g { color: var(--accent); }
     <h1>Fitting a line, and what the fit is worth</h1>
     <p class="sub">R² is the most quoted number in analytics and the most misread.</p>
 
-    <p class="lede">A regression is one sentence: <b>give me an x and I will give you back a
-      y</b>. Give me the size of a diamond, I will give you a price. The line is the
+    <p class="lede">A regression is one sentence: give me an x and I will give you back a
+      y. Give me the size of a diamond, I will give you a price. The line is the
       sentence. R² is a claim about how much you should trust it — and on this page you can
       watch that claim be wrong twice.</p>
 
     <h2>Drag the line yourself</h2>
-    <p>The line has a handle at each end. <b>Drag either one</b> (or use the two sliders, if
+    <p>The line has a handle at each end. Drag either one (or use the two sliders, if
       you prefer a keyboard). Every point gets a thin vertical thread to the line — that is
-      the <b>error</b> for that point, the amount your line missed it by.</p>
+      the error for that point, the amount your line missed it by.</p>
     <p>Underneath, one number adds all those errors up. Try to make it as small as you can,
-      then press <b>best fit</b> — the exact answer, solved rather than nudged. You cannot
+      then press best fit — the exact answer, solved rather than nudged. You cannot
       beat it. That is what "least squares" means: of all the lines that could be drawn,
       exactly one makes that total smallest.</p>
 
     <h2>Why squares, and not just distances</h2>
     <p>Each error is <em>squared</em> before being added. Two reasons, both practical:
       squaring stops a miss of +50 cancelling a miss of −50, and it punishes one big miss
-      far harder than several small ones. Turn on <b>squares</b> and you see it literally —
+      far harder than several small ones. Turn on squares and you see it literally —
       each error drawn as a square whose area is what gets added up.</p>
 
     <h2>What R² actually is</h2>
-    <p>Start with a question: how wrong would you be if you had <b>no line at all</b> and
+    <p>Start with a question: how wrong would you be if you had no line at all and
       just guessed the average every time? That is the gold dashed line, and the errors from
       it are the total variation to be explained.</p>
     <div class="formula">R² = the share of that variation
@@ -219,7 +219,7 @@ table.cov td.g { color: var(--accent); }
     <p>The bar across the middle of the chart is exactly this: <b style="color:var(--accent)">blue</b>
       for what the line explained, <b style="color:var(--error)">red</b> for what is left
       over. R² is the blue share. Drag the line badly enough and R² goes
-      <b>negative</b> — which simply means your line is worse than having no line and using
+      negative — which simply means your line is worse than having no line and using
       the average.</p>
 
     <h2>Now the part that matters</h2>
@@ -238,23 +238,23 @@ table.cov td.g { color: var(--accent); }
 
     <h2>The bottom panel is how you check a fit</h2>
     <p>It plots the leftover error against x. If a line is a fair description of the data,
-      this panel should look like <b>featureless noise</b> — an even band, no bend, no
+      this panel should look like featureless noise — an even band, no bend, no
       widening. Anything you can see a shape in is the line getting something wrong.</p>
     <ul class="uses">
-      <li><b>Diamonds</b> — the band <b>bends</b>: the errors are positive at both ends and
+      <li>On diamonds the band bends: the errors are positive at both ends and
         negative in the middle, because price rises faster than in a straight line. And it
-        <b>fans out</b>: errors spread about 13 times wider for the big stones than the
+        fans out: errors spread about 13 times wider for the big stones than the
         small ones. A $12,000 prediction on a 2-carat stone is nearly worthless, and R²
         = 0.84 said nothing about it.</li>
-      <li><b>Geyser</b> — an even band, no bend, no fan. Yet look at the scatter itself:
+      <li>On the geyser, an even band, no bend, no fan. Yet look at the scatter itself:
         two separate blobs. Fit only the short eruptions and R² collapses to
-        <b>0.08</b>; only the long ones, <b>0.14</b>. The 0.81 is mostly the gap
+        0.08; only the long ones, 0.14. The 0.81 is mostly the gap
         between two kinds of eruption. It tells you which kind you had; it barely
         predicts within a kind.</li>
-      <li><b>Retail</b> — the lowest R² and the soundest picture: no bend, and a fan of only
+      <li>On retail orders, the lowest R² and the soundest picture: no bend, and a fan of only
         about 3× against the diamonds' 13×. Its errors are large but they are honest, and
         the slope is a number you could plan with — each extra item on an order is worth
-        about <b>£7</b>.</li>
+        about £7.</li>
     </ul>
 
     <h2>R² is not the useful number. The slope is.</h2>

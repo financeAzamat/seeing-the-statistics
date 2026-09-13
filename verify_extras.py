@@ -242,17 +242,17 @@ if m:
 else:
     fails.append("could not find the cut/clarity tally sentence in simpson.html")
 
-m = re.search(r"<b>([\d.]+)%</b> are", cls_html)
+m = re.search(r"(?:<b>)?([\d.]+)%(?:</b>)? are", cls_html)
 if m:
     claim("classify base rate", float(m.group(1)), base * 100, 0.006)
 m = re.search(r"→ accuracy ([\d.]+)%", cls_html)
 if m:
     claim("classify do-nothing accuracy", float(m.group(1)), (1 - base) * 100, 0.006)
-m = re.search(r"same non-answer scores <b>([\d.]+)%</b>", cls_html)
+m = re.search(r"same non-answer scores (?:<b>)?([\d.]+)%(?:</b>)?", cls_html)
 if m:
     claim("classify do-nothing at $15,000", float(m.group(1)),
           float((price <= 15000).mean()) * 100, 0.006)
-m = re.search(r"still misses <b>(\d+)%</b>", cls_html)
+m = re.search(r"still misses (?:<b>)?(\d+)%(?:</b>)?", cls_html)
 if m:
     claim("classify miss rate at best accuracy",
           float(m.group(1)), (1 - b_acc["rec"]) * 100, 0.6)
@@ -260,7 +260,7 @@ m = re.search(r"([\d.]+)% to ([\d.]+)%", cls_html)
 if m:
     claim("classify best-acc accuracy", float(m.group(1)), b_acc["acc"] * 100, 0.006)
     claim("classify best-F1 accuracy", float(m.group(2)), b_f1["acc"] * 100, 0.006)
-m = re.search(r"recall jumps from (\d+)% to <b>(\d+)%</b>", cls_html)
+m = re.search(r"recall jumps from (\d+)% to (?:<b>)?(\d+)%(?:</b>)?", cls_html)
 if m:
     claim("classify best-acc recall", float(m.group(1)), b_acc["rec"] * 100, 0.6)
     claim("classify best-F1 recall", float(m.group(2)), b_f1["rec"] * 100, 0.6)

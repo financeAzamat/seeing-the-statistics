@@ -168,7 +168,7 @@ table.cov td.g { color: var(--accent); }
 
     <p class="lede">Module 7 ended on an uncomfortable note: the two datasets with the
       highest R² were the two least worth trusting. This page is how you would have
-      caught that. Four checks, four panels, and a <b>pass or fail on each</b> — and
+      caught that. Four checks, four panels, and a pass or fail on each — and
       then the repair.</p>
 
     <h2>The four questions</h2>
@@ -193,15 +193,15 @@ table.cov td.g { color: var(--accent); }
 
     <h2>Watch a fit get repaired</h2>
     <ol class="try">
-      <li>Start on <b>diamonds</b>, transform <b>none</b>. Three of the four panels fail.
+      <li>Start on diamonds with no transform. Three of the four panels fail.
         R² is 0.84 and the fit is unusable at the top end.</li>
-      <li>Switch to <b>log both</b>. The fan collapses from <b>13.4</b> to <b>1.6</b>, the
-        tails come in from a kurtosis of <b>7.2</b> to <b>0.5</b>, and R² <em>rises</em>
-        from 0.84 to <b>0.93</b>.</li>
-      <li>Now try <b>log y</b> on its own — the half-measure. The fan improves, and the
-        bend gets <b>worse</b>: 0.82 → 1.78. The wrong transform is not a smaller
+      <li>Switch to log both. The fan collapses from 13.4 to 1.6, the
+        tails come in from a kurtosis of 7.2 to 0.5, and R² <em>rises</em>
+        from 0.84 to 0.93.</li>
+      <li>Now try log y on its own, the half-measure. The fan improves, and the
+        bend gets worse: 0.82 → 1.78. The wrong transform is not a smaller
         version of the right one.</li>
-      <li>Switch to <b>geyser</b>. Try every transform. Nothing helps, because what it
+      <li>Switch to the geyser. Try every transform. Nothing helps, because what it
         breaks is not fixable by rescaling.</li>
     </ol>
 
@@ -211,11 +211,11 @@ table.cov td.g { color: var(--accent); }
       original shape was simply wrong.</p>
 
     <h2>The one you cannot transform away</h2>
-    <p>The geyser breaks <b>independence</b>. Consecutive errors correlate at
-      <b>−0.28</b> (Durbin-Watson 2.54, where 2 means no autocorrelation) — negative,
+    <p>The geyser breaks independence. Consecutive errors correlate at
+      −0.28 (Durbin-Watson 2.54, where 2 means no autocorrelation) — negative,
       which means a bigger-than-expected wait tends to be followed by a smaller one.</p>
-    <p>The reason is physical, and checkable: Old Faithful alternates. <b>67% of
-      consecutive eruptions switch kind</b>, short to long or long to short, against
+    <p>The reason is physical, and checkable: Old Faithful alternates. 67% of
+      consecutive eruptions switch kind, short to long or long to short, against
       50% for a coin flip. So the previous eruption tells you something the model never
       sees.</p>
     <p class="punch warn">No amount of rescaling fixes a missing variable. The repair here
@@ -223,20 +223,20 @@ table.cov td.g { color: var(--accent); }
       unit for this one.</p>
 
     <h2>The check you often cannot run</h2>
-    <p>Independence only means something if the rows have a <b>real order</b>. The
+    <p>Independence only means something if the rows have a real order. The
       geyser's do: 272 eruptions in the sequence they happened. The diamonds are a
       cross-section — stones that exist simultaneously — and the retail points are a
       random sample, which destroys order by construction.</p>
-    <p>So for those two the page <b>refuses to score that panel</b> and says why, rather
+    <p>So for those two the page refuses to score that panel and says why, rather
       than printing a lag-1 figure that would only be measuring the order of a file.
       A diagnostic you cannot run is not a diagnostic you passed.</p>
 
     <h2>And one point can move everything</h2>
-    <p>The panel also rings the <b>single most influential point</b> — the one with the
+    <p>The panel also rings the single most influential point, the one with the
       largest Cook's distance, which combines being unusual in x with being badly
-      predicted. Press <b>drop it</b> and watch the slope jump.</p>
+      predicted. Press drop it and watch the slope jump.</p>
     <p>On the retail orders, removing one invoice out of 800 moves the slope by
-      <b>5.3%</b>. That is not a reason to delete it: the right response is to find out
+      5.3%. That is not a reason to delete it: the right response is to find out
       what it was. But it is a reason to know it is there before you quote the number to
       three decimals.</p>
 
