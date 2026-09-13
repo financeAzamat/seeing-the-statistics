@@ -27,8 +27,6 @@ HERE = Path(__file__).resolve().parent
 ENFORCED = {"simpson.html", "ru/simpson.html", "index.html", "ru/index.html"}
 
 EN_BANNED = [
-    (r"\bnot [A-Za-z]+[.,;]\s+[A-Z]",
-     "'not X. Y' — state X, then state Y in two sentences"),
     (r"\bis not a [a-z ]+; it is\b|\bisn't [a-z ]+, it's\b|\bnot [a-z]+, but\b",
      "'not X, it's Y' construction"),
     (r"\bthe takeaway\b|\bkey insight\b|\bimportantly\b|\bcritically\b"
@@ -45,6 +43,34 @@ EN_BANNED = [
     (r"\bmay potentially\b|\bcould possibly\b|\bmight perhaps\b",
      "stacked hedges — use one qualifier"),
 ]
+
+
+def negate_then_assert(txt: str) -> list[str]:
+    """The 'Not misleading. Backwards.' move: a SHORT sentence whose whole point
+    is a negation, followed by a SHORT sentence supplying the positive.
+
+    A plain regex for `not <word>. <Capital>` cannot express this and produced
+    three false positives out of seven — it flagged trailing qualifiers such as
+    "computed from the draws actually made on screen, not scripted." where the
+    negation is an aside at the end of a long sentence, not the sentence's
+    purpose. The discriminator is LENGTH: the rhetorical move needs both halves
+    short, because its effect comes from the clipped pair.
+    """
+    out = []
+    sents = [s.strip() for s in re.split(r"(?<=[.!?])\s+", txt) if s.strip()]
+    for i, s in enumerate(sents[:-1]):
+        words = s.split()
+        if len(words) > 8:
+            continue                      # a long sentence is not the move
+        if not re.search(r"\b(not|never|no)\b", s, re.I):
+            continue
+        tail = " ".join(words[-3:]).lower()
+        if not re.search(r"\b(not|never|no)\b", tail):
+            continue                      # negation must be the sentence's point
+        nxt = sents[i + 1].split()
+        if len(nxt) <= 8:
+            out.append(f"{s} {sents[i + 1]}"[:60])
+    return out
 
 RU_BANNED = [
     (r"Не [а-яё]+\.\s+[А-ЯЁ]", "«Не X. Y» — сформулируйте X, затем Y"),
@@ -94,6 +120,8 @@ for name, path in pages():
     pats = RU_BANNED if name.startswith("ru/") else EN_BANNED
     hits = [(why, m.group(0).strip()[:46])
             for pat, why in pats for m in re.finditer(pat, txt)]
+    for pair in negate_then_assert(txt):
+        hits.append(("'not X. Y' — state X, then state Y in two sentences", pair))
     # Bold is counted in PROSE only. The .note and .tech blocks are fenced
     # reference material where a bold span is a label (`Coverage:`, `Data:`) and
     # therefore structure rather than emphasis. A banned construction is wrong
