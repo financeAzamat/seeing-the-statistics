@@ -20,16 +20,18 @@
 
   <section>
     <div class="cap">UDJ · Extra — <span class="on">Simpson's Paradox</span></div>
-    <h1>When the average points the wrong way</h1>
-    <p class="sub">Not misleading. Backwards.</p>
+    <h1>Every size band contradicts the average</h1>
+    <p class="sub">The aggregate reverses the direction all five groups agree on.</p>
 
-    <p class="lede">Every number so far has hidden something. This one does worse: it
-      gives you <b>the opposite of the truth</b>, and it does so on real diamonds, in a
-      dataset a jeweller would recognise.</p>
+    <p class="lede">The diamonds reference table holds 53,940 stones, each carrying a
+      colour grade from J to D and a retail price. Average the price at each grade and
+      the worst colour comes out $2,154 above the best. Hold weight still and the
+      ordering reverses in all five size bands. Both results are computed from the same
+      53,940 records.</p>
 
     <h2>The claim the data appears to make</h2>
-    <p>Diamonds are graded for colour on a letter scale — J is the worst, D the best.
-      Average the price of every stone at each grade and you get this:</p>
+    <p>Colour is graded on a letter scale, J worst to D best. Averaging the price of
+      every stone within each grade gives this:</p>
     <table class="cov">
       <thead><tr><th>Colour grade</th><th>Mean price</th><th>Mean size</th></tr></thead>
       <tbody>
@@ -37,12 +39,14 @@
         <tr><td>D <em>(best)</em></td><td class="g">$3,170</td><td>0.658 ct</td></tr>
       </tbody>
     </table>
-    <p>Read literally: <b>the worst colour costs 68% more than the best.</b> Buy the
-      ugliest stones, they're the valuable ones.</p>
+    <p>Read as a statement about colour, that says the worst colour costs 68% more than
+      the best.</p>
 
     <h2>Now hold the size still</h2>
-    <p>The right-hand column is the tell. Top-colour stones are <b>little</b> — barely
-      half the weight. Compare like with like and the ordering snaps back:</p>
+    <p>The mean size column carries the explanation. Stones graded D average 0.658
+      carats; stones graded J average 1.162 carats, nearly twice the weight. The two
+      groups are not comparable on the variable that sets price. Comparing within a
+      single size band removes that difference:</p>
     <table class="cov">
       <thead><tr><th>Size band</th><th>J <em>(worst)</em></th><th>D <em>(best)</em></th></tr></thead>
       <tbody>
@@ -53,48 +57,44 @@
         <tr><td>1.6–5.1 ct</td><td>$12,436</td><td class="g">$14,154</td></tr>
       </tbody>
     </table>
-    <p class="punch warn">In <b>every single size band</b>, the better colour costs more.
-      Five out of five. The aggregate says the exact opposite of all five groups it is
-      made of.</p>
+    <p class="punch warn">In all five size bands the better colour costs more. The
+      aggregate reverses the direction every one of its own groups agrees on.</p>
 
     <h2>Why it happens</h2>
-    <p>Size dominates price, and size is <b>tangled up with</b> grade. A big rough stone
-      is rarely cut down to chase top colour — the weight is worth more than the letter.
-      So the top grades fill up with small stones, and the average price follows the
-      size rather than the grade.</p>
+    <p>Weight sets price, and weight is entangled with grade. A large rough stone is
+      rarely cut down to reach a higher colour, because the carats are worth more than
+      the letter. The top grades therefore fill with small stones, and the average price
+      tracks weight rather than colour. Averaging over the whole table measures weight
+      while appearing to measure colour.</p>
     <div class="formula">the confound: grade → size → price
                   ↘_______↗</div>
-    <p>Average over everything and you measure the wrong arrow. The paradox is not a
-      statistical curiosity; it is what happens when you average across a variable that
-      is doing the real work.</p>
+    <p>This happens whenever an average is taken across a variable that is doing the
+      work.</p>
 
     <h2>Try it yourself</h2>
     <ol class="try">
-      <li>Leave the band on <b>all sizes</b>. The price bars slope <em>down</em> as the
-        grade improves. That is the aggregate, and it is backwards.</li>
-      <li>Click any single <b>size band</b>. Watch the bars flip and climb. Same data,
-        same grades — one variable held still.</li>
-      <li>Look at the <b>size</b> panel while you do it. That downward slope is the whole
-        mechanism, sitting in plain view.</li>
-      <li>Switch to <b>cut</b> and <b>clarity</b>. Both reverse too — 4 of 5 bands and 3
-        of 3. It is not a quirk of one grading.</li>
+      <li>Leave the band on all sizes. The price bars slope down as the grade improves.
+        That is the aggregate.</li>
+      <li>Select any single size band. The bars flip and climb. Same stones, same
+        grades, one variable held still.</li>
+      <li>Watch the size panel while you do it. Its downward slope is the mechanism.</li>
+      <li>Switch to cut and clarity. Both reverse too — 4 of 5 bands and 3 of 3. The
+        effect is not a quirk of one grading.</li>
     </ol>
 
-    <h2>Where this bites in real work</h2>
+    <h2>Where this appears in practice</h2>
     <ul class="uses">
-      <li><b>"Our cheapest channel has the best margin."</b> It may just sell the
-        easiest products.</li>
-      <li><b>"Treatment A has better outcomes."</b> If A was given to healthier
-        patients, the aggregate lies in exactly this shape — the original Simpson's
-        example was medical.</li>
-      <li><b>"This region underperforms."</b> Check the mix before the verdict; region
-        and product are rarely independent.</li>
-      <li><b>"Hiring rates differ by department."</b> The famous Berkeley admissions
-        case is this table with different labels.</li>
+      <li>A channel with the best margin may simply sell the easiest products.</li>
+      <li>A treatment with better outcomes may have been given to healthier patients.
+        Simpson's original example was medical.</li>
+      <li>A region that appears to underperform may carry a different product mix.
+        Region and product are rarely independent.</li>
+      <li>Admission rates that differ by department are this same table with different
+        labels. That is the Berkeley case.</li>
     </ul>
-    <p class="punch">Any average taken across a mixture is a claim about the mixture as
-      much as about the thing you meant to measure. Before quoting one, ask what else
-      changes between the groups.</p>
+    <p class="punch">An average across a mixture is a claim about the mixture as much as
+      about the thing being measured. Ask what else differs between the groups before
+      quoting one.</p>
 
     <div class="tech">
       <h2>In exam language</h2>
@@ -117,9 +117,9 @@
 
     <div class="note">
       Every average on this page is computed from all 53,940 records by
-      <code>data/build_extras.py</code>; the scatter shows a random 900 of them.
-      <code>verify_extras.py</code> re-derives every figure and asserts the reversal
-      independently.
+      <code>data/build_extras.py</code>. The scatter draws a random 900 of them, so a
+      bar will not equal the points above it. <code>verify_extras.py</code> re-derives
+      every figure from the source CSV and confirms the reversal independently.
     </div>
   </section>
 
