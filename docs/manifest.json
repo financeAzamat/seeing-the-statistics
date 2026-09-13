@@ -76,9 +76,9 @@
   },
   {
    "locale": "ru",
-   "pages": 2,
+   "pages": 3,
    "entries": 11,
-   "assets": 9,
+   "assets": 11,
    "order": [
     {
      "order": 1,
@@ -149,6 +149,6 @@
    ]
   }
  ],
- "bytes": 708020,
- "files": 45
+ "bytes": 756309,
+ "files": 48
 }

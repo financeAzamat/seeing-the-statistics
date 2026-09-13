@@ -102,6 +102,13 @@
      saying $5 324 — the same number formatted two ways on one screen. */
   const LOC = (window.UDJ_STRINGS && window.UDJ_STRINGS.__locale) || 'en-GB';
   const money = v => '$' + Math.round(v).toLocaleString(LOC);
+  /* toFixed always emits a decimal POINT regardless of locale, so carat values
+     printed "1.16 ct" beside Russian prose that writes 1,16. toLocaleString with
+     fixed fraction digits gets the separator and the grouping right. */
+  const dec = (v, dp) => Number(v).toLocaleString(LOC, {
+    minimumFractionDigits: dp, maximumFractionDigits: dp,
+  });
+
 
   function paint() {
     if (!A) return;
@@ -141,7 +148,7 @@
           ctx.strokeStyle = 'rgba(150,178,225,.07)';
           ctx.beginPath(); ctx.moveTo(sx(v) + .5, y0); ctx.lineTo(sx(v) + .5, y1); ctx.stroke();
           ctx.fillStyle = 'rgba(143,162,196,.8)';
-          ctx.fillText(v.toFixed(1) + ' ct', sx(v), y1 + 5);
+          ctx.fillText(dec(v, 1) + ' ct', sx(v), y1 + 5);
         }
         ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         for (let v = ys; v <= ym; v += ys) {
@@ -221,7 +228,7 @@
     K.panel(c2x0, bTop, c2x1, bBot, TR('mean size · all sizes'), TR('THE CONFOUND'), P.GOLD,
       TR('top grades are small stones'),
       (x0, y0, x1, y1) => bars(x0, y0, x1, y1, A.size, T.size, T.count, p, n, T.order,
-                               v => v.toFixed(2) + ' ct', P.GOLD));
+                               v => dec(v, 2) + ' ct', P.GOLD));
 
     readouts(T, dirNow);
   }
@@ -328,8 +335,8 @@
 
     $('r-scope').textContent = lo ? TR('{0}–{1} ct', lo.lo, lo.hi) : TR('all sizes');
     $('r-n').textContent = T.shown.toLocaleString(LOC);
-    $('r-cw').textContent = g.groups[0].mean_carat.toFixed(3) + ' ct';
-    $('r-cb').textContent = g.groups[g.groups.length - 1].mean_carat.toFixed(3) + ' ct';
+    $('r-cw').textContent = dec(g.groups[0].mean_carat, 3) + ' ct';
+    $('r-cb').textContent = dec(g.groups[g.groups.length - 1].mean_carat, 3) + ' ct';
     $('r-bands').textContent = TR('{0} of {1}', g.bands_correct, g.bands_tested);
     $('r-bands').className = 'v ' + (g.bands_correct === g.bands_tested ? 'on' : 'gold');
     $('r-agg').textContent = g.agg_reversed ? TR('REVERSED') : TR('as expected');
@@ -346,8 +353,8 @@
            TR(g.label).toLowerCase(),
            money(g.groups[g.groups.length - 1].mean_price),
            money(g.groups[0].mean_price),
-           g.groups[g.groups.length - 1].mean_carat.toFixed(2),
-           g.groups[0].mean_carat.toFixed(2));
+           dec(g.groups[g.groups.length - 1].mean_carat, 2),
+           dec(g.groups[0].mean_carat, 2));
   }
 
   function provenance() {

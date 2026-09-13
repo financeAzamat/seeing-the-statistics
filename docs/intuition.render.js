@@ -28,6 +28,18 @@
   var K = DR.kit(ctx), P = DR.PAL;
   var prov = document.getElementById('prov'), live = document.getElementById('live');
 
+  /* ---- TR: translation lookup with positional slots. The KEY is the English
+     format string, so a page with no strings file falls back to correct English
+     instead of showing a key. */
+  function TR(k) {
+    var m = window.UDJ_STRINGS;
+    var s = (m && m[k]) || k;
+    for (var i = 1; i < arguments.length; i++) {
+      s = s.replace('{' + (i - 1) + '}', arguments[i]);
+    }
+    return s;
+  }
+
   var reduce = !!(window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
@@ -40,12 +52,26 @@
   var tReveal = new M.Tween(0, 0, 0.75);   // 0 = unanswered, 1 = fully revealed
   var tIn = new M.Tween(0, 1, 0.55);       // per-question entrance
 
+  /* Digit grouping follows the page's locale, declared by the strings
+     table. Hard-coding en-GB printed 19,773 beside Russian prose. */
+  var UDJ_LOC = (window.UDJ_STRINGS && window.UDJ_STRINGS.__locale)
+                || 'en-GB';
+
   function q() { return Q[qi] || Q[0]; }
   function answered(i) { return given[i] >= 0; }
   function correct(i) { return given[i] === Q[i].answer; }
 
+  /* toFixed always emits a decimal POINT, whatever the locale, so the canvas
+     printed "27.3%" beside Russian prose that writes 27,3 %. toLocaleString with
+     fixed fraction digits gets both the separator and the grouping right. */
+  function dec(v, dp) {
+    return Number(v).toLocaleString(UDJ_LOC, {
+      minimumFractionDigits: dp, maximumFractionDigits: dp,
+    });
+  }
+
   function fmtV(qq, v) {
-    var s = qq.dp === 0 ? Math.round(v).toLocaleString('en-GB') : v.toFixed(qq.dp);
+    var s = qq.dp === 0 ? Math.round(v).toLocaleString(UDJ_LOC) : dec(v, qq.dp);
     return qq.unit + s + qq.after;
   }
 
@@ -75,16 +101,16 @@
   function panelQuestion(b) {
     var qq = q(), done = answered(qi);
     K.panel(b.pad, b.y1, W - b.pad * 2, b.h1,
-            'QUESTION ' + (qi + 1) + ' OF ' + Q.length,
-            done ? (correct(qi) ? 'RIGHT' : 'MISSED') : 'YOUR CALL',
+            TR('QUESTION {0} OF {1}', qi + 1, Q.length),
+            done ? (correct(qi) ? TR('RIGHT') : TR('MISSED')) : TR('YOUR CALL'),
             done ? (correct(qi) ? P.CYAN : P.RED) : P.GOLD,
             null, null);
 
     var top = b.y1 + (phone ? 40 : 48);
     var wrapW = (b.R - b.L);
-    var ly = wrapText(qq.prompt, b.L, top, wrapW, phone ? 12 : 14.5,
+    var ly = wrapText(TR(qq.prompt), b.L, top, wrapW, phone ? 12 : 14.5,
                       'rgba(226,238,252,0.96)', 600);
-    ly = wrapText(qq.hint, b.L, ly + 4, wrapW, phone ? 10 : 11.5,
+    ly = wrapText(TR(qq.hint), b.L, ly + 4, wrapW, phone ? 10 : 11.5,
                   'rgba(150,180,220,0.72)', 400);
 
     // the number line
@@ -149,13 +175,13 @@
         ctx.moveTo(mx, gy); ctx.lineTo(gapEnd, gy); ctx.stroke();
         ctx.restore();
         var off = Math.abs(qq.truth - qq.choices[given[qi]]);
-        K.tracked('out by ' + fmtV(qq, off), (mx + gapEnd) / 2,
+        K.tracked(TR('out by {0}', fmtV(qq, off)), (mx + gapEnd) / 2,
                   gy + (phone ? 12 : 14), phone ? 8 : 9.5,
                   'rgba(255,160,150,0.95)', 0.6, 'center');
       }
       /* pill() takes the RIGHT edge and applies its own tracking, so measuring
          with measureText alone under-reports the width; leave room for it. */
-      var lab = 'MEASURED  ' + fmtV(qq, qq.truth);
+      var lab = TR('MEASURED  {0}', fmtV(qq, qq.truth));
       ctx.font = '700 9px ' + K.MONO;
       var pw = ctx.measureText(lab).width + 3 * (lab.length - 1) + 14;
       K.pill(lab, Math.max(b.L + pw, Math.min(b.R, tx + pw / 2)),
@@ -169,14 +195,14 @@
     for (var i = 0; i < Q.length; i++) {
       if (answered(i)) { nDone++; if (correct(i)) nRight++; }
     }
-    K.panel(b.pad, b.y2, W - b.pad * 2, b.h2, 'YOUR SCORECARD',
+    K.panel(b.pad, b.y2, W - b.pad * 2, b.h2, TR('YOUR SCORECARD'),
             nDone ? nRight + ' / ' + nDone : null,
             nRight * 2 >= nDone ? P.CYAN : P.RED,
             nDone < Q.length
-              ? 'answer all six, then look for a pattern — several misses on the '
-                + 'same side is a bias, not bad luck'
-              : 'misses on the same side of the truth are systematic, and a '
-                + 'systematic error is one you can correct for',
+              ? TR('answer all six, then look for a pattern — several misses on '
+                   + 'the same side is a bias, not bad luck')
+              : TR('misses on the same side of the truth are systematic, and a '
+                   + 'systematic error is one you can correct for'),
             null);
 
     var top = b.y2 + (phone ? 42 : 52), bot = b.y2 + b.h2 - (phone ? 10 : 14);
@@ -212,7 +238,7 @@
                   correct(i) ? 'rgba(140,225,245,0.85)' : 'rgba(255,160,150,0.9)',
                   0.6, 'right');
       } else {
-        K.tracked('not answered', b.R, y + 3, phone ? 7.5 : 9,
+        K.tracked(TR('not answered'), b.R, y + 3, phone ? 7.5 : 9,
                   'rgba(150,180,220,0.32)', 0.6, 'right');
       }
     }
@@ -222,20 +248,21 @@
   function panelWhy(b) {
     var qq = q(), done = answered(qi);
     K.panel(b.pad, b.y3, W - b.pad * 2, b.h3,
-            done ? 'WHY' : 'WHY — ANSWER FIRST', null, null, null, null);
+            done ? TR('WHY') : TR('WHY — ANSWER FIRST'), null, null, null, null);
     var top = b.y3 + (phone ? 38 : 46);
     if (!done) {
-      wrapText('Commit to an answer above before reading this. An intuition you '
-               + 'never stated is an intuition you can always claim you never had.',
+      wrapText(TR('Commit to an answer above before reading this. An intuition '
+                  + 'you never stated is an intuition you can always claim you '
+                  + 'never had.'),
                b.L, top, b.R - b.L, phone ? 10.5 : 12,
                'rgba(150,180,220,0.55)', 400);
       return;
     }
-    var y = wrapText(qq.bias, b.L, top, b.R - b.L, phone ? 11 : 12.5,
+    var y = wrapText(TR(qq.bias), b.L, top, b.R - b.L, phone ? 11 : 12.5,
                      'rgba(255,205,140,0.95)', 600);
-    y = wrapText(qq.why, b.L, y + 3, b.R - b.L, phone ? 10.5 : 12,
+    y = wrapText(TR(qq.why), b.L, y + 3, b.R - b.L, phone ? 10.5 : 12,
                  'rgba(210,226,245,0.88)', 400);
-    wrapText('Worked through in ' + qq.moduleLabel + '.', b.L, y + 3,
+    wrapText(TR('Worked through in {0}.', TR(qq.moduleLabel)), b.L, y + 3,
              b.R - b.L, phone ? 10 : 11, 'rgba(140,225,245,0.8)', 500);
   }
 

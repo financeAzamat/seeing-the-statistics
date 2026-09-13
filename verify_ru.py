@@ -110,11 +110,44 @@ print("=" * 74)
 # than appearing as literals, so they are legitimate non-literal keys. Keys
 # beginning `__` are directives to the renderer (e.g. __locale), not strings.
 extra = [k for k in table if k not in keys and not k.startswith("__")]
-runtime_ok = set()
-for js in (HERE / "simpson.js",):
-    if js.exists():
-        blob = js.read_text(encoding="utf-8")
-        runtime_ok |= {k for k in extra if k in blob}
+
+
+def data_strings() -> set[str]:
+    """Every string value in every shipped data file.
+
+    Two things this must get right. It scans ALL data files rather than a named
+    one, so translating another page does not require editing this check. And it
+    compares against PARSED values, because a key containing a double quote is
+    escaped in the JSON source — a raw substring match reports every such key as
+    an orphan, which it did for all six quiz questions.
+    """
+    out: set[str] = set()
+
+    def walk(v):
+        if isinstance(v, str):
+            out.add(v)
+        elif isinstance(v, dict):
+            for x in v.values():
+                walk(x)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x)
+
+    for js in sorted(HERE.glob("*.js")):
+        if js.name.endswith(".render.js") or js.name in (
+                "draw.js", "motion.js", "stats.js", "nav.js"):
+            continue
+        txt = js.read_text(encoding="utf-8")
+        try:
+            i = min(k for k in (txt.find("["), txt.find("{")) if k >= 0)
+            j = max(txt.rfind("]"), txt.rfind("}"))
+            walk(json.loads(txt[i:j + 1]))
+        except Exception:
+            continue          # not a plain JSON payload; nothing to harvest
+    return out
+
+
+runtime_ok = {k for k in extra if k in data_strings()}
 orphans = [k for k in extra if k not in runtime_ok]
 print(f"  {len(extra)} entries not literal keys; {len(runtime_ok)} come from a "
       f"data file, {len(orphans)} orphaned")
@@ -154,6 +187,26 @@ for page in sorted(RU.glob("*.html")):
     if pts:
         fails.append(f"ru/{page.name} quotes {pts[:4]} with a decimal point; "
                      f"Russian uses a comma")
+
+print("\n" + "=" * 74)
+print("6. NUMBER FORMATTING IN THE RENDERERS")
+print("=" * 74)
+# A translated renderer must not format a displayed number with toFixed():
+# toFixed always emits a decimal POINT regardless of locale, so the canvas
+# printed "27.3%" and "1.16 ct" next to Russian prose written with a comma. The
+# prose check above cannot see canvas text, so this is checked in the code.
+for p in RENDERERS:
+    code = re.sub(r"/\*.*?\*/", " ", p.read_text(encoding="utf-8"), flags=re.S)
+    code = re.sub(r"(?m)//[^\n]*$", " ", code)
+    bare = re.findall(r"\.toFixed\(", code)
+    hard = "toLocaleString('en-GB')" in code or 'toLocaleString("en-GB")' in code
+    print(f"  {p.name:<26} bare .toFixed(): {len(bare)}   hard-coded en-GB: "
+          f"{'yes' if hard else 'no'}")
+    if bare:
+        fails.append(f"{p.name} formats {len(bare)} number(s) with .toFixed(), which "
+                     f"always emits a decimal point — use a locale-aware formatter")
+    if hard:
+        fails.append(f"{p.name} hard-codes the en-GB locale for digit grouping")
 
 print("\n" + "=" * 74)
 if fails:
