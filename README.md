@@ -70,6 +70,22 @@ the checks that run the shipped JavaScript outside a browser.
     # serve locally
     python3 -m http.server 8000 --bind 127.0.0.1
 
+## Publishing a change
+
+One script, runnable from any directory — it cd's to its own location first:
+
+    ./publish.sh "what changed"          # rebuild, check everything, push
+    ./publish.sh --fast "what changed"   # skip the figure checks (~1 min faster)
+    ./publish.sh --dry                   # rebuild and check, push nothing
+
+It **refuses to push if any check fails**. The premise here is that no published
+figure goes out unverified, so a failing check has to stop the publish rather
+than warn about it.
+
+It also commits with a GitHub noreply address rather than whatever is in the
+global git config, so a work identity cannot end up in a public history by
+accident. Override with `GIT_PUBLISH_EMAIL` / `GIT_PUBLISH_NAME`.
+
 ## Design notes
 
 - **Measure first.** No claim is written until a `data/measure_*.py` script shows
