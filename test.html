@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>p-values and hypothesis tests — UDJ Module 6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="nav.css">
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--paper); color: var(--ink); font-family: var(--font-text);
+  font-size: var(--body); line-height: var(--lh-body); -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(1100px 700px at 12% -10%, rgba(150,142,224,.13), transparent 60%),
+    radial-gradient(900px 600px at 100% 105%, rgba(255,107,98,.05), transparent 62%);
+}
+.wrap {
+  position: relative; z-index: 1; max-width: var(--max-width); margin: 0 auto;
+  padding: var(--section-v) var(--gutter) var(--space-m);
+  display: grid; grid-template-columns: minmax(300px, 29rem) 1fr;
+  gap: var(--space-m); align-items: start;
+}
+@media (max-width: 1080px) { .wrap { grid-template-columns: 1fr; padding-top: var(--space-m); } }
+
+.cap { font-size: var(--caption); letter-spacing: var(--tracking-caption); text-transform: uppercase; color: var(--muted-2); font-weight: 600; }
+.cap .on { color: var(--accent); }
+h1 {
+  font-family: var(--font-display); font-size: var(--h1); line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight); font-weight: 700; color: var(--ink-2);
+  margin: var(--space-s) 0 var(--space-s);
+}
+@media (max-width: 640px) { h1 { font-size: var(--h2); } }
+h2 {
+  font-family: var(--font-display); font-size: var(--h5); line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight); font-weight: 600; color: var(--ink-2);
+  margin: var(--space-m) 0 var(--space-xs);
+}
+.lede { font-size: var(--lede); color: var(--ink); margin: 0 0 var(--space-s); }
+.lede b { color: var(--accent); font-weight: 600; }
+p { margin: 0 0 var(--space-s); color: var(--muted); }
+p b, li b { color: var(--ink); font-weight: 600; }
+a { color: var(--link); text-decoration: none; border-bottom: 1px solid rgba(143,199,255,.33); }
+a:hover { border-bottom-color: var(--link); }
+.sub {
+  font-family: var(--font-display); font-size: var(--h4); line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight); color: var(--accent); font-weight: 500;
+  margin: calc(var(--space-s) * -0.5) 0 var(--space-s);
+}
+.punch {
+  font-size: var(--h5); color: var(--ink-2); font-weight: 500;
+  border-left: 2px solid var(--gold); padding-left: .85rem; margin: var(--space-s) 0;
+}
+.punch.warn { border-left-color: var(--error); }
+.try { margin: var(--space-s) 0 0; padding: 0; list-style: none; counter-reset: t; }
+.try li {
+  position: relative; padding: .55rem 0 .55rem 2.3rem; border-top: 1px solid var(--line);
+  color: var(--muted); font-size: var(--small); counter-increment: t;
+}
+.try li:last-child { border-bottom: 1px solid var(--line); }
+.try li::before {
+  content: counter(t); position: absolute; left: 0; top: .62rem;
+  font-family: var(--font-mono); font-size: var(--caption); color: var(--paper);
+  background: var(--accent); width: 1.35rem; height: 1.35rem; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 700;
+}
+.try b { color: var(--ink-2); }
+.uses { margin: var(--space-s) 0; padding: 0; list-style: none; }
+.uses li { padding: .42rem 0 .42rem 1.1rem; position: relative; color: var(--muted); font-size: var(--small); }
+.uses li::before {
+  content: ""; position: absolute; left: 0; top: 1.05rem;
+  width: 4px; height: 4px; border-radius: 50%; background: var(--accent);
+}
+.tech {
+  margin-top: var(--space-m); border: 1px solid var(--line);
+  border-top: 2px solid var(--accent-deep); padding: var(--space-s);
+  background: rgba(12,18,31,.4);
+}
+.tech h2 { margin-top: 0; }
+.tech dl { margin: var(--space-s) 0 0; font-size: var(--small); }
+.tech dt { font-family: var(--font-mono); font-size: var(--micro); color: var(--accent); margin-top: .55rem; }
+.tech dd { margin: .1rem 0 0; color: var(--muted); }
+
+.stage { position: relative; }
+.frame {
+  position: relative; border: 1px solid var(--line); border-radius: 2px; overflow: hidden;
+  background: linear-gradient(180deg, rgba(12,18,31,.55), rgba(5,7,13,.55));
+}
+canvas { display: block; width: 100%; height: 62vh; min-height: 480px; }
+@media (max-width: 1080px) { canvas { height: 68vh; } }
+.tagtop, .tagbot {
+  position: absolute; left: 14px; right: 14px;
+  font-size: var(--caption); letter-spacing: var(--tracking-caption);
+  text-transform: uppercase; font-weight: 600; pointer-events: none;
+}
+.tagtop { top: 12px; color: var(--muted); }
+.tagbot { top: 45.5%; color: var(--accent); }
+.tagtop em, .tagbot em { font-style: normal; color: var(--muted-2); font-weight: 500; }
+
+.bar {
+  display: flex; flex-wrap: wrap; gap: var(--space-s) var(--gutter); align-items: center;
+  padding: var(--space-s) 0; border-bottom: 1px solid var(--line); margin-bottom: var(--space-s);
+}
+.grp { display: flex; align-items: center; gap: .5rem; }
+button {
+  font-family: var(--font-mono); font-size: var(--micro); letter-spacing: .02em;
+  color: var(--muted); background: transparent; border: 1px solid var(--line);
+  border-radius: 2px; padding: .3rem .58rem; cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+button:hover { color: var(--ink); border-color: rgba(150,178,225,.34); }
+button[aria-pressed="true"] { color: var(--paper); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+button.act { color: var(--accent); border-color: var(--accent-10); background: var(--accent-05); }
+button.act:hover { border-color: var(--accent); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.hint { margin: var(--space-s) 0 0; font-size: var(--small); color: var(--muted); border-left: 2px solid var(--accent); padding-left: .8rem; }
+.verdict {
+  margin-top: var(--space-s); border: 1px solid var(--line);
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--line);
+}
+@media (max-width: 620px) { .verdict { grid-template-columns: 1fr; } }
+.vc { background: var(--paper); padding: .8rem; text-align: center; }
+.vc .k { display: block; font-size: var(--caption); letter-spacing: var(--tracking-caption); text-transform: uppercase; color: var(--muted-2); font-weight: 600; }
+.vc .n { display: block; font-family: var(--font-mono); font-size: 1.6rem; font-variant-numeric: tabular-nums; margin-top: .3rem; line-height: 1.05; }
+.vc .s { display: block; font-size: var(--caption); color: var(--muted-2); margin-top: .3rem; font-family: var(--font-mono); }
+.vc.truth .n { color: var(--gold); font-size: 1.2rem; }
+.vc.found .n { color: var(--ink-2); }
+.vc.found.bad .n { color: var(--error); }
+.vc.found.good .n { color: var(--accent); }
+.vc.meaning .n { font-size: 1.1rem; color: var(--muted); }
+.vc.meaning.bad .n { color: var(--error); }
+
+.reads {
+  margin-top: var(--space-s); display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 1px; background: var(--line); border: 1px solid var(--line);
+}
+.rd { background: var(--paper); padding: .7rem .8rem; }
+.rd .k { display: block; font-size: var(--caption); letter-spacing: var(--tracking-caption); text-transform: uppercase; color: var(--muted-2); font-weight: 600; }
+.rd .v { display: block; font-family: var(--font-mono); font-size: 1.0625rem; font-variant-numeric: tabular-nums; color: var(--ink-2); margin-top: .28rem; }
+.rd .v.on { color: var(--accent); }
+.rd .v.gold { color: var(--gold); }
+.rd .v.bad { color: var(--error); }
+.rd .v.vio { color: var(--violet); }
+.rd .sub { display: block; font-size: var(--caption); color: var(--muted-2); margin-top: .15rem; font-family: var(--font-mono); }
+
+.note { margin-top: var(--space-s); padding-top: var(--space-s); border-top: 1px solid var(--line); font-size: var(--small); color: var(--muted-2); }
+.note code, p code, li code, td code { font-family: var(--font-mono); font-size: var(--micro); color: var(--accent); background: var(--accent-05); padding: .08rem .3rem; border-radius: 2px; }
+.formula {
+  font-family: var(--font-mono); font-size: var(--body); color: var(--ink-2);
+  background: var(--surface-lift); border-left: 2px solid var(--accent);
+  padding: .6rem .8rem; margin: var(--space-s) 0; overflow-x: auto; white-space: pre;
+}
+table.cov { width: 100%; border-collapse: collapse; margin: var(--space-s) 0; font-size: var(--small); }
+table.cov th, table.cov td { text-align: right; padding: .38rem .5rem; border-bottom: 1px solid var(--line); }
+table.cov th { font-size: var(--caption); letter-spacing: var(--tracking-caption); text-transform: uppercase; color: var(--muted-2); font-weight: 600; }
+table.cov td:first-child, table.cov th:first-child { text-align: left; }
+table.cov td { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--muted); }
+table.cov td.b { color: var(--error); font-weight: 700; }
+table.cov td.g { color: var(--accent); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- NAV:BEGIN generated by data/build_site.py — do not hand-edit -->
+<nav class="sitenav"><a class="sn-home" href="index.html">← UDJ</a><span class="sn-pos">06 · p-values and hypothesis tests</span><span class="sn-count">6 of 11</span><span class="sn-links"><a class="sn-prev" href="ci.html">← 05·2 Confidence intervals</a><a class="sn-next" href="regression.html">07 Regression and R² →</a></span></nav>
+<!-- NAV:END -->
+<div class="wrap">
+
+  <section>
+    <div class="cap">UDJ · Module 6 — <span class="on">Hypothesis Tests &amp; p-values</span></div>
+    <h1>The 5% you cannot avoid</h1>
+    <p class="sub">How to "discover" something that was never there — and miss something that was.</p>
+
+    <p class="lede">You run an A/B test. Version B comes out ahead. Before you ship it,
+      one question has to be answered: <b>could a gap that size have happened by luck
+      alone?</b> That question is the whole of hypothesis testing, and the p-value is the
+      answer to it.</p>
+
+    <h2>What you are looking at</h2>
+    <p>Two samples are drawn from the same real dataset. Group A is left alone. Group B has
+      the "change" applied to it — a lift you choose, which might be <b>nothing at all</b>.
+      Both averages are worked out, and the gap between them gets a p-value.</p>
+    <p>Every test drops one bar into the histogram at the bottom. Careful: that bottom chart
+      is on a <b>completely different scale</b> from the data above it. It does not run in
+      pounds — it runs from <b>p = 0 on the left to p = 1 on the right</b>.</p>
+
+    <h2>What a p-value actually is</h2>
+    <div class="formula">p = if nothing were really going on,
+    how often would luck alone hand me
+    a gap at least this big?</div>
+    <p>That is all it is. A <b>small p</b> means your gap is hard to explain by luck. A
+      <b>large p</b> means luck explains it comfortably. The cut-off you compare it to —
+      usually 0.05 — is a convention someone picked, not a law.</p>
+
+    <h2>What it is not</h2>
+    <p class="punch">A p-value is <em>not</em> the probability that nothing is going on. It
+      runs the other way round: it <em>assumes</em> nothing is going on, then measures how
+      surprising your data would be. "p = 0.03" does not mean a 3% chance you are wrong.</p>
+
+    <h2>The flat histogram, and where the 5% comes from</h2>
+    <p>Set the change to <b>none</b> — the two groups are now genuinely identical — and
+      watch the bottom chart fill in. It comes out <b>flat</b>. Every p-value from 0 to 1 is
+      equally likely, which is a fact worth sitting with, because it has a consequence:</p>
+    <p class="punch warn">If one twentieth of the width sits below 0.05, then one test in
+      twenty clears the bar <em>when nothing is happening</em>. The 5% false-alarm rate is
+      not a mistake anyone made. It is the definition, working as intended.</p>
+    <p>Measured on this data with nothing going on: <b>4.7%</b> of tests come out
+      "significant" at the 0.05 line. Exactly as advertised — and exactly the problem.</p>
+
+    <h2>Which is why 20 tests find a winner</h2>
+    <p>Test one thing and you have a 1-in-20 chance of a false alarm. Test twenty things and
+      the chances of at least one are:</p>
+    <table class="cov">
+      <thead><tr><th>Things you test</th><th>Chance of a fake winner</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="g">5.0%</td></tr>
+        <tr><td>5</td><td>22.6%</td></tr>
+        <tr><td>10</td><td>40.1%</td></tr>
+        <tr><td>20</td><td class="b">64.2%</td></tr>
+        <tr><td>50</td><td class="b">92.3%</td></tr>
+      </tbody>
+    </table>
+    <p>So "we tested a lot of segments and found one that was significant" is not a finding.
+      It is the expected behaviour of a method being run twenty times. Always ask how many
+      things were tested before the winner was reported.</p>
+
+    <h2>The bigger problem nobody mentions</h2>
+    <p>False alarms get all the attention. The opposite failure is far more common and much
+      more expensive. Set a <b>real</b> +5% lift and see how often the test actually catches
+      it — that share is called the <b>power</b>:</p>
+    <table class="cov">
+      <thead><tr><th>Per group</th><th>Retail orders</th><th>Diamonds</th><th>Geyser</th></tr></thead>
+      <tbody>
+        <tr><td>30</td><td class="b">3.9%</td><td class="b">5.2%</td><td>15.9%</td></tr>
+        <tr><td>100</td><td class="b">5.7%</td><td class="b">6.4%</td><td>42.8%</td></tr>
+        <tr><td>500</td><td class="b">9.3%</td><td class="b">11.7%</td><td class="g">98.0%</td></tr>
+        <tr><td>2000</td><td class="b">22.9%</td><td>33.6%</td><td class="g">100%</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:var(--micro);color:var(--muted-2);margin-top:-.4rem">
+      Share of tests that detect a genuine +5% lift, at the 0.05 line. Measured over
+      20,000 tests per cell — <code>data/measure_test.py</code>.</p>
+
+    <p class="punch warn">On retail order value, a real 5% lift with <b>2,000 customers in
+      each group</b> is caught 23% of the time. You would miss it three times out of four,
+      and report "no significant difference" every time.</p>
+    <p>So <b>"not significant" almost never means "no effect"</b>. Usually it means the test
+      was never capable of seeing an effect that size. A negative result without a power
+      figure beside it carries almost no information.</p>
+
+    <h2>Why retail is so much harder than the geyser</h2>
+    <p>One number explains the whole table: how big the noise is <em>relative to</em> the
+      average.</p>
+    <div class="formula">retail orders   spread ÷ average = 1.28
+diamond prices  spread ÷ average = 1.00
+geyser waits    spread ÷ average = 0.19</div>
+    <p>Retail's noise is about <b>6.7 times</b> larger relative to its average than the
+      geyser's. Because required sample size scales with the <em>square</em> of that ratio,
+      retail needs roughly <b>45 times</b> as much data to see the same percentage lift.
+      Skewed money data is expensive to test on, and that cost is knowable in advance.</p>
+
+    <h2>What to do about it</h2>
+    <ul class="uses">
+      <li><b>Work out the power before you run the test</b>, not after. A test that cannot
+        detect the effect you care about is not worth running.</li>
+      <li><b>Decide what size of effect matters</b> first. "Any improvement" is not a
+        target, and it makes the sample size infinite.</li>
+      <li><b>Count and declare how many things you tested.</b> One winner out of twenty
+        comparisons is a coin landing heads, not a discovery.</li>
+      <li><b>Never read "not significant" as "no difference."</b> Report the interval
+        alongside it so the reader can see what was still possible.</li>
+      <li><b>Reduce the noise instead of buying more data</b> where you can — pair before
+        and after on the same customers, or test on a less erratic metric.</li>
+    </ul>
+
+    <div class="tech">
+      <h2>The same thing, in exam language</h2>
+      <dl>
+        <dt>H₀ / H<sub>A</sub></dt><dd>Null: the two means are equal. Alternative: they are
+          not. The test only ever assumes H₀ and measures surprise.</dd>
+        <dt>p-value</dt><dd><code>P(data this extreme | H₀ true)</code>. Note the direction
+          of the bar — it is not <code>P(H₀ | data)</code>.</dd>
+        <dt>α (significance level)</dt><dd>The false-positive rate you accept in advance.
+          The red zone on the histogram.</dd>
+        <dt>Type I / Type II error</dt><dd>Crying wolf (rate α) / missing a real effect
+          (rate β). <b>Power = 1 − β</b>, the right-hand tables above.</dd>
+        <dt>Welch two-sample t</dt><dd><code>t = (x̄₁ − x̄₂) / √(s₁²/n₁ + s₂²/n₂)</code>,
+          with Welch–Satterthwaite degrees of freedom. Used here rather than the pooled
+          version because scaling group B scales its spread too.</dd>
+      </dl>
+      <p style="margin-top:1.1rem">The link back to Module 5 is exact, not an analogy:</p>
+      <div class="formula">CI:   x̄ ± t · s/√n
+Test: t = (x̄ − μ₀) / (s/√n)</div>
+      <p>A value falls outside the 95% interval exactly when the two-sided test rejects at
+        5%. One procedure, two presentations.</p>
+    </div>
+
+    <div class="note">
+      Every p-value on screen is computed with a real t distribution, not a normal
+      approximation: <code>stats.js</code> implements the incomplete beta function and is
+      checked against scipy to better than 1e-10 by <code>verify_stats_js.py</code>,
+      including the far tail where the naive <code>1 − cdf</code> would return zero.
+    </div>
+  </section>
+
+  <section class="stage">
+
+    <div class="bar">
+      <div class="grp">
+        <span class="cap">Data</span>
+        <button data-set="retail" aria-pressed="true">retail orders</button>
+        <button data-set="geyser">geyser</button>
+        <button data-set="diamond">diamonds</button>
+      </div>
+      <div class="grp">
+        <span class="cap">Real change in B</span>
+        <button data-eff="0" aria-pressed="true">none</button>
+        <button data-eff="0.02">+2%</button>
+        <button data-eff="0.05">+5%</button>
+        <button data-eff="0.1">+10%</button>
+      </div>
+      <div class="grp">
+        <span class="cap">Per group</span>
+        <button data-n="30">30</button>
+        <button data-n="100">100</button>
+        <button data-n="500" aria-pressed="true">500</button>
+        <button data-n="2000">2000</button>
+      </div>
+      <div class="grp">
+        <span class="cap">Cut-off α</span>
+        <button data-a="0.1">0.10</button>
+        <button data-a="0.05" aria-pressed="true">0.05</button>
+        <button data-a="0.01">0.01</button>
+      </div>
+      <div class="grp">
+        <button class="act" id="fast">+500 tests</button>
+        <button id="pause">pause</button>
+        <button id="reset">reset</button>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="tagtop" id="tagtop">The data</div>
+      <div class="tagbot">Every p-value so far — <em>DIFFERENT AXIS: p = 0 on the left to p = 1 on the right, not money</em></div>
+      <canvas id="ht" role="img" aria-label="Animated visualisation. Two samples are drawn from a real dataset, one is given a percentage lift, a Welch t-test compares them, and the resulting p-values accumulate as a histogram. All figures are also given as text below the chart."></canvas>
+    </div>
+
+    <p class="hint" id="hint"></p>
+
+    <!-- the three-part verdict: what is true, what the test said, what that means -->
+    <div class="verdict">
+      <div class="vc truth"><span class="k">The truth</span><span class="n" id="v-truth">—</span><span class="s" id="v-truth-s">set by you, hidden from the test</span></div>
+      <div class="vc found" id="v-found-c"><span class="k">Test said "significant"</span><span class="n" id="v-found">—</span><span class="s" id="v-found-s">of all tests run</span></div>
+      <div class="vc meaning" id="v-mean-c"><span class="k">Which means</span><span class="n" id="v-mean">—</span><span class="s" id="v-mean-s">&nbsp;</span></div>
+    </div>
+
+    <div class="reads">
+      <div class="rd"><span class="k">Latest p-value</span><span class="v" id="r-p">—</span><span class="sub" id="r-p-sub">from the newest test</span></div>
+      <div class="rd"><span class="k">That verdict</span><span class="v" id="r-verdict">—</span><span class="sub" id="r-verdict-sub">&nbsp;</span></div>
+      <div class="rd"><span class="k">Tests run</span><span class="v" id="r-cnt">0</span><span class="sub">A/B tests so far</span></div>
+      <div class="rd"><span class="k">Group A average</span><span class="v on" id="r-ma">—</span><span class="sub">untouched</span></div>
+      <div class="rd"><span class="k">Group B average</span><span class="v vio" id="r-mb">—</span><span class="sub">after the change</span></div>
+      <div class="rd"><span class="k">Gap observed</span><span class="v" id="r-gap">—</span><span class="sub">B minus A</span></div>
+      <div class="rd"><span class="k">Real gap to find</span><span class="v gold" id="r-real">—</span><span class="sub">what you set</span></div>
+      <div class="rd"><span class="k">Noise ÷ average</span><span class="v" id="r-cv">—</span><span class="sub">why some data is harder</span></div>
+      <div class="rd"><span class="k">Fake winner in 20 tries</span><span class="v" id="r-mult">—</span><span class="sub">at this α, if nothing is real</span></div>
+    </div>
+
+    <p class="sr" id="live" aria-live="polite"></p>
+  </section>
+</div>
+
+<script src="datasets.js"></script>
+<script src="motion.js"></script>
+<script src="stats.js"></script>
+<script>
+/* ============================================================
+   Hypothesis tests and p-values, on real data.
+   ------------------------------------------------------------
+   Third in the set. clt.html showed averages behaving; ci.html
+   turned that into a range and graded it; this page turns it into
+   a yes/no decision and grades THAT.
+
+   The subject is the p-value histogram, because one picture carries
+   three lessons that are hard in words:
+
+     flat under the null   every p is equally likely when nothing is
+                           happening, so a twentieth of them fall
+                           under 0.05 by construction. The false
+                           alarm rate is the definition, not a bug.
+     piled at zero         a real effect drags the whole
+                           distribution left. How far left is power.
+     barely moved          on retail order value a real +5% lift at
+                           n = 500 barely dents it -- 8.8% power.
+                           "Not significant" is usually a statement
+                           about the test, not the world.
+
+   Measured in data/measure_test.py over 20,000 tests per cell, and
+   recomputed live here from the tests actually run.
+
+   Restrictions, so nobody later mistakes one for a bug:
+
+     TWO AXES        the data pile is in pounds; the histogram below
+                     is in probability, 0 to 1. This is the ONE page
+                     in the set where the two halves do NOT share an
+                     axis, so the divider and the label say so
+                     loudly. Reading the histogram as money would
+                     make nonsense of it.
+
+     EFFECT IS REAL  group B's values are multiplied by (1 + effect)
+                     -- a proportional lift, which is how a business
+                     change behaves. So the null is genuinely true at
+                     0% and genuinely false above it, and every
+                     verdict can be graded.
+
+     DOTS ARE CAPPED at n = 2000 there are 4000 sampled values and
+                     only 700 records to draw them from. The flight
+                     draws at most FLY_CAP dots per group and says so
+                     on screen; the TEST always uses all n.
+
+     REAL t          p-values come from stats.js, an incomplete-beta
+                     t distribution checked against scipy, not a
+                     normal approximation. At n = 30 the difference
+                     is not cosmetic.
+   ============================================================ */
+(() => {
+  const canvas = document.getElementById('ht');
+  const DATA = window.UDJ_DATA, S = window.UDJ_STATS;
+  if (!canvas || !DATA || !S) return;
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const COOL = [186, 214, 255];
+  const CYAN = [138, 224, 244];   // group A
+  const VIO  = [150, 142, 224];   // group B, after the change
+  const GOLD = [255, 196, 116];
+  const RED  = [255, 107,  98];
+  const DEEP = [ 84, 132, 196];
+  const PALE = [196, 228, 255];
+  const TAU = 6.283185307;
+
+  const K = 80;        // bins for stacking the data pile
+  const PB = 100;      // p-value histogram bins: 0.01 wide, so every alpha
+                       // the page offers (0.01 / 0.05 / 0.10) lands on a
+                       // bin edge exactly and the red zone is never a lie
+  const FLY_CAP = 70;  // dots drawn per group in the flight
+
+  let seed = 1907;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+  const clamp01 = x => x < 0 ? 0 : x > 1 ? 1 : x;
+  const ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
+  const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3);
+
+  const SPRITES = new Map();
+  function bloom(c) {
+    const key = c.join(',');
+    if (SPRITES.has(key)) return SPRITES.get(key);
+    const s = 64, el = document.createElement('canvas');
+    el.width = el.height = s;
+    const g = el.getContext('2d');
+    const rg = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+    rg.addColorStop(0.00, `rgba(${c[0]},${c[1]},${c[2]},0.55)`);
+    rg.addColorStop(0.16, `rgba(${c[0]},${c[1]},${c[2]},0.24)`);
+    rg.addColorStop(0.48, `rgba(${c[0]},${c[1]},${c[2]},0.06)`);
+    rg.addColorStop(1.00, `rgba(${c[0]},${c[1]},${c[2]},0)`);
+    g.fillStyle = rg; g.fillRect(0, 0, s, s);
+    SPRITES.set(key, el); return el;
+  }
+
+  /* ============ state ============ */
+  let D = DATA[0], n = 500, effect = 0, alpha = 0.05;
+  let W = 0, Hh = 0, dpr = 1, phone = false;
+  let NPOP = 0, MU = 0, SD = 0, VMIN = 0, VMAX = 1;
+  const M = window.UDJ_MOTION;
+  let now = 0, pphase = null;
+  let pval, pstack, pmag, ptemp, pflashA, pflashB, maxCol = 1, popSpacing = 3;
+
+  let hist = new Int32Array(PB), hMax = 1;
+  let cnt = 0, sig = 0, last = null;
+  let flight = null, paused = false, visible = true, tPrev = 0, acc = 0;
+  const DRAW_EVERY = 0.75, FLIGHT = 1.15;
+  let mx = 50, yPop = 0, laneY = 0, pTop = 0, pBot = 0;
+
+  const xOf = v => mx + (v - VMIN) / (VMAX - VMIN) * (W - 2 * mx);
+  const xOfP = p => mx + clamp01(p) * (W - 2 * mx);
+
+  let PREFIX = true, DP = 0;
+  function uf(v, extra = 0) {
+    const d = Math.max(0, DP + extra);
+    const s = v.toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+    return PREFIX ? D.unit + s : s + ' ' + D.unit;
+  }
+  const pctf = x => (x * 100).toFixed(1) + '%';
+  const effLabel = () => effect === 0 ? 'none' : '+' + (effect * 100).toFixed(0) + '%';
+
+  function loadDataset(d) {
+    D = d;
+    NPOP = D.vals.length; MU = D.mu; SD = D.sd;
+    VMIN = D.axis[0]; VMAX = D.axis[1];
+    PREFIX = /^[£$€]$/.test(D.unit);
+    DP = (VMAX - VMIN) > 2000 ? 0 : 1;
+
+    pval = Float64Array.from(D.vals);
+    pstack = new Int32Array(NPOP);
+    pmag = new Float32Array(NPOP);
+    ptemp = new Float32Array(NPOP);
+    pflashA = new Float32Array(NPOP);
+    pflashB = new Float32Array(NPOP);
+    pphase = new Float32Array(NPOP);
+
+    const bw = (VMAX - VMIN) / K, counts = new Int32Array(K);
+    const idx = Array.from({ length: NPOP }, (_, i) => i).sort((a, b) => pval[a] - pval[b]);
+    for (const i of idx) {
+      let b = Math.floor((pval[i] - VMIN) / bw);
+      if (b < 0) b = 0; else if (b >= K) b = K - 1;
+      pstack[i] = counts[b]++;
+    }
+    maxCol = 1;
+    for (let b = 0; b < K; b++) if (counts[b] > maxCol) maxCol = counts[b];
+
+    seed = 1907;
+    for (let i = 0; i < NPOP; i++) {
+      pmag[i] = Math.pow(rnd(), 2.4); ptemp[i] = 0.25 + rnd() * 0.75;
+      pphase[i] = rnd() * TAU;
+    }
+
+    resetRun();
+    document.getElementById('tagtop').innerHTML =
+      `The data — <em>${D.label}, ${D.unit} · two samples of ${n} drawn from ${NPOP.toLocaleString('en-GB')} real records</em>`;
+    document.getElementById('hint').textContent = HINTS[D.id] || '';
+  }
+
+  /* Figures quoted here are from data/measure_test.py at alpha = 0.05. */
+  const HINTS = {
+    retail: 'The expensive case. Order value is so noisy relative to its own average (1.28) that a real 5% lift needs enormous samples: 9.3% power at 500 per group, still only 23% at 2,000. Set the change to none and the histogram goes flat — that flatness is where the 5% false-alarm rate comes from.',
+    geyser: 'The cheap case. Eruption waits are tightly clustered (noise ÷ average = 0.19), so a 5% shift is easy to see: 43% power at 100 per group and 98% at 500. Same test, same α, forty-five times less data needed — because the metric is quieter.',
+    diamond: 'In between, and closer to retail than you would guess: noise ÷ average is 1.00, so a real 5% lift is caught 12% of the time at 500 per group. Prices look like a well-behaved number and behave like a badly-behaved one.'
+  };
+
+  function resetRun() {
+    hist = new Int32Array(PB); hMax = 1; cnt = 0; sig = 0; last = null; flight = null;
+  }
+
+  function layout() {
+    const rect = canvas.getBoundingClientRect();
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = rect.width; Hh = rect.height; phone = W < 560;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(Hh * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    mx = phone ? 30 : 50;
+    yPop = Math.round(Hh * 0.32);
+    laneY = Math.round(Hh * 0.395);
+    pTop = Math.round(Hh * 0.51);
+    pBot = Hh - 26;
+    popSpacing = Math.max(1.0, Math.min(2.8, (yPop - 32) / maxCol));
+  }
+
+  const pick = () => (Math.random() * NPOP) | 0;
+
+  /* one honest A/B test: two independent samples of real records, group B
+     scaled by the lift, then Welch on the summary statistics */
+  function runTest() {
+    const ia = [], ib = [];
+    let sa = 0, sqa = 0, sb = 0, sqb = 0;
+    for (let i = 0; i < n; i++) {
+      const j = pick(); const v = pval[j];
+      ia.push(j); sa += v; sqa += v * v;
+    }
+    const k = 1 + effect;
+    for (let i = 0; i < n; i++) {
+      const j = pick(); const v = pval[j] * k;
+      ib.push(j); sb += v; sqb += v * v;
+    }
+    const mA = sa / n, mB = sb / n;
+    const vA = Math.max(0, (sqa - n * mA * mA) / (n - 1));
+    const vB = Math.max(0, (sqb - n * mB * mB) / (n - 1));
+    const w = S.welch(mA, vA, n, mB, vB, n);
+    return { ia, ib, mA, mB, p: w.p, t: w.t, df: w.df };
+  }
+
+  function record(r) {
+    cnt++;
+    if (r.p < alpha) sig++;
+    let b = Math.floor(r.p * PB);
+    if (b < 0) b = 0; else if (b >= PB) b = PB - 1;
+    hist[b]++;
+    if (hist[b] > hMax) hMax = hist[b];
+    last = r;
+  }
+
+  function fastFill(m) {
+    for (let i = 0; i < m; i++) record(runTest());
+    readouts(); paint();
+  }
+
+  /* ============ paint ============ */
+  const MONO = (getComputedStyle(document.body).getPropertyValue('--font-mono') || 'monospace').trim();
+
+  function tickStep(span) {
+    const raw = span / 5, p = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / p;
+    return (r >= 5 ? 5 : r >= 2 ? 2 : 1) * p;
+  }
+
+  function moneyAxis(y) {
+    ctx.strokeStyle = 'rgba(150,178,225,.16)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(mx, y + .5); ctx.lineTo(W - mx, y + .5); ctx.stroke();
+    ctx.fillStyle = 'rgba(116,134,159,.9)'; ctx.font = `600 9px ${MONO}`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    const step = tickStep(VMAX - VMIN) * (phone ? 2 : 1);
+    for (let v = Math.ceil(VMIN / step) * step; v <= VMAX; v += step) {
+      const x = xOf(v);
+      ctx.strokeStyle = 'rgba(150,178,225,.16)';
+      ctx.beginPath(); ctx.moveTo(x + .5, y); ctx.lineTo(x + .5, y + 4); ctx.stroke();
+      ctx.fillText(uf(v), x, y + 6);
+    }
+  }
+
+  /* the p axis is a DIFFERENT quantity from the money axis above it, so it is
+     drawn differently on purpose: heavier rule, 0..1 ticks, its own label */
+  function pAxis(y) {
+    ctx.strokeStyle = 'rgba(150,178,225,.3)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(mx, y + .5); ctx.lineTo(W - mx, y + .5); ctx.stroke();
+    ctx.fillStyle = 'rgba(116,134,159,.95)'; ctx.font = `600 9px ${MONO}`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (const v of [0, 0.25, 0.5, 0.75, 1]) {
+      const x = xOfP(v);
+      ctx.strokeStyle = 'rgba(150,178,225,.3)';
+      ctx.beginPath(); ctx.moveTo(x + .5, y); ctx.lineTo(x + .5, y + 5); ctx.stroke();
+      ctx.fillText('p = ' + v.toFixed(2), x, y + 7);
+    }
+  }
+
+  function dot(x, y, r, c, a, glow) {
+    if (glow > 0) {
+      const s = bloom(c), sz = r * glow * 9;
+      ctx.globalAlpha = Math.min(1, a * .95);
+      ctx.drawImage(s, x - sz / 2, y - sz / 2, sz, sz);
+    }
+    // clamped: assigning globalAlpha outside [0,1] is IGNORED per spec,
+    // which would silently keep the previous alpha once a pulse lifts it > 1
+    ctx.globalAlpha = a < 0 ? 0 : a > 1 ? 1 : a;
+    ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  const popX = i => xOf(pval[i]);
+  const popY = i => yPop - 3 - pstack[i] * popSpacing;
+
+  function paint() {
+    ctx.clearRect(0, 0, W, Hh);
+
+    /* --- the data. A dot flashes cyan when group A used it, violet when
+           group B did; both when both did. --- */
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < NPOP; i++) {
+      const fa = pflashA[i], fb = pflashB[i], f = Math.max(fa, fb), t = ptemp[i];
+      let c;
+      if (f > 0.02) c = fa >= fb ? CYAN : VIO;
+      else c = [DEEP[0] + (PALE[0] - DEEP[0]) * t, DEEP[1] + (PALE[1] - DEEP[1]) * t,
+                DEEP[2] + (PALE[2] - DEEP[2]) * t];
+      const br = M.breathe(now, pphase[i], 0.8 + pmag[i] * 1.1, f > 0.02 ? 0.25 : 1);
+      dot(popX(i), popY(i), (1.2 + pmag[i] * 1.15 + f) * br.r, c,
+          (0.32 + pmag[i] * 0.38 + f * 0.5) * br.a,
+          (f > 0.02 ? 0.48 + f * 0.45 : 0.2 + pmag[i] * 0.4) * br.g);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    moneyAxis(yPop);
+
+    /* --- the two group averages, and the gap between them --- */
+    if (last) {
+      const xa = xOf(last.mA), xb = xOf(last.mB);
+      ctx.strokeStyle = 'rgba(150,178,225,.28)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(xa, laneY + .5); ctx.lineTo(xb, laneY + .5); ctx.stroke();
+      dot(xa, laneY + .5, 3.2, CYAN, 1, 1.0);
+      dot(xb, laneY + .5, 3.2, VIO, 1, 1.0);
+      ctx.font = `700 9px ${MONO}`; ctx.textBaseline = 'bottom'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(138,224,244,.95)'; ctx.fillText('A', xa, laneY - 6);
+      ctx.fillStyle = 'rgba(150,142,224,.95)'; ctx.fillText('B', xb, laneY - 6);
+      const sigNow = last.p < alpha;
+      ctx.fillStyle = sigNow ? 'rgba(255,107,98,.95)' : 'rgba(143,158,180,.9)';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+      ctx.fillText(`p = ${last.p < 0.0001 ? last.p.toExponential(1) : last.p.toFixed(4)}`
+                   + (sigNow ? '  → "significant"' : '  → not significant'),
+                   mx, laneY + 8);
+    }
+
+    /* --- the divider. This is where the axis changes meaning, and it has to
+           be impossible to miss. --- */
+    const dy = Math.round((laneY + pTop) / 2);
+    ctx.strokeStyle = 'rgba(150,178,225,.22)'; ctx.lineWidth = 1;
+    ctx.setLineDash([6, 5]);
+    ctx.beginPath(); ctx.moveTo(14, dy + .5); ctx.lineTo(W - 14, dy + .5); ctx.stroke();
+    ctx.setLineDash([]);
+
+    /* --- the p-value histogram. Flat means nothing is going on. --- */
+    const bw = (W - 2 * mx) / PB, avail = pBot - pTop;
+    const aX = xOfP(alpha);
+    // the rejection zone, drawn as a field so the eye reads it as one region
+    ctx.fillStyle = 'rgba(255,107,98,.07)';
+    ctx.fillRect(mx, pTop, aX - mx, avail);
+    for (let b = 0; b < PB; b++) {
+      const c0 = hist[b]; if (!c0) continue;
+      const h = (c0 / hMax) * avail;
+      const x = mx + b * bw;
+      const inRed = (b + 1) / PB <= alpha + 1e-12;
+      const col = inRed ? RED : COOL;
+      ctx.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${inRed ? 0.9 : 0.55})`;
+      ctx.fillRect(x + 0.35, pBot - h, Math.max(1, bw - 0.7), h);
+    }
+    // the cut-off itself
+    ctx.strokeStyle = 'rgba(255,107,98,.85)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(aX + .5, pTop - 4); ctx.lineTo(aX + .5, pBot); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,107,98,.95)'; ctx.font = `700 9px ${MONO}`;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+    ctx.fillText(`α = ${alpha}`, aX + 4, pTop - 5);
+    // what flat would look like, so "flat" is a comparison and not a vibe
+    if (cnt >= 60) {
+      const flat = (cnt / PB / hMax) * avail;
+      ctx.strokeStyle = 'rgba(255,196,116,.5)'; ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(mx, pBot - flat); ctx.lineTo(W - mx, pBot - flat); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(255,196,116,.75)'; ctx.textAlign = 'right';
+      ctx.fillText('level if nothing were going on', W - mx, pBot - flat - 3);
+    }
+    pAxis(pBot);
+
+    /* --- the flight: dots lift, group B slides right by the lift, the two
+           averages settle. --- */
+    if (flight) {
+      const t = flight.t, r = flight.r;
+      const lift = ease(t / 0.34), conv = ease(clamp01((t - 0.26) / 0.4));
+      const xa = xOf(r.mA), xb = xOf(r.mB);
+      const glow = n <= 500 ? 0.42 : 0;
+      ctx.globalCompositeOperation = 'lighter';
+      if (t < 0.72) {
+        const na = Math.min(r.ia.length, FLY_CAP);
+        for (let q = 0; q < na; q++) {
+          const i = r.ia[q], x0 = popX(i), y0 = popY(i);
+          dot(x0 + (xa - x0) * conv, y0 + (laneY - y0) * lift, 1.6, CYAN, 0.5 + 0.35 * conv, glow);
+        }
+        const nb = Math.min(r.ib.length, FLY_CAP);
+        for (let q = 0; q < nb; q++) {
+          const i = r.ib[q];
+          // group B's dot slides to its CHANGED value as it lifts: the
+          // treatment is visibly applied rather than assumed
+          const x0 = popX(i), xs = xOf(pval[i] * (1 + effect)), y0 = popY(i);
+          const xm = x0 + (xs - x0) * lift;
+          dot(xm + (xb - xm) * conv, y0 + (laneY - y0) * lift, 1.6, VIO, 0.5 + 0.35 * conv, glow);
+        }
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      if (r.ia.length > FLY_CAP) {
+        ctx.fillStyle = 'rgba(116,134,159,.8)'; ctx.font = `600 9px ${MONO}`;
+        ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+        ctx.fillText(`showing ${FLY_CAP} of ${n} per group — the test uses all ${n}`, W - mx, 20);
+      }
+      // the new p-value drops into its bin
+      if (t >= 0.72) {
+        const k = easeOut((t - 0.72) / 0.28);
+        const x = xOfP(r.p);
+        const y = laneY + (pBot - laneY) * k;
+        dot(x, y, 3.4 - 1.4 * k, r.p < alpha ? RED : GOLD, 1, 1.3 - 0.7 * k);
+      }
+    }
+  }
+
+  /* ============ readouts ============ */
+  const $ = id => document.getElementById(id);
+  function readouts() {
+    const rate = cnt ? sig / cnt : NaN;
+    const nul = effect === 0;
+
+    $('v-truth').textContent = nul ? 'Nothing changed' : `B really is ${effLabel()} higher`;
+    $('v-truth-s').textContent = nul
+      ? 'the two groups are identical' : `a real gap of ${uf(MU * effect, 1)}`;
+    $('v-found').textContent = cnt >= 20 ? pctf(rate) : '—';
+    $('v-found-s').textContent = cnt ? `${sig} of ${cnt.toLocaleString('en-GB')} tests` : 'of all tests run';
+
+    if (nul) {
+      $('v-mean').textContent = cnt >= 20 ? 'every one a false alarm' : '—';
+      $('v-mean-s').textContent = `should be α = ${alpha}`;
+      $('v-found-c').className = 'vc found bad';
+      $('v-mean-c').className = 'vc meaning bad';
+    } else {
+      $('v-mean').textContent = cnt >= 20 ? `missed it ${pctf(1 - rate)} of the time` : '—';
+      $('v-mean-s').textContent = 'this share is the power';
+      const weak = cnt >= 60 && rate < 0.8;
+      $('v-found-c').className = 'vc found ' + (weak ? 'bad' : 'good');
+      $('v-mean-c').className = 'vc meaning ' + (weak ? 'bad' : '');
+    }
+
+    if (last) {
+      const s = last.p < alpha;
+      $('r-p').textContent = last.p < 0.0001 ? last.p.toExponential(2) : last.p.toFixed(4);
+      $('r-p').className = 'v ' + (s ? 'bad' : '');
+      $('r-p-sub').textContent = s ? `below α = ${alpha}` : `above α = ${alpha}`;
+      $('r-verdict').textContent = s ? 'SIGNIFICANT' : 'not significant';
+      $('r-verdict').className = 'v ' + (s ? 'bad' : 'on');
+      // grade it: we know the truth, so we can name the error type
+      $('r-verdict-sub').textContent = nul
+        ? (s ? 'wrong — a Type I error' : 'correct — nothing to find')
+        : (s ? 'correct — the effect is real' : 'wrong — a Type II error, effect missed');
+      $('r-ma').textContent = uf(last.mA, 1);
+      $('r-mb').textContent = uf(last.mB, 1);
+      $('r-gap').textContent = (last.mB - last.mA >= 0 ? '+' : '') + uf(last.mB - last.mA, 1);
+    }
+    $('r-cnt').textContent = cnt.toLocaleString('en-GB');
+    $('r-real').textContent = nul ? 'zero' : '+' + uf(MU * effect, 1);
+    const cv = SD / MU;
+    $('r-cv').textContent = cv.toFixed(2);
+    $('r-cv').className = 'v ' + (cv > 0.8 ? 'bad' : 'on');
+    $('r-mult').textContent = pctf(1 - Math.pow(1 - alpha, 20));
+  }
+
+  /* ============ loop ============ */
+  function frame(ts) {
+    if (!visible) { tPrev = ts; requestAnimationFrame(frame); return; }
+    const dt = Math.min(0.05, (ts - tPrev) / 1000 || 0); tPrev = ts; now = ts / 1000;
+    if (!paused) {
+      if (flight) {
+        flight.t += dt / FLIGHT;
+        if (flight.t >= 1) { record(flight.r); flight = null; readouts(); }
+      } else {
+        acc += dt;
+        if (acc >= DRAW_EVERY) {
+          acc = 0;
+          const r = runTest();
+          for (const i of r.ia) pflashA[i] = 1;
+          for (const i of r.ib) pflashB[i] = 1;
+          flight = { t: 0, r };
+          last = r;          // show the averages immediately; recorded on landing
+        }
+      }
+      for (let i = 0; i < NPOP; i++) {
+        if (pflashA[i] > 0) pflashA[i] = Math.max(0, pflashA[i] - dt * 0.95);
+        if (pflashB[i] > 0) pflashB[i] = Math.max(0, pflashB[i] - dt * 0.95);
+      }
+    }
+    paint();
+    requestAnimationFrame(frame);
+  }
+
+  /* ============ wiring ============ */
+  const press = (sel, val, attr) =>
+    document.querySelectorAll(sel).forEach(b => b.setAttribute('aria-pressed', String(b.dataset[attr] === String(val))));
+
+  function restart(msg) {
+    resetRun(); readouts(); paint();
+    if (reduce) fastFill(600);
+    $('live').textContent = msg;
+  }
+  function retitle() {
+    document.getElementById('tagtop').innerHTML =
+      `The data — <em>${D.label}, ${D.unit} · two samples of ${n} drawn from ${NPOP.toLocaleString('en-GB')} real records</em>`;
+  }
+
+  document.querySelectorAll('[data-set]').forEach(b => b.addEventListener('click', () => {
+    const d = DATA.find(x => x.id === b.dataset.set); if (!d) return;
+    press('[data-set]', d.id, 'set'); loadDataset(d); layout(); retitle();
+    restart(`${D.label}. Noise divided by average is ${(SD / MU).toFixed(2)}.`);
+  }));
+  document.querySelectorAll('[data-eff]').forEach(b => b.addEventListener('click', () => {
+    effect = +b.dataset.eff; press('[data-eff]', effect, 'eff');
+    restart(effect === 0
+      ? 'The two groups are now identical. Every significant result from here is a false alarm.'
+      : `Group B really is ${effLabel()} higher. The share of tests that notice is the power.`);
+  }));
+  document.querySelectorAll('[data-n]').forEach(b => b.addEventListener('click', () => {
+    n = +b.dataset.n; press('[data-n]', n, 'n'); retitle();
+    restart(`${n} per group.`);
+  }));
+  document.querySelectorAll('[data-a]').forEach(b => b.addEventListener('click', () => {
+    alpha = +b.dataset.a; press('[data-a]', alpha, 'a');
+    restart(`Cut-off ${alpha}. Chance of a fake winner across 20 tests: ${pctf(1 - Math.pow(1 - alpha, 20))}.`);
+  }));
+  $('fast').addEventListener('click', () => { fastFill(500); $('live').textContent = `${cnt} tests run.`; });
+  $('pause').addEventListener('click', e => {
+    paused = !paused; e.target.textContent = paused ? 'resume' : 'pause';
+    e.target.setAttribute('aria-pressed', String(paused));
+  });
+  $('reset').addEventListener('click', () => restart('Reset.'));
+  addEventListener('resize', () => { layout(); paint(); });
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: 0.01 }).observe(canvas);
+  }
+
+  loadDataset(DATA[0]);
+  layout();
+  readouts();
+
+  if (reduce) {
+    fastFill(600);
+  } else {
+    fastFill(25);
+    requestAnimationFrame(ts => { tPrev = ts; frame(ts); });
+  }
+})();
+</script>
+</body>
+</html>

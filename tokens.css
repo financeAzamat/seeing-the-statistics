@@ -1,0 +1,90 @@
+/* ============================================================
+   UDJ course — design tokens.
+   ------------------------------------------------------------
+   Lifted from the Kosmion SPACE variant so the course surface
+   and the site read as one system: dark-first, deep black with
+   a blue cast as the page rather than an accent band, soft cyan
+   as the single accent, warm gold used two or three times and
+   never as a field. No neon.
+
+   The type ladder and motion budget come across unchanged —
+   that part was measured on a real site and works. What is NOT
+   carried over is the wordmark treatment: Kosmion's name is set
+   in a text-subset webfont that silently falls back on any other
+   character, so it has no business inside course copy.
+   ============================================================ */
+:root {
+  /* --- Colour --- */
+  --ink:            #eaf0fb;   /* primary text — blue-white, never pure white */
+  --ink-2:          #f4f8ff;   /* brightest text, headlines only */
+  --paper:          #05070d;   /* the page: deep black with a blue cast */
+  --paper-soft:     #080c16;   /* alternate band */
+  --paper-2:        #0c121f;   /* raised surface / card */
+  --line:           rgba(150,178,225,.16);   /* hairline, must survive on black */
+  --muted:          #8fa2c4;
+  --muted-2:        #74869f;
+
+  --surface-lift:   rgba(150,190,255,.05);
+  --surface-lift-2: rgba(150,190,255,.09);
+
+  --accent:         #8ae0f4;   /* soft cyan — the one accent */
+  --accent-10:      rgba(138,224,244,.12);
+  --accent-05:      rgba(138,224,244,.06);
+  --accent-deep:    #4a86c8;   /* navy-leaning fill behind text */
+  --violet:         #968ee0;   /* once or twice */
+  --gold:           #ffc474;   /* the average. Accent only, never a field */
+  --link:           #8fc7ff;
+  --error:          #ff6b62;
+
+  /* --- Type ---
+     Two roles here, not Kosmion's three. Manrope sets headings
+     (real Cyrillic subset, 0.545 x-height that holds at 16px),
+     Inter sets body, and a monospace tier carries every number
+     so digits stay tabular in a table and in a readout. */
+  --font-display: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-text:    "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:    ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Type scale — a real ladder, ratio ~1.25 through the middle. */
+  --h1:      3.5rem;      /* 56px */
+  --h2:      2.375rem;    /* 38px */
+  --h3:      1.75rem;     /* 28px */
+  --h4:      1.5rem;      /* 24px */
+  --h5:      1.1875rem;   /* 19px */
+  --lede:    1.25rem;     /* 20px */
+  --body:    1rem;
+  --small:   0.875rem;
+  --micro:   0.75rem;
+  --caption: 0.625rem;    /* 10px — the wide-tracked label tier */
+
+  --tracking-tight:   -0.02em;
+  --tracking-caption:  0.05em;
+  --lh-tight: 1.0;
+  --lh-snug:  1.15;
+  --lh-body:  1.43;
+
+  /* --- Spacing --- */
+  --gutter:      1.6667rem;
+  --space-xs:    0.5556rem;
+  --space-s:     1.1111rem;
+  --space-m:     3.3333rem;
+  --space-l:     6.6667rem;
+  --section-v:   5.5556rem;
+  --max-width:   80rem;
+
+  /* --- Motion ---
+     75–350ms, dominated by 100–250ms, transform + opacity only.
+     No ambient CSS loops: the only continuous motion on the page
+     is the canvas, and it is the subject. */
+  --ease:      cubic-bezier(0.42, 0, 0.58, 1);
+  --ease-out:  cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast:  0.12s;
+  --dur:       0.2s;
+  --dur-slow:  0.3s;
+  --stagger:   55ms;
+  --rise:      14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast:0s; --dur:0s; --dur-slow:0s; --stagger:0ms; --rise:0px; }
+}

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Central Limit Theorem — UDJ Module 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="nav.css">
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--font-text); font-size: var(--body); line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(1100px 700px at 12% -10%, rgba(74,134,200,.14), transparent 60%),
+    radial-gradient(900px 600px at 100% 105%, rgba(138,224,244,.06), transparent 62%);
+}
+.wrap {
+  position: relative; z-index: 1; max-width: var(--max-width); margin: 0 auto;
+  padding: var(--section-v) var(--gutter) var(--space-m);
+  display: grid; grid-template-columns: minmax(300px, 29rem) 1fr;
+  gap: var(--space-m); align-items: start;
+}
+@media (max-width: 1080px) { .wrap { grid-template-columns: 1fr; padding-top: var(--space-m); } }
+
+.cap {
+  font-size: var(--caption); letter-spacing: var(--tracking-caption);
+  text-transform: uppercase; color: var(--muted-2); font-weight: 600;
+}
+.cap .on { color: var(--accent); }
+
+h1 {
+  font-family: var(--font-display); font-size: var(--h1); line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight); font-weight: 700; color: var(--ink-2);
+  margin: var(--space-s) 0 var(--space-s);
+}
+@media (max-width: 640px) { h1 { font-size: var(--h2); } }
+h2 {
+  font-family: var(--font-display); font-size: var(--h5); line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight); font-weight: 600; color: var(--ink-2);
+  margin: var(--space-m) 0 var(--space-xs);
+}
+.lede { font-size: var(--lede); color: var(--ink); margin: 0 0 var(--space-s); }
+.lede b { color: var(--accent); font-weight: 600; }
+p { margin: 0 0 var(--space-s); color: var(--muted); }
+p b, li b { color: var(--ink); font-weight: 600; }
+a { color: var(--link); text-decoration: none; border-bottom: 1px solid rgba(143,199,255,.33); }
+a:hover { border-bottom-color: var(--link); }
+
+/* the hook, sitting straight under the headline */
+.sub {
+  font-family: var(--font-display); font-size: var(--h4); line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight); color: var(--accent); font-weight: 500;
+  margin: calc(var(--space-s) * -0.5) 0 var(--space-s);
+}
+/* a paragraph that carries the weight of a statement on its own */
+.punch {
+  font-size: var(--h5); color: var(--ink-2); font-weight: 500;
+  border-left: 2px solid var(--gold); padding-left: .85rem; margin: var(--space-s) 0;
+}
+/* do-this-now steps. Numbered because the order matters. */
+.try { margin: var(--space-s) 0 0; padding: 0; list-style: none; counter-reset: t; }
+.try li {
+  position: relative; padding: .55rem 0 .55rem 2.3rem;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: var(--small);
+  counter-increment: t;
+}
+.try li:last-child { border-bottom: 1px solid var(--line); }
+.try li::before {
+  content: counter(t); position: absolute; left: 0; top: .62rem;
+  font-family: var(--font-mono); font-size: var(--caption); color: var(--paper);
+  background: var(--accent); width: 1.35rem; height: 1.35rem; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 700;
+}
+.try b { color: var(--ink-2); }
+/* the list of places this already gets used */
+.uses { margin: var(--space-s) 0; padding: 0; list-style: none; }
+.uses li {
+  padding: .42rem 0 .42rem 1.1rem; position: relative;
+  color: var(--muted); font-size: var(--small);
+}
+.uses li::before {
+  content: ""; position: absolute; left: 0; top: 1.05rem;
+  width: 4px; height: 4px; border-radius: 50%; background: var(--accent);
+}
+/* the exam-facing block, clearly fenced off from the plain explanation */
+.tech {
+  margin-top: var(--space-m); border: 1px solid var(--line);
+  border-top: 2px solid var(--accent-deep); padding: var(--space-s);
+  background: rgba(12,18,31,.4);
+}
+.tech h2 { margin-top: 0; }
+.tech dl { margin: var(--space-s) 0 0; font-size: var(--small); }
+.tech dt { font-family: var(--font-mono); font-size: var(--micro); color: var(--accent); margin-top: .55rem; }
+.tech dd { margin: .1rem 0 0; color: var(--muted); }
+
+.beats { margin: var(--space-s) 0 0; padding: 0; list-style: none; }
+.beats li {
+  display: grid; grid-template-columns: 2.1rem 1fr; gap: var(--space-s);
+  padding: var(--space-s) 0; border-top: 1px solid var(--line);
+}
+.beats li:last-child { border-bottom: 1px solid var(--line); }
+.beats .n {
+  font-family: var(--font-mono); font-size: var(--caption);
+  letter-spacing: var(--tracking-caption); color: var(--accent); padding-top: .35rem;
+}
+.beats .t { color: var(--muted); font-size: var(--small); }
+.beats .t strong { color: var(--ink-2); font-weight: 600; display: block; margin-bottom: .18rem; font-size: var(--body); }
+
+.stage { position: relative; }
+.frame {
+  position: relative; border: 1px solid var(--line); border-radius: 2px; overflow: hidden;
+  background: linear-gradient(180deg, rgba(12,18,31,.55), rgba(5,7,13,.55));
+}
+canvas { display: block; width: 100%; height: 60vh; min-height: 440px; }
+@media (max-width: 1080px) { canvas { height: 66vh; } }
+
+.tagtop, .tagbot {
+  position: absolute; left: 14px; right: 14px;
+  font-size: var(--caption); letter-spacing: var(--tracking-caption);
+  text-transform: uppercase; font-weight: 600; pointer-events: none;
+}
+.tagtop { top: 12px; color: var(--muted); }
+.tagbot { top: 52%; color: var(--accent); }
+.tagtop em, .tagbot em { font-style: normal; color: var(--muted-2); font-weight: 500; }
+
+.bar {
+  display: flex; flex-wrap: wrap; gap: var(--space-s) var(--gutter); align-items: center;
+  padding: var(--space-s) 0; border-bottom: 1px solid var(--line); margin-bottom: var(--space-s);
+}
+.grp { display: flex; align-items: center; gap: .5rem; }
+button {
+  font-family: var(--font-mono); font-size: var(--micro); letter-spacing: .02em;
+  color: var(--muted); background: transparent; border: 1px solid var(--line);
+  border-radius: 2px; padding: .3rem .58rem; cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+button:hover { color: var(--ink); border-color: rgba(150,178,225,.34); }
+button[aria-pressed="true"] { color: var(--paper); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+button.act { color: var(--accent); border-color: var(--accent-10); background: var(--accent-05); }
+button.act:hover { border-color: var(--accent); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.hint {
+  margin: var(--space-s) 0 0; font-size: var(--small); color: var(--muted);
+  border-left: 2px solid var(--accent); padding-left: .8rem;
+}
+
+.reads {
+  margin-top: var(--space-s); display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 1px; background: var(--line); border: 1px solid var(--line);
+}
+.rd { background: var(--paper); padding: .7rem .8rem; }
+.rd .k { display: block; font-size: var(--caption); letter-spacing: var(--tracking-caption); text-transform: uppercase; color: var(--muted-2); font-weight: 600; }
+.rd .v { display: block; font-family: var(--font-mono); font-size: 1.0625rem; font-variant-numeric: tabular-nums; color: var(--ink-2); margin-top: .28rem; }
+.rd .v.on { color: var(--accent); }
+.rd .v.gold { color: var(--gold); }
+.rd .sub { display: block; font-size: var(--caption); color: var(--muted-2); margin-top: .15rem; font-family: var(--font-mono); }
+
+/* ---- provenance. The whole reason this revision exists: where every
+        number came from, and every filter applied to get it. ---- */
+.prov { margin-top: var(--space-s); border: 1px solid var(--line); padding: var(--space-s); }
+.prov p { font-size: var(--small); margin: .45rem 0 0; }
+.prov ul { margin: .55rem 0 0; padding-left: 1.1rem; }
+.prov li { font-size: var(--micro); color: var(--muted-2); margin-bottom: .18rem; font-family: var(--font-mono); }
+.prov .chk { margin-top: .6rem; font-size: var(--micro); font-family: var(--font-mono); color: var(--muted); }
+.prov .chk b { color: var(--ink-2); }
+
+.note { margin-top: var(--space-s); padding-top: var(--space-s); border-top: 1px solid var(--line); font-size: var(--small); color: var(--muted-2); }
+.note code, p code { font-family: var(--font-mono); font-size: var(--micro); color: var(--accent); background: var(--accent-05); padding: .08rem .3rem; border-radius: 2px; }
+.formula {
+  font-family: var(--font-mono); font-size: var(--body); color: var(--ink-2);
+  background: var(--surface-lift); border-left: 2px solid var(--accent);
+  padding: .6rem .8rem; margin: var(--space-s) 0; overflow-x: auto;
+}
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- NAV:BEGIN generated by data/build_site.py — do not hand-edit -->
+<nav class="sitenav"><a class="sn-home" href="index.html">← UDJ</a><span class="sn-pos">05·1 · The Central Limit Theorem</span><span class="sn-count">4 of 11</span><span class="sn-links"><a class="sn-prev" href="corr.html">← 04 Correlation and the range you looked at</a><a class="sn-next" href="ci.html">05·2 Confidence intervals →</a></span></nav>
+<!-- NAV:END -->
+<div class="wrap">
+
+  <section>
+    <div class="cap">UDJ · Module 5 — <span class="on">Sampling, CLT &amp; Estimation</span></div>
+    <h1>The Central&nbsp;Limit Theorem</h1>
+    <p class="sub">How looking at 30 customers tells you something dependable about 20,000.</p>
+
+    <p class="lede">One customer is unpredictable. The next order might be £5 or £4,000 —
+      you cannot plan on it. Thirty customers, averaged, are almost boring: that average
+      lands near <b>£458</b> nearly every time you take it.</p>
+
+    <p class="punch">Individual things are chaotic. Averages of groups are dependable.
+      That swap is the whole trick, and almost everything you have ever been told about
+      "what people do" rests on it.</p>
+
+    <h2>What you are looking at</h2>
+    <p>The pile on top is <b>real data</b>: 700 actual invoices from a real UK online
+      shop. Each dot is one order, sitting where its value falls — cheap orders to the
+      left, expensive ones to the right. They run from about £2 to just over £4,000, and
+      they are bunched up hard on the left, because most orders are small and only a few
+      are big.</p>
+
+    <p>Now watch. Thirty of those dots light up: picked at random, like pulling receipts
+      out of a box. Their values get averaged into a single number, and that number drops
+      as one dot into the pile at the bottom. Then it happens again. And again.</p>
+
+    <p><b>The bottom pile is the thing to watch.</b> It is narrow, it sits in the middle,
+      and it is shaped like a bell — even though the pile it came from is nothing like a
+      bell.</p>
+
+    <h2>Why that is strange</h2>
+    <p>Compare the two piles side by side. The orders themselves are spread across the
+      whole width of the screen. The averages of thirty of them barely move — they huddle
+      in a narrow band around the middle.</p>
+    <p>Nothing was cleaned up or smoothed to make that happen. Same data, same axis. The
+      only thing that changed is that you stopped asking about <em>one</em> order and
+      started asking about the average of thirty.</p>
+
+    <h2>Try it yourself</h2>
+    <ol class="try">
+      <li>Click <b>n = 1</b>. The bottom pile turns into a copy of the top one. An
+        "average" of a single order is just that order — no magic yet.</li>
+      <li>Click <b>n = 30</b>. The bottom pile collapses into a narrow bell. That
+        collapse is the theorem doing its work.</li>
+      <li>Click <b>25</b>, then <b>100</b>. The typical miss halves, £118 → £59. Four
+        times the data bought exactly twice the precision — and never more than that.</li>
+      <li>Switch to <b>geyser</b>. That data has two separate humps and nothing in the
+        middle. The averages still come out as one clean bell.</li>
+    </ol>
+
+    <h2>Why you already rely on this</h2>
+    <p>You have trusted this result many times without being told its name:</p>
+    <ul class="uses">
+      <li><b>Every poll you have seen.</b> "±3 points" from asking 1,000 people about an
+        electorate of tens of millions — that number comes straight out of this.</li>
+      <li><b>Every medicine you have taken.</b> Approved on a trial of a few thousand
+        people, not on the population that will end up swallowing it.</li>
+      <li><b>Every website you use.</b> The layout was chosen by testing two versions on
+        a sample of visitors and comparing the averages.</li>
+      <li><b>Every food safety check.</b> A handful of items per batch get tested, and the
+        batch gets cleared or pulled.</li>
+      <li><b>Every forecast your company signs off.</b> Built from a sample, presented
+        with a range around it.</li>
+    </ul>
+    <p>None of that works unless the average of a sample behaves predictably. This page
+      is the demonstration that it does.</p>
+
+    <h2>The one rule worth remembering</h2>
+    <div class="formula">typical miss = spread of the data ÷ √(how much data)</div>
+    <p>The square root is the part with consequences. To <b>halve</b> your uncertainty you
+      need <b>four times</b> the data. To cut it to a tenth, a hundred times.</p>
+    <p>That is why polls ask 1,000 people and not 10,000: paying ten times more buys only
+      a threefold improvement. It is also the reason "we asked 12 customers" deserves
+      suspicion while "we asked 400" usually does not — and why, past a point, collecting
+      more data is the expensive way to solve a problem.</p>
+
+    <h2>Where it stops working</h2>
+    <p>You will be told <b>n ≈ 30 is enough</b>. That is a rule about how extreme your
+      data's tail is, and you can watch it fail right here. The exact version:</p>
+    <div class="formula">lopsidedness of the averages = lopsidedness of the data ÷ √n</div>
+    <p>Take <code>0.20</code> as the point a pile stops looking lopsided to the eye. The
+      three datasets then need wildly different amounts of data, and <b>only one of them
+      is served by 30</b>:</p>
+    <ul>
+      <li><b>Geyser waits</b> — mildly lopsided (−0.42) → even by <b>n = 5</b>.</li>
+      <li><b>Diamond prices</b> — strongly (+1.61) → needs <b>n = 66</b>.</li>
+      <li><b>Retail orders</b> — extremely (+3.40) → needs <b>n ≈ 290</b>. At 30 the
+        averages still lean right, and you can see them doing it.</li>
+    </ul>
+    <p>The wilder the tail, the more data you need before averages start behaving. Thirty
+      is a starting guess, not a guarantee. Watch the two lopsidedness readings as you
+      change n — the live one tracks the prediction to about two decimal places.</p>
+
+    <!-- Everything above is deliberately free of notation. The terms still have to
+         be learned for the exam, so they live here, attached to the picture the
+         reader has just watched rather than introduced cold. -->
+    <div class="tech">
+      <h2>The same thing, in exam language</h2>
+      <dl>
+        <dt>population</dt><dd>Everything you care about — here, all 19,583 invoices.</dd>
+        <dt>sample (n)</dt><dd>The handful you actually drew. The dots that light up.</dd>
+        <dt>x̄ (sample mean)</dt><dd>The average of one sample. One gold dot.</dd>
+        <dt>μ, σ</dt><dd>The population's true mean and spread. The gold line, and the
+          width of the top pile.</dd>
+        <dt>sampling distribution of the mean</dt><dd>The bottom pile. Not the data —
+          the distribution of <em>averages</em> of the data.</dd>
+        <dt>standard error (SE)</dt><dd>The width of the bottom pile, <code>σ/√n</code>.
+          The "typical miss" above.</dd>
+      </dl>
+      <p style="margin-top:1.1rem">Both of the formulas you will be examined on are
+        statements about that bottom pile's width:</p>
+      <div class="formula">CI:&nbsp;&nbsp; x̄ ± z · s/√n
+Test: z = (x̄ − μ₀) / (s/√n)</div>
+      <p>Learn the pile and neither one is a formula to memorise.</p>
+    </div>
+
+    <div class="note">
+      The predicted and observed figures in the readout are computed from the draws
+      actually made on screen, not scripted. Early on they disagree and then converge —
+      that disagreement is sampling noise, which is the very thing the theorem is about.
+    </div>
+  </section>
+
+  <section class="stage">
+
+    <div class="bar">
+      <div class="grp">
+        <span class="cap">Dataset</span>
+        <button data-set="retail" aria-pressed="true">retail orders</button>
+        <button data-set="geyser">geyser</button>
+        <button data-set="diamond">diamonds</button>
+      </div>
+      <div class="grp">
+        <span class="cap">Sample size n</span>
+        <!-- Each of these earns its place: 1 = no theorem yet; 5 = geyser already
+             symmetric; 25 -> 100 = exactly four times the data for half the miss;
+             30 = the course's rule of thumb; 100 = enough for diamonds (66);
+             300 = enough for retail (290), which nothing smaller reaches. -->
+        <button data-n="1">1</button>
+        <button data-n="5">5</button>
+        <button data-n="25">25</button>
+        <button data-n="30" aria-pressed="true">30</button>
+        <button data-n="100">100</button>
+        <button data-n="300">300</button>
+      </div>
+      <div class="grp">
+        <button class="act" id="fast">+200 draws</button>
+        <button id="pause">pause</button>
+        <button id="reset">reset</button>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="tagtop" id="tagtop">The data</div>
+      <div class="tagbot">The averages — <em>one dot = the average of one sample (the sampling distribution of the mean)</em></div>
+      <canvas id="clt" role="img" aria-label="Animated visualisation. Real records are drawn from a published dataset, averaged, and the averages stack into a bell-shaped pile below. All figures are also given as text in the readout beneath the chart."></canvas>
+    </div>
+
+    <p class="hint" id="hint"></p>
+
+    <!-- Technical name on top, because the exam uses it; plain meaning underneath,
+         because that is what makes the number readable to anyone. -->
+    <div class="reads">
+      <div class="rd"><span class="k">Population μ</span><span class="v" id="r-mu">—</span><span class="sub">the true average of all</span></div>
+      <div class="rd"><span class="k">Median</span><span class="v" id="r-med">—</span><span class="sub">the middle one</span></div>
+      <div class="rd"><span class="k">Population σ</span><span class="v" id="r-sd">—</span><span class="sub">how spread out they are</span></div>
+      <div class="rd"><span class="k">Sample size n</span><span class="v on" id="r-n">30</span><span class="sub">how many per average</span></div>
+      <div class="rd"><span class="k">Standard error</span><span class="v on" id="r-se">—</span><span class="sub">typical miss = σ ÷ √n</span></div>
+      <div class="rd"><span class="k">Observed spread</span><span class="v gold" id="r-obs">—</span><span class="sub">how much they really vary</span></div>
+      <div class="rd"><span class="k">Averages drawn</span><span class="v" id="r-cnt">0</span><span class="sub">samples taken so far</span></div>
+      <div class="rd"><span class="k">Narrowing</span><span class="v" id="r-ratio">—</span><span class="sub">these two should match</span></div>
+      <div class="rd"><span class="k">Mean of averages</span><span class="v" id="r-mm">—</span><span class="sub">closes in on the true average</span></div>
+      <div class="rd"><span class="k">Lopsidedness</span><span class="v" id="r-pskew">—</span><span class="sub">of the data · 0 = even</span></div>
+      <div class="rd"><span class="k">Lopsidedness left</span><span class="v gold" id="r-oskew">—</span><span class="sub">of the averages, vs predicted</span></div>
+      <div class="rd"><span class="k">n for symmetry</span><span class="v" id="r-nsym">—</span><span class="sub">data needed to look even</span></div>
+    </div>
+
+    <div class="prov" id="prov"></div>
+    <p class="sr" id="live" aria-live="polite"></p>
+  </section>
+</div>
+
+<script src="datasets.js"></script>
+<script src="motion.js"></script>
+<script>
+/* ============================================================
+   The Central Limit Theorem, on real data.
+   ------------------------------------------------------------
+   Technique carried over from the Kosmion hero: one seeded point
+   set, canvas 2D, bloom and nothing else, and dots that change
+   ROLE rather than geometry. A dot resting in the population and
+   the same dot mid-flight are one object painted two ways, which
+   is why nothing pops when a sample fires.
+
+   THE DATA IS THE POINT OF THIS VERSION. An earlier build drew
+   its population from a lognormal curve and labelled it "order
+   value", which is precisely the move a statistics course must
+   not make. Now:
+
+     * every dot is ONE RECORDED OBSERVATION from a cited public
+       dataset, sitting at its true value on the axis;
+     * a draw picks a real record at random with replacement, so
+       the value averaged is a value that actually occurred;
+     * mu and sigma come from data/build_datasets.py as the exact
+       moments of the very values embedded here, so the readout
+       cannot report a spread this page's own data lacks;
+     * every filter applied upstream is printed in the provenance
+       block. Nothing was dropped silently.
+
+   Restrictions, so nobody later mistakes one for a bug:
+
+     SHARED X AXIS   both piles are drawn on the SAME value axis
+                     at the same scale. That is the entire payoff:
+                     the lower pile visibly sits inside the upper
+                     one and the ratio of widths is sqrt(n).
+                     Rescaling the lower axis to "use the space"
+                     would destroy the only thing this proves.
+
+     WITH REPLACEMENT  a sampled dot leaves no hole. It flashes and
+                     a copy flies. Draining the population would be
+                     a different theorem, and it is also why no
+                     finite-population correction belongs here.
+
+     HEIGHT IS FREE  stack height is auto-scaled to fit and the
+                     theoretical curve is height-matched to the
+                     observed peak. The claim is about SHAPE and
+                     WIDTH, never counts, so height carries no
+                     information and is free to move.
+
+     80 BINS / 700 DOTS  both chosen by data/choose_layout.py, not
+                     by taste: it is the only pairing where all
+                     three datasets keep the tallest column under
+                     ~94 dots, keep most bins occupied, and clip
+                     nothing off the right edge.
+   ============================================================ */
+(() => {
+  const canvas = document.getElementById('clt');
+  const DATA = window.UDJ_DATA;
+  if (!canvas || !DATA || !DATA.length) return;
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- palette: the brief's, and nothing neon ---- */
+  const COOL = [186, 214, 255];   // blue-white — the averages
+  const CYAN = [138, 224, 244];   // soft cyan, the accent — in flight
+  const GOLD = [255, 196, 116];   // the average itself. Sparing, on purpose
+  const DEEP = [ 84, 132, 196];   // navy — the population at rest
+  const PALE = [196, 228, 255];
+  const TAU = 6.283185307;
+
+  const K = 80;     // bins used ONLY to decide stack height; x is the true value
+  const MB = 200;   // bins for the pile of averages
+
+  let seed = 1907;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+  const clamp01 = x => x < 0 ? 0 : x > 1 ? 1 : x;
+  const ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
+  const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3);
+
+  const SPRITES = new Map();
+  function bloom(c) {
+    const key = c.join(',');
+    if (SPRITES.has(key)) return SPRITES.get(key);
+    const s = 64, el = document.createElement('canvas');
+    el.width = el.height = s;
+    const g = el.getContext('2d');
+    const rg = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+    rg.addColorStop(0.00, `rgba(${c[0]},${c[1]},${c[2]},0.55)`);
+    rg.addColorStop(0.16, `rgba(${c[0]},${c[1]},${c[2]},0.24)`);
+    rg.addColorStop(0.48, `rgba(${c[0]},${c[1]},${c[2]},0.06)`);
+    rg.addColorStop(1.00, `rgba(${c[0]},${c[1]},${c[2]},0)`);
+    g.fillStyle = rg; g.fillRect(0, 0, s, s);
+    SPRITES.set(key, el); return el;
+  }
+
+  /* ============ state ============ */
+  let D = DATA[0], n = 30;
+  let W = 0, Hh = 0, dpr = 1, phone = false;
+  let NPOP = 0, MU = 0, SD = 0, MED = 0, VMIN = 0, VMAX = 1;
+  const M = window.UDJ_MOTION;
+  let now = 0, pphase = null;
+  let pval, pstack, pmag, ptemp, pflash, maxCol = 1, popSpacing = 4;
+  let mcount = new Int32Array(MB), mshown = new Int32Array(MB), mMax = 1;
+  let cnt = 0, mMean = 0, mM2 = 0, mM3 = 0;            // Welford, extended to M3
+  let flights = [], paused = false, visible = true, last = 0, acc = 0;
+  const DRAW_EVERY = 0.62, FLIGHT = 1.05;
+  let mx = 46, yPop = 0, laneY = 0, yBot = 0, popTop = 0, botCap = 0;
+
+  const xOf = v => mx + (v - VMIN) / (VMAX - VMIN) * (W - 2 * mx);
+
+  /* ---- units. Currency sits in front of the number, anything else after. ---- */
+  let PREFIX = true, DP = 0;
+  function uf(v, extra = 0) {
+    const d = Math.max(0, DP + extra);
+    const s = v.toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+    return PREFIX ? D.unit + s : s + ' ' + D.unit;
+  }
+
+  /* ---- the population IS the embedded records. Binning decides only how
+         high a dot stacks; its x is its own true value, so the pile is a
+         dot-histogram of real observations rather than a drawing of one. ---- */
+  function loadDataset(d) {
+    D = d;
+    NPOP = D.vals.length; MU = D.mu; SD = D.sd;
+    VMIN = D.axis[0]; VMAX = D.axis[1];
+    PREFIX = /^[£$€]$/.test(D.unit);
+    DP = (VMAX - VMIN) > 2000 ? 0 : 1;
+
+    const sorted = Float64Array.from(D.vals).sort();
+    const h = sorted.length >> 1;
+    MED = sorted.length % 2 ? sorted[h] : (sorted[h - 1] + sorted[h]) / 2;
+
+    pval = Float64Array.from(D.vals);
+    pstack = new Int32Array(NPOP);
+    pmag = new Float32Array(NPOP);
+    ptemp = new Float32Array(NPOP);
+    pflash = new Float32Array(NPOP);
+    pphase = new Float32Array(NPOP);
+
+    // stack in value order so each column fills bottom-up tidily
+    const bw = (VMAX - VMIN) / K, counts = new Int32Array(K);
+    const idx = Array.from({ length: NPOP }, (_, i) => i).sort((a, b) => pval[a] - pval[b]);
+    for (const i of idx) {
+      let b = Math.floor((pval[i] - VMIN) / bw);
+      if (b < 0) b = 0; else if (b >= K) b = K - 1;
+      pstack[i] = counts[b]++;
+    }
+    maxCol = 1;
+    for (let b = 0; b < K; b++) if (counts[b] > maxCol) maxCol = counts[b];
+
+    seed = 1907;
+    for (let i = 0; i < NPOP; i++) {
+      pmag[i] = Math.pow(rnd(), 2.4); ptemp[i] = 0.25 + rnd() * 0.75;
+      pphase[i] = rnd() * TAU;
+    }
+
+    resetPile();
+    provenance();
+    document.getElementById('tagtop').innerHTML =
+      `The data — <em>${D.label}, ${D.unit} · ${NPOP.toLocaleString('en-GB')} real records, one dot each</em>`;
+    document.getElementById('hint').textContent = HINTS[D.id] || '';
+  }
+
+  /* Every figure quoted here is measured, not remembered: modes and symmetry
+     thresholds come from data/measure_claims.py, means and medians from the
+     embedded values themselves. */
+  const HINTS = {
+    retail: 'Real invoices from a UK online shop. Most orders are small and a few are huge, so the average order (£458) is much bigger than the typical one (£305) — a handful of big spenders drag the average up. This is the hard case: even 30 orders is not enough to make the averages sit evenly. Click 300 to see them finally settle.',
+    geyser: 'Minutes between eruptions of a real geyser. It waits either about 54 minutes or about 80 — almost never in between, which is why the data has two separate humps. Its average of 71 minutes lands in the quiet gap between them: only about one wait in fourteen falls near it, so the average is a number that describes the geyser without describing any of its actual behaviour. Even so, just 5 eruptions per sample is enough to make the averages form one clean bell.',
+    diamond: 'Prices of 53,940 real diamonds. Most are inexpensive and the dearest costs nearly eight times the middle one, so the tail is long. At 5 and even at 30 stones per sample the averages still lean right; they only even out around 66, which is why 100 works and 30 does not. This is exactly the case the course\'s "n ≈ 30" rule of thumb is really about.'
+  };
+
+  function resetPile() {
+    mcount = new Int32Array(MB); mshown = new Int32Array(MB);
+    mMax = 1; cnt = 0; mMean = 0; mM2 = 0; mM3 = 0; flights = [];
+  }
+
+  function layout() {
+    const rect = canvas.getBoundingClientRect();
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = rect.width; Hh = rect.height; phone = W < 560;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(Hh * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    mx = phone ? 30 : 50;
+    popTop = 34;
+    yPop = Math.round(Hh * 0.42);
+    laneY = Math.round(Hh * 0.505);
+    yBot = Math.round(Hh - 26);
+    botCap = yBot - laneY - 26;
+    popSpacing = Math.max(1.5, Math.min(4.2, (yPop - popTop) / maxCol));
+  }
+
+  /* ---- one draw: a real record, with replacement ---- */
+  const pick = () => (Math.random() * NPOP) | 0;
+
+  function commit(mean) {
+    let b = Math.floor((mean - VMIN) / ((VMAX - VMIN) / MB));
+    if (b < 0) b = 0; else if (b >= MB) b = MB - 1;
+    const slot = mcount[b]++;
+    if (mcount[b] > mMax) mMax = mcount[b];
+    /* Online mean, M2 and M3 (Welford, extended). M3 must be updated with the
+       OLD M2, so the order of these three lines is load-bearing. Running
+       moments rather than a stored array because a long session reaches tens
+       of thousands of draws and a naive two-pass sum drifts. */
+    const n1 = cnt; cnt++;
+    const delta = mean - mMean, dn = delta / cnt, t1 = delta * dn * n1;
+    mMean += dn;
+    mM3 += t1 * dn * (cnt - 2) - 3 * dn * mM2;
+    mM2 += t1;
+    return { b, slot };
+  }
+
+  function fire() {
+    const src = []; let sum = 0;
+    for (let i = 0; i < n; i++) { const j = pick(); sum += pval[j]; pflash[j] = 1; src.push(j); }
+    flights.push({ t: 0, src, mean: sum / n, target: null });
+  }
+
+  function fastFill(m) {
+    for (let s = 0; s < m; s++) {
+      let sum = 0; for (let i = 0; i < n; i++) sum += pval[pick()];
+      const { b } = commit(sum / n); mshown[b]++;
+    }
+    readouts(); paint();
+  }
+
+  /* ============ paint ============ */
+  const MONO = (getComputedStyle(document.body).getPropertyValue('--font-mono') || 'monospace').trim();
+
+  function tickStep(span) {
+    const raw = span / 5, p = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / p;
+    return (r >= 5 ? 5 : r >= 2 ? 2 : 1) * p;
+  }
+
+  function axis(y, label) {
+    ctx.strokeStyle = 'rgba(150,178,225,.16)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(mx, y + .5); ctx.lineTo(W - mx, y + .5); ctx.stroke();
+    ctx.fillStyle = 'rgba(116,134,159,.9)';
+    ctx.font = `600 9px ${MONO}`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    const step = tickStep(VMAX - VMIN) * (phone ? 2 : 1);
+    for (let v = Math.ceil(VMIN / step) * step; v <= VMAX; v += step) {
+      const x = xOf(v);
+      ctx.strokeStyle = 'rgba(150,178,225,.16)';
+      ctx.beginPath(); ctx.moveTo(x + .5, y); ctx.lineTo(x + .5, y + 4); ctx.stroke();
+      ctx.fillText(uf(v), x, y + 6);
+    }
+    if (label && !phone) { ctx.textAlign = 'right'; ctx.fillText(label, W - mx, y + 6); }
+  }
+
+  function dot(x, y, r, c, a, glow) {
+    if (glow > 0) {
+      const s = bloom(c), sz = r * glow * 9;
+      ctx.globalAlpha = Math.min(1, a * .95);
+      ctx.drawImage(s, x - sz / 2, y - sz / 2, sz, sz);
+    }
+    // clamped: assigning globalAlpha outside [0,1] is IGNORED per spec,
+    // which would silently keep the previous alpha once a pulse lifts it > 1
+    ctx.globalAlpha = a < 0 ? 0 : a > 1 ? 1 : a;
+    ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  const popX = i => xOf(pval[i]);
+  const popY = i => yPop - 3 - pstack[i] * popSpacing;
+
+  function paint() {
+    ctx.clearRect(0, 0, W, Hh);
+
+    /* --- the population: one dot per real record, at its true value --- */
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < NPOP; i++) {
+      const f = pflash[i], t = ptemp[i];
+      const c = f > 0.02 ? CYAN
+        : [DEEP[0] + (PALE[0] - DEEP[0]) * t, DEEP[1] + (PALE[1] - DEEP[1]) * t, DEEP[2] + (PALE[2] - DEEP[2]) * t];
+      const br = M.breathe(now, pphase[i], 0.8 + pmag[i] * 1.1, f > 0.02 ? 0.25 : 1);
+      dot(popX(i), popY(i), (1.5 + pmag[i] * 1.4 + f) * br.r, c,
+          (0.40 + pmag[i] * 0.42 + f * 0.5) * br.a,
+          (f > 0.02 ? 0.52 + f * 0.5 : 0.26 + pmag[i] * 0.45) * br.g);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    axis(yPop, 'one dot = one record');
+
+    /* --- the averages, on the SAME axis --- */
+    const spacing = Math.max(1.1, Math.min(3.6, botCap / mMax));
+    const rad = spacing < 2 ? 1.0 : 1.45;
+    ctx.globalCompositeOperation = 'lighter';
+    for (let b = 0; b < MB; b++) {
+      const c = mshown[b]; if (!c) continue;
+      const x = xOf(VMIN + (b + 0.5) * ((VMAX - VMIN) / MB));
+      for (let j = 0; j < c; j++) dot(x, yBot - 3 - j * spacing, rad, COOL, 0.66, j === c - 1 ? 0.5 : 0.08);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+
+    /* --- the theoretical N(mu, sigma^2/n). Height-matched to the observed
+           peak on purpose: the claim is shape and width, not counts. --- */
+    const se = SD / Math.sqrt(n);
+    if (cnt >= 12) {
+      const peak = Math.min(botCap, mMax * spacing);
+      ctx.beginPath();
+      for (let sx = mx; sx <= W - mx; sx += 2) {
+        const v = VMIN + (sx - mx) / (W - 2 * mx) * (VMAX - VMIN);
+        const z = (v - MU) / se;
+        const y = yBot - 3 - Math.exp(-0.5 * z * z) * peak;
+        sx === mx ? ctx.moveTo(sx, y) : ctx.lineTo(sx, y);
+      }
+      ctx.strokeStyle = 'rgba(138,224,244,.55)'; ctx.lineWidth = 1.25; ctx.stroke();
+
+      // +/-1 SE and +/-2 SE. These four hairlines ARE a 68% and a 95%
+      // interval, several modules before the formula turns up.
+      ctx.setLineDash([2, 4]);
+      for (const [k, a] of [[1, .34], [2, .2]]) {
+        for (const sgn of [-1, 1]) {
+          const x = xOf(MU + sgn * k * se);
+          if (x < mx || x > W - mx) continue;
+          ctx.strokeStyle = `rgba(138,224,244,${a})`;
+          ctx.beginPath(); ctx.moveTo(x + .5, yBot - 3); ctx.lineTo(x + .5, yBot - 6 - peak); ctx.stroke();
+        }
+      }
+      ctx.setLineDash([]);
+    }
+
+    // mu, spanning both piles, so the lower one is seen centring on it
+    const xmu = xOf(MU);
+    ctx.setLineDash([1, 3]);
+    ctx.strokeStyle = 'rgba(255,196,116,.42)';
+    ctx.beginPath(); ctx.moveTo(xmu + .5, popTop - 12); ctx.lineTo(xmu + .5, yBot); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(255,196,116,.85)'; ctx.font = `700 9px ${MONO}`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText('μ = ' + uf(MU), xmu, popTop - 14);
+
+    axis(yBot, '');
+
+    /* --- flights: lift, converge, merge, drop --- */
+    ctx.globalCompositeOperation = 'lighter';
+    for (const f of flights) {
+      const t = f.t, mxp = xOf(f.mean);
+      if (t < 0.62) {
+        const lift = ease(t / 0.30), conv = ease(clamp01((t - 0.26) / 0.36));
+        /* At n = 300 there are 300 dots in the air per sample and two samples
+           can overlap. 600 converging hairlines read as mush rather than as
+           "these are being averaged", and 600 bloom blits per frame is the one
+           thing here that would drop frames — so both scale back with n. The
+           dots themselves always draw: they are the data. */
+        const lines = n <= 30, glow = n <= 100 ? 0.5 : 0;
+        for (const i of f.src) {
+          const x0 = popX(i), y0 = popY(i);
+          const x = x0 + (mxp - x0) * conv, y = y0 + (laneY - y0) * lift;
+          if (lines && conv > 0.05) {
+            ctx.strokeStyle = `rgba(138,224,244,${0.16 * (1 - conv)})`; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(mxp, laneY); ctx.stroke();
+          }
+          dot(x, y, n > 100 ? 1.5 : 1.9, CYAN, 0.55 + 0.35 * conv, glow);
+        }
+        if (conv > 0.55) dot(mxp, laneY, 2.2 + 2.4 * conv, GOLD, conv, 0.9 + conv * 0.6);
+      } else if (f.target) {
+        // the slot was reserved in the loop, not here: paint must never
+        // mutate the statistics or a stray repaint would commit a sample
+        const k = easeOut((t - 0.62) / 0.38);
+        const sp = Math.max(1.1, Math.min(3.6, botCap / mMax));
+        const ty = yBot - 3 - f.target.slot * sp;
+        const tx = xOf(VMIN + (f.target.b + 0.5) * ((VMAX - VMIN) / MB));
+        dot(mxp + (tx - mxp) * k, laneY + (ty - laneY) * k, 3.4 - 1.6 * k, GOLD, 1, 1.5 - 0.9 * k);
+      }
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  /* ============ readouts — text, always ============ */
+  const $ = id => document.getElementById(id);
+  function readouts() {
+    const se = SD / Math.sqrt(n);
+    const obs = cnt > 1 ? Math.sqrt(mM2 / (cnt - 1)) : NaN;
+    $('r-mu').textContent  = uf(MU, 1);
+    $('r-med').textContent = uf(MED, 1);
+    $('r-sd').textContent  = uf(SD, 1);
+    $('r-n').textContent   = String(n);
+    $('r-se').textContent  = uf(se, 2);
+    $('r-obs').textContent = cnt > 1 ? uf(obs, 2) : '—';
+    $('r-cnt').textContent = cnt.toLocaleString('en-GB');
+    $('r-mm').textContent  = cnt ? uf(mMean, 2) : '—';
+    $('r-ratio').textContent = cnt > 1 && obs > 0
+      ? (SD / obs).toFixed(2) + '  ·  √n = ' + Math.sqrt(n).toFixed(2) : '—';
+
+    /* Skewness. The predicted value is the population's skewness over sqrt(n)
+       — an exact rate, not an approximation, and the live observed figure is
+       what lets a reader check it rather than take it on faith. */
+    const sgn = x => (x >= 0 ? '+' : '') + x.toFixed(2);
+    $('r-pskew').textContent = sgn(D.skew);
+    const sk = cnt > 2 && mM2 > 0 ? Math.sqrt(cnt) * mM3 / Math.pow(mM2, 1.5) : NaN;
+    $('r-oskew').textContent = Number.isFinite(sk)
+      ? sgn(sk) + '  ·  pred ' + sgn(D.skew / Math.sqrt(n)) : '—';
+    $('r-nsym').textContent = D.n_symmetric + (n >= D.n_symmetric ? '  ✓ yours is enough' : '  ✗ yours is too small');
+    $('r-nsym').className = 'v ' + (n >= D.n_symmetric ? 'on' : 'gold');
+  }
+
+  /* ---- provenance. Content is generated by data/build_datasets.py from
+         literals in that file plus measured counts — no third-party text
+         reaches this markup. ---- */
+  function provenance() {
+    const same = D.n_pool === D.n_source;
+    $('prov').innerHTML =
+      `<div class="cap">Data source</div>
+       <p><a href="${D.url}" target="_blank" rel="noopener">${D.source}</a> — ${D.what}</p>
+       <ul>${D.filters.map(f => `<li>${f}</li>`).join('')}</ul>
+       <p class="chk">On screen: <b>${NPOP.toLocaleString('en-GB')}</b> records,
+        mean <b>${uf(D.mu, 1)}</b>, spread <b>${uf(D.sd, 1)}</b>.
+        ${same
+          ? 'This is the complete dataset.'
+          : `Drawn from <b>${D.n_pool.toLocaleString('en-GB')}</b> whose mean is
+             <b>${uf(D.pool_mu, 1)}</b> and spread <b>${uf(D.pool_sd, 1)}</b> —
+             close enough that the sample on screen represents the pool it came from.`}</p>`;
+  }
+
+  /* ============ loop ============ */
+  function frame(ts) {
+    if (!visible) { last = ts; requestAnimationFrame(frame); return; }
+    const dt = Math.min(0.05, (ts - last) / 1000 || 0); last = ts; now = ts / 1000;
+    if (!paused) {
+      acc += dt;
+      if (acc >= DRAW_EVERY) { acc = 0; fire(); }
+      let landed = false;
+      for (const f of flights) {
+        f.t += dt / FLIGHT;
+        if (f.t >= 0.62 && !f.target) { f.target = commit(f.mean); landed = true; }
+        if (f.t >= 1 && f.target) mshown[f.target.b]++;
+      }
+      flights = flights.filter(f => f.t < 1);
+      if (landed) readouts();
+      for (let i = 0; i < NPOP; i++) if (pflash[i] > 0) pflash[i] = Math.max(0, pflash[i] - dt * 1.15);
+    }
+    paint();
+    requestAnimationFrame(frame);
+  }
+
+  /* ============ wiring ============ */
+  const press = (sel, val, attr) =>
+    document.querySelectorAll(sel).forEach(b => b.setAttribute('aria-pressed', String(b.dataset[attr] === String(val))));
+
+  document.querySelectorAll('[data-n]').forEach(b => b.addEventListener('click', () => {
+    n = +b.dataset.n; press('[data-n]', n, 'n');
+    resetPile(); readouts(); paint(); if (reduce) fastFill(600);
+    $('live').textContent = `Sample size ${n}. Predicted standard error ${uf(SD / Math.sqrt(n), 2)}.`;
+  }));
+  document.querySelectorAll('[data-set]').forEach(b => b.addEventListener('click', () => {
+    const d = DATA.find(x => x.id === b.dataset.set); if (!d) return;
+    press('[data-set]', d.id, 'set');
+    loadDataset(d); layout(); readouts(); paint(); if (reduce) fastFill(600);
+    $('live').textContent = `${D.label}: ${NPOP} records, mean ${uf(MU, 1)}, spread ${uf(SD, 1)}.`;
+  }));
+  $('fast').addEventListener('click', () => { fastFill(200); $('live').textContent = `${cnt} averages drawn.`; });
+  $('pause').addEventListener('click', e => {
+    paused = !paused; e.target.textContent = paused ? 'resume' : 'pause';
+    e.target.setAttribute('aria-pressed', String(paused));
+  });
+  $('reset').addEventListener('click', () => { resetPile(); readouts(); paint(); $('live').textContent = 'Reset.'; });
+  addEventListener('resize', () => { layout(); paint(); });
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: 0.01 }).observe(canvas);
+  }
+
+  loadDataset(DATA[0]);
+  layout();
+  readouts();
+
+  if (reduce) {
+    // A reader who asked the OS for no animation is owed the finished
+    // picture, not an empty axis.
+    fastFill(600);
+  } else {
+    fastFill(3);
+    requestAnimationFrame(ts => { last = ts; frame(ts); });
+  }
+})();
+</script>
+</body>
+</html>
