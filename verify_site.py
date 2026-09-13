@@ -114,8 +114,19 @@ for loc in LOCALES:
                              f"{m.group(1)!r}, expected {want!r}")
         prev = re.search(r'class="sn-prev" href="([^"]+)"', nav)
         nxt = re.search(r'class="sn-next" href="([^"]+)"', nav)
-        want_prev = order[i - 1]["href"] if i > 0 else None
-        want_next = order[i + 1]["href"] if i < N - 1 else None
+
+        # A neighbour this locale has NOT translated is linked with `../`, the
+        # same cross-locale fallback the contents page uses. Expecting the bare
+        # form here failed on the first Russian page, whose neighbour is
+        # English-only -- the build was right and the check was wrong.
+        def want_link(k):
+            if k is None:
+                return None
+            h = order[k]["href"]
+            return h if (d / h).exists() else f"../{h}"
+
+        want_prev = want_link(i - 1 if i > 0 else None)
+        want_next = want_link(i + 1 if i < N - 1 else None)
         got_prev = prev.group(1) if prev else None
         got_next = nxt.group(1) if nxt else None
         ok = got_prev == want_prev and got_next == want_next
@@ -221,6 +232,16 @@ check("claimed verification-script count", m.group(1) if m else None,
       WORD.get(n_verify))
 m = re.search(r"executes all (\w+) renderers", flat_en)
 check("claimed renderer count", m.group(1) if m else None, WORD.get(n_render))
+
+# The Russian page states the same count in words. It was written saying
+# «шестнадцать» while the true count was fifteen, and nothing caught it because
+# this check only read the English page. Both are covered now.
+RU_WORD = {14: "четырнадцать", 15: "пятнадцать", 16: "шестнадцать",
+           17: "семнадцать", 18: "восемнадцать", 19: "девятнадцать"}
+flat_ru = re.sub(r"\s+", " ", (OUT / "ru" / "index.html").read_text(encoding="utf-8"))
+m = re.search(r"их (\w+)\.", flat_ru)
+check("ru: claimed verification-script count", m.group(1) if m else None,
+      RU_WORD.get(n_verify))
 
 # the coverage claim must match the module numbers the pages actually carry
 mods = set()

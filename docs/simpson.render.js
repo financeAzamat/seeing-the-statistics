@@ -97,7 +97,11 @@
   }
 
   const lerp = M.lerp;
-  const money = v => '$' + Math.round(v).toLocaleString('en-GB');
+  /* Digit grouping follows the page's locale, declared by the strings table.
+     Hard-coding en-GB made the canvas print $5,324 next to Russian prose
+     saying $5 324 — the same number formatted two ways on one screen. */
+  const LOC = (window.UDJ_STRINGS && window.UDJ_STRINGS.__locale) || 'en-GB';
+  const money = v => '$' + Math.round(v).toLocaleString(LOC);
 
   function paint() {
     if (!A) return;
@@ -116,10 +120,10 @@
 
     /* ---------------- the scatter ---------------- */
     K.panel(8, sTop, W - 8, sBot,
-      `every stone · size against price · coloured by ${T.label.toLowerCase()}`,
+      TR('every stone · size against price · coloured by {0}', TR(T.label).toLowerCase()),
       null, P.CYAN,
-      lo ? `showing all, highlighting ${lo.lo}–${lo.hi} ct`
-         : 'showing all sizes',
+      lo ? TR('showing all, highlighting {0}–{1} ct', lo.lo, lo.hi)
+         : TR('showing all sizes'),
       (x0, y0, x1, y1) => {
         let xm = 0, ym = 0;
         for (let i = 0; i < S.carat.length; i++) {
@@ -195,7 +199,7 @@
           const w = K.tracked(T.order[i], lx + 11, y0 + 11, 9, K.rgba(c, .95), 1.2, 'left');
           lx += 11 + w + 12;
         }
-        K.tracked('WORST → BEST', x1 - 2, y0 + 11, 9, 'rgba(116,134,159,.8)', 1.6, 'right');
+        K.tracked(TR('WORST → BEST'), x1 - 2, y0 + 11, 9, 'rgba(116,134,159,.8)', 1.6, 'right');
       });
 
     /* ---------------- mean price by grade: the flip ---------------- */
@@ -207,15 +211,15 @@
       return q[idx[idx.length - 1]] - q[idx[0]];
     })();
     K.panel(c1x0, bTop, c1x1, bBot,
-      lo ? `mean price · ${lo.lo}–${lo.hi} ct only` : 'mean price · all sizes',
-      dirNow >= 0 ? 'AS EXPECTED' : 'REVERSED', dirNow >= 0 ? P.CYAN : P.RED,
-      dirNow >= 0 ? 'better grade costs more' : 'better grade costs LESS',
+      lo ? TR('mean price · {0}–{1} ct only', lo.lo, lo.hi) : TR('mean price · all sizes'),
+      dirNow >= 0 ? TR('AS EXPECTED') : TR('REVERSED'), dirNow >= 0 ? P.CYAN : P.RED,
+      dirNow >= 0 ? TR('better grade costs more') : TR('better grade costs LESS'),
       (x0, y0, x1, y1) => bars(x0, y0, x1, y1, A.price, T.price, T.count, p, n, T.order,
                               money, dirNow >= 0 ? null : P.RED));
 
     /* ---------------- mean size by grade: the mechanism ---------------- */
-    K.panel(c2x0, bTop, c2x1, bBot, 'mean size · all sizes', 'THE CONFOUND', P.GOLD,
-      'top grades are small stones',
+    K.panel(c2x0, bTop, c2x1, bBot, TR('mean size · all sizes'), TR('THE CONFOUND'), P.GOLD,
+      TR('top grades are small stones'),
       (x0, y0, x1, y1) => bars(x0, y0, x1, y1, A.size, T.size, T.count, p, n, T.order,
                                v => v.toFixed(2) + ' ct', P.GOLD));
 
@@ -290,6 +294,20 @@
 
   /* ---------------- text ---------------- */
   const $ = id => document.getElementById(id);
+
+  /* ---- TR: translation lookup with positional slots.
+     Named TR because `T` is the current grading object in this file. The KEY is
+     the English format string, so a page with no strings file falls back to
+     correct English instead of showing a key. */
+  function TR(k) {
+    const m = window.UDJ_STRINGS;
+    let s = (m && m[k]) || k;
+    for (let i = 1; i < arguments.length; i++) {
+      s = s.replace('{' + (i - 1) + '}', arguments[i]);
+    }
+    return s;
+  }
+
   function readouts(T, dir) {
     const g = G();
     const lo = band < 0 ? null : S.bands[band];
@@ -300,41 +318,46 @@
     const wv = T.price[wi], bv = T.price[bi];
 
     $('v-worst').textContent = wv === null ? '—' : money(wv);
-    $('v-worst-s').textContent = `grade ${T.order[wi]}`;
+    $('v-worst-s').textContent = TR('grade {0}', T.order[wi]);
     $('v-best').textContent = bv === null ? '—' : money(bv);
-    $('v-best-s').textContent = `grade ${T.order[bi]}`;
+    $('v-best-s').textContent = TR('grade {0}', T.order[bi]);
     $('v-best-c').className = 'vc ' + (dir >= 0 ? 'good' : 'bad');
-    $('v-dir').textContent = dir >= 0 ? 'more expensive' : 'CHEAPER';
-    $('v-dir-s').textContent = dir >= 0 ? 'as it should be' : 'the average is backwards';
+    $('v-dir').textContent = dir >= 0 ? TR('more expensive') : TR('CHEAPER');
+    $('v-dir-s').textContent = dir >= 0 ? TR('as it should be') : TR('the average is backwards');
     $('v-dir-c').className = 'vc ' + (dir >= 0 ? 'good' : 'bad');
 
-    $('r-scope').textContent = lo ? `${lo.lo}–${lo.hi} ct` : 'all sizes';
-    $('r-n').textContent = T.shown.toLocaleString('en-GB');
+    $('r-scope').textContent = lo ? TR('{0}–{1} ct', lo.lo, lo.hi) : TR('all sizes');
+    $('r-n').textContent = T.shown.toLocaleString(LOC);
     $('r-cw').textContent = g.groups[0].mean_carat.toFixed(3) + ' ct';
     $('r-cb').textContent = g.groups[g.groups.length - 1].mean_carat.toFixed(3) + ' ct';
-    $('r-bands').textContent = `${g.bands_correct} of ${g.bands_tested}`;
+    $('r-bands').textContent = TR('{0} of {1}', g.bands_correct, g.bands_tested);
     $('r-bands').className = 'v ' + (g.bands_correct === g.bands_tested ? 'on' : 'gold');
-    $('r-agg').textContent = g.agg_reversed ? 'REVERSED' : 'as expected';
+    $('r-agg').textContent = g.agg_reversed ? TR('REVERSED') : TR('as expected');
     $('r-agg').className = 'v ' + (g.agg_reversed ? 'bad' : 'on');
     $('hint').textContent = lo
-      ? `Within ${lo.lo}–${lo.hi} ct the better ${g.label.toLowerCase()} grade costs `
-        + (dir >= 0 ? 'more, as it should. ' : 'less. ')
-        + `Across all sizes it does not: the aggregate is ${g.agg_reversed ? 'reversed' : 'fine'}.`
-      : `Across all sizes, the best ${g.label.toLowerCase()} grade averages `
-        + `${money(g.groups[g.groups.length - 1].mean_price)} against `
-        + `${money(g.groups[0].mean_price)} for the worst — and it is `
-        + `${g.groups[g.groups.length - 1].mean_carat.toFixed(2)} ct against `
-        + `${g.groups[0].mean_carat.toFixed(2)} ct. Pick a size band to hold that still.`;
+      ? TR('Within {0}–{1} ct the better {2} grade costs {3} Across all sizes it '
+           + 'does not: the aggregate is {4}.',
+           lo.lo, lo.hi, TR(g.label).toLowerCase(),
+           dir >= 0 ? TR('more, as it should.') : TR('less.'),
+           g.agg_reversed ? TR('reversed') : TR('fine'))
+      : TR('Across all sizes, the best {0} grade averages {1} against {2} for the '
+           + 'worst — and it is {3} ct against {4} ct. Pick a size band to hold '
+           + 'that still.',
+           TR(g.label).toLowerCase(),
+           money(g.groups[g.groups.length - 1].mean_price),
+           money(g.groups[0].mean_price),
+           g.groups[g.groups.length - 1].mean_carat.toFixed(2),
+           g.groups[0].mean_carat.toFixed(2));
   }
 
   function provenance() {
     $('prov').innerHTML =
-      `<div class="cap">Data source</div>
-       <p><a href="${S.url}" target="_blank" rel="noopener">${S.source}</a> — ${S.what}</p>
-       <ul>${S.filters.map(f => `<li>${f}</li>`).join('')}</ul>
+      `<div class="cap">${TR('Data source')}</div>
+       <p><a href="${S.url}" target="_blank" rel="noopener">${S.source}</a> — ${TR(S.what)}</p>
+       <ul>${S.filters.map(f => `<li>${TR(f)}</li>`).join('')}</ul>
        <p style="font-size:var(--micro);color:var(--muted-2);font-family:var(--font-mono)">
          Bars are averages over every matching record. The scatter shows
-         ${S.n_embed.toLocaleString('en-GB')} drawn at random, so a bar will not equal the
+         ${S.n_embed.toLocaleString(LOC)} drawn at random, so a bar will not equal the
          eyeballed centre of the dots. Cells with fewer than ${MIN_CELL} stones are drawn
          hollow and excluded from the direction verdict.</p>`;
   }
@@ -352,7 +375,7 @@
   document.querySelectorAll('[data-b]').forEach(b => b.addEventListener('click', () => {
     band = +b.dataset.b; press('[data-b]', band, 'b'); retarget();
     if (reduce) paint();
-    $('live').textContent = band < 0 ? 'Comparing across all sizes.'
+    $('live').textContent = band < 0 ? TR('Comparing across all sizes.')
       : `Comparing within ${S.bands[band].lo} to ${S.bands[band].hi} carats only.`;
   }));
   addEventListener('resize', () => { layout(); paint(); });
