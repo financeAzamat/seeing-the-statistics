@@ -182,24 +182,24 @@ table.cov td.g { color: var(--accent); }
     <p class="sub">How to "discover" something that was never there — and miss something that was.</p>
 
     <p class="lede">You run an A/B test. Version B comes out ahead. Before you ship it,
-      one question has to be answered: <b>could a gap that size have happened by luck
-      alone?</b> That question is the whole of hypothesis testing, and the p-value is the
+      one question has to be answered: could a gap that size have happened by luck
+      alone? That question is the whole of hypothesis testing, and the p-value is the
       answer to it.</p>
 
     <h2>What you are looking at</h2>
     <p>Two samples are drawn from the same real dataset. Group A is left alone. Group B has
-      the "change" applied to it — a lift you choose, which might be <b>nothing at all</b>.
+      the "change" applied to it — a lift you choose, which might be nothing at all.
       Both averages are worked out, and the gap between them gets a p-value.</p>
     <p>Every test drops one bar into the histogram at the bottom. Careful: that bottom chart
-      is on a <b>completely different scale</b> from the data above it. It does not run in
-      pounds — it runs from <b>p = 0 on the left to p = 1 on the right</b>.</p>
+      is on a completely different scale from the data above it. It does not run in
+      pounds — it runs from p = 0 on the left to p = 1 on the right.</p>
 
     <h2>What a p-value actually is</h2>
     <div class="formula">p = if nothing were really going on,
     how often would luck alone hand me
     a gap at least this big?</div>
-    <p>That is all it is. A <b>small p</b> means your gap is hard to explain by luck. A
-      <b>large p</b> means luck explains it comfortably. The cut-off you compare it to —
+    <p>That is all it is. A small p means your gap is hard to explain by luck. A
+      large p means luck explains it comfortably. The cut-off you compare it to —
       usually 0.05 — is a convention someone picked, not a law.</p>
 
     <h2>What it is not</h2>
@@ -208,13 +208,13 @@ table.cov td.g { color: var(--accent); }
       surprising your data would be. "p = 0.03" does not mean a 3% chance you are wrong.</p>
 
     <h2>The flat histogram, and where the 5% comes from</h2>
-    <p>Set the change to <b>none</b> — the two groups are now genuinely identical — and
-      watch the bottom chart fill in. It comes out <b>flat</b>. Every p-value from 0 to 1 is
+    <p>Set the change to none — the two groups are now genuinely identical — and
+      watch the bottom chart fill in. It comes out flat. Every p-value from 0 to 1 is
       equally likely, which is a fact worth sitting with, because it has a consequence:</p>
     <p class="punch warn">If one twentieth of the width sits below 0.05, then one test in
       twenty clears the bar <em>when nothing is happening</em>. The 5% false-alarm rate is
       not a mistake anyone made. It is the definition, working as intended.</p>
-    <p>Measured on this data with nothing going on: <b>4.7%</b> of tests come out
+    <p>Measured on this data with nothing going on: 4.7% of tests come out
       "significant" at the 0.05 line. Exactly as advertised — and exactly the problem.</p>
 
     <h2>Which is why 20 tests find a winner</h2>
@@ -236,8 +236,8 @@ table.cov td.g { color: var(--accent); }
 
     <h2>The bigger problem nobody mentions</h2>
     <p>False alarms get all the attention. The opposite failure is far more common and much
-      more expensive. Set a <b>real</b> +5% lift and see how often the test actually catches
-      it — that share is called the <b>power</b>:</p>
+      more expensive. Set a real +5% lift and see how often the test actually catches
+      it — that share is called the power:</p>
     <table class="cov">
       <thead><tr><th>Per group</th><th>Retail orders</th><th>Diamonds</th><th>Geyser</th></tr></thead>
       <tbody>
@@ -251,10 +251,10 @@ table.cov td.g { color: var(--accent); }
       Share of tests that detect a genuine +5% lift, at the 0.05 line. Measured over
       20,000 tests per cell — <code>data/measure_test.py</code>.</p>
 
-    <p class="punch warn">On retail order value, a real 5% lift with <b>2,000 customers in
-      each group</b> is caught 23% of the time. You would miss it three times out of four,
+    <p class="punch warn">On retail order value, a real 5% lift with 2,000 customers in
+      each group is caught 23% of the time. You would miss it three times out of four,
       and report "no significant difference" every time.</p>
-    <p>So <b>"not significant" almost never means "no effect"</b>. Usually it means the test
+    <p>So "not significant" almost never means "no effect". Usually it means the test
       was never capable of seeing an effect that size. A negative result without a power
       figure beside it carries almost no information.</p>
 
@@ -264,22 +264,22 @@ table.cov td.g { color: var(--accent); }
     <div class="formula">retail orders   spread ÷ average = 1.28
 diamond prices  spread ÷ average = 1.00
 geyser waits    spread ÷ average = 0.19</div>
-    <p>Retail's noise is about <b>6.7 times</b> larger relative to its average than the
+    <p>Retail's noise is about 6.7 times larger relative to its average than the
       geyser's. Because required sample size scales with the <em>square</em> of that ratio,
-      retail needs roughly <b>45 times</b> as much data to see the same percentage lift.
+      retail needs roughly 45 times as much data to see the same percentage lift.
       Skewed money data is expensive to test on, and that cost is knowable in advance.</p>
 
     <h2>What to do about it</h2>
     <ul class="uses">
-      <li><b>Work out the power before you run the test</b>, not after. A test that cannot
+      <li>Work out the power before you run the test, not after. A test that cannot
         detect the effect you care about is not worth running.</li>
-      <li><b>Decide what size of effect matters</b> first. "Any improvement" is not a
+      <li>Decide what size of effect matters first. "Any improvement" is not a
         target, and it makes the sample size infinite.</li>
-      <li><b>Count and declare how many things you tested.</b> One winner out of twenty
+      <li>Count and declare how many things you tested. One winner out of twenty
         comparisons is a coin landing heads, not a discovery.</li>
-      <li><b>Never read "not significant" as "no difference."</b> Report the interval
+      <li>Never read "not significant" as "no difference." Report the interval
         alongside it so the reader can see what was still possible.</li>
-      <li><b>Reduce the noise instead of buying more data</b> where you can — pair before
+      <li>Reduce the noise instead of buying more data where you can — pair before
         and after on the same customers, or test on a less erratic metric.</li>
     </ul>
 

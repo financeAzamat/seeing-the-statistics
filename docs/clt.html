@@ -199,14 +199,14 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     <p class="lede">One customer is unpredictable. The next order might be £5 or £4,000 —
       you cannot plan on it. Thirty customers, averaged, are almost boring: that average
-      lands near <b>£458</b> nearly every time you take it.</p>
+      lands near £458 nearly every time you take it.</p>
 
     <p class="punch">Individual things are chaotic. Averages of groups are dependable.
       That swap is the whole trick, and almost everything you have ever been told about
       "what people do" rests on it.</p>
 
     <h2>What you are looking at</h2>
-    <p>The pile on top is <b>real data</b>: 700 actual invoices from a real UK online
+    <p>The pile on top is real data: 700 actual invoices from a real UK online
       shop. Each dot is one order, sitting where its value falls — cheap orders to the
       left, expensive ones to the right. They run from about £2 to just over £4,000, and
       they are bunched up hard on the left, because most orders are small and only a few
@@ -216,7 +216,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
       out of a box. Their values get averaged into a single number, and that number drops
       as one dot into the pile at the bottom. Then it happens again. And again.</p>
 
-    <p><b>The bottom pile is the thing to watch.</b> It is narrow, it sits in the middle,
+    <p>The bottom pile is the thing to watch. It is narrow, it sits in the middle,
       and it is shaped like a bell — even though the pile it came from is nothing like a
       bell.</p>
 
@@ -230,28 +230,28 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     <h2>Try it yourself</h2>
     <ol class="try">
-      <li>Click <b>n = 1</b>. The bottom pile turns into a copy of the top one. An
+      <li>Click n = 1. The bottom pile turns into a copy of the top one. An
         "average" of a single order is just that order — no magic yet.</li>
-      <li>Click <b>n = 30</b>. The bottom pile collapses into a narrow bell. That
+      <li>Click n = 30. The bottom pile collapses into a narrow bell. That
         collapse is the theorem doing its work.</li>
-      <li>Click <b>25</b>, then <b>100</b>. The typical miss halves, £118 → £59. Four
+      <li>Click 25, then 100. The typical miss halves, £118 → £59. Four
         times the data bought exactly twice the precision — and never more than that.</li>
-      <li>Switch to <b>geyser</b>. That data has two separate humps and nothing in the
+      <li>Switch to geyser. That data has two separate humps and nothing in the
         middle. The averages still come out as one clean bell.</li>
     </ol>
 
     <h2>Why you already rely on this</h2>
     <p>You have trusted this result many times without being told its name:</p>
     <ul class="uses">
-      <li><b>Every poll you have seen.</b> "±3 points" from asking 1,000 people about an
+      <li>Every poll you have seen. "±3 points" from asking 1,000 people about an
         electorate of tens of millions — that number comes straight out of this.</li>
-      <li><b>Every medicine you have taken.</b> Approved on a trial of a few thousand
+      <li>Every medicine you have taken. Approved on a trial of a few thousand
         people, not on the population that will end up swallowing it.</li>
-      <li><b>Every website you use.</b> The layout was chosen by testing two versions on
+      <li>Every website you use. The layout was chosen by testing two versions on
         a sample of visitors and comparing the averages.</li>
-      <li><b>Every food safety check.</b> A handful of items per batch get tested, and the
+      <li>Every food safety check. A handful of items per batch get tested, and the
         batch gets cleared or pulled.</li>
-      <li><b>Every forecast your company signs off.</b> Built from a sample, presented
+      <li>Every forecast your company signs off. Built from a sample, presented
         with a range around it.</li>
     </ul>
     <p>None of that works unless the average of a sample behaves predictably. This page
@@ -259,24 +259,24 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     <h2>The one rule worth remembering</h2>
     <div class="formula">typical miss = spread of the data ÷ √(how much data)</div>
-    <p>The square root is the part with consequences. To <b>halve</b> your uncertainty you
-      need <b>four times</b> the data. To cut it to a tenth, a hundred times.</p>
+    <p>The square root is the part with consequences. To halve your uncertainty you
+      need four times the data. To cut it to a tenth, a hundred times.</p>
     <p>That is why polls ask 1,000 people and not 10,000: paying ten times more buys only
       a threefold improvement. It is also the reason "we asked 12 customers" deserves
       suspicion while "we asked 400" usually does not — and why, past a point, collecting
       more data is the expensive way to solve a problem.</p>
 
     <h2>Where it stops working</h2>
-    <p>You will be told <b>n ≈ 30 is enough</b>. That is a rule about how extreme your
+    <p>You will be told n ≈ 30 is enough. That is a rule about how extreme your
       data's tail is, and you can watch it fail right here. The exact version:</p>
     <div class="formula">lopsidedness of the averages = lopsidedness of the data ÷ √n</div>
     <p>Take <code>0.20</code> as the point a pile stops looking lopsided to the eye. The
-      three datasets then need wildly different amounts of data, and <b>only one of them
-      is served by 30</b>:</p>
+      three datasets then need wildly different amounts of data, and only one of them
+      is served by 30:</p>
     <ul>
-      <li><b>Geyser waits</b> — mildly lopsided (−0.42) → even by <b>n = 5</b>.</li>
-      <li><b>Diamond prices</b> — strongly (+1.61) → needs <b>n = 66</b>.</li>
-      <li><b>Retail orders</b> — extremely (+3.40) → needs <b>n ≈ 290</b>. At 30 the
+      <li>Geyser waits — mildly lopsided (−0.42) → even by n = 5.</li>
+      <li>Diamond prices — strongly (+1.61) → needs n = 66.</li>
+      <li>Retail orders — extremely (+3.40) → needs n ≈ 290. At 30 the
         averages still lean right, and you can see them doing it.</li>
     </ul>
     <p>The wilder the tail, the more data you need before averages start behaving. Thirty

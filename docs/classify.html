@@ -23,17 +23,17 @@
     <h1>97% accurate and completely useless</h1>
     <p class="sub">The easiest number to game in all of analytics.</p>
 
-    <p class="lede">Predicting a yes/no outcome invites one number: <b>what share did we
-      get right?</b> It is the most quoted measure in applied machine learning and the
+    <p class="lede">Predicting a yes/no outcome invites one number: what share did we
+      get right? It is the most quoted measure in applied machine learning and the
       easiest one to make look excellent while learning nothing at all.</p>
 
     <h2>The trick</h2>
-    <p>Take a real question with a real answer: <b>is this diamond worth more than
-      $10,000?</b> Across all 53,940 stones, <b>9.68%</b> are. So:</p>
+    <p>Take a real question with a real answer: is this diamond worth more than
+      $10,000? Across all 53,940 stones, 9.68% are. So:</p>
     <div class="formula">predict "no" for every single diamond
     → accuracy 90.32%</div>
     <p>That figure requires no model and no data. Raise the bar to $15,000 and the
-      same non-answer scores <b>96.93%</b>. Any model that cannot beat that is worthless,
+      same non-answer scores 96.93%. Any model that cannot beat that is worthless,
       and plenty of reported models cannot.</p>
 
     <h2>What the number hides</h2>
@@ -41,52 +41,52 @@
       the distinction away. The four are worth naming, because they have different
       prices:</p>
     <ul class="uses">
-      <li><b>True positive</b> — flagged, and it was. The point of the exercise.</li>
-      <li><b>False positive</b> — flagged, but wasn't. Wasted effort; an appraisal, a
+      <li>True positive — flagged, and it was. The point of the exercise.</li>
+      <li>False positive — flagged, but wasn't. Wasted effort; an appraisal, a
         call, an investigation.</li>
-      <li><b>False negative</b> — missed. Usually the expensive one: the fraud you paid,
+      <li>False negative — missed. Usually the expensive one: the fraud you paid,
         the churn you didn't prevent, the defect that shipped.</li>
-      <li><b>True negative</b> — correctly ignored. Cheap, plentiful, and what inflates
+      <li>True negative — correctly ignored. Cheap, plentiful, and what inflates
         accuracy when the event is rare.</li>
     </ul>
     <p class="punch">The four cells are the honest report. Accuracy is those four numbers
       with the interesting structure averaged out of them.</p>
 
     <h2>Drag the line</h2>
-    <p>The chart is the confusion matrix drawn as geography. The <b>horizontal</b> line is
-      the truth — $10,000, fixed. The <b>vertical</b> line is your decision rule: call
+    <p>The chart is the confusion matrix drawn as geography. The horizontal line is
+      the truth — $10,000, fixed. The vertical line is your decision rule: call
       everything to its right expensive. Between them they cut the stones into four
       quadrants, and <em>those quadrants are the four cells</em>.</p>
     <ol class="try">
-      <li>Drag the vertical line all the way <b>right</b>. You now predict "cheap" for
+      <li>Drag the vertical line all the way right. You now predict "cheap" for
         almost everything: accuracy climbs toward 90%, and you catch nothing.</li>
-      <li>Drag it <b>left</b>. You catch nearly every expensive stone — and flag thousands
+      <li>Drag it left. You catch nearly every expensive stone — and flag thousands
         of cheap ones with it.</li>
-      <li>Press <b>best accuracy</b>. The best-scoring cut-off still misses
-        <b>31%</b> of the expensive diamonds.</li>
-      <li>Press <b>best F1</b>. Accuracy barely moves — 95.07% to 95.03% — but recall
-        jumps from 69% to <b>84%</b>. Nearly free, and invisible to accuracy.</li>
+      <li>Press best accuracy. The best-scoring cut-off still misses
+        31% of the expensive diamonds.</li>
+      <li>Press best F1. Accuracy barely moves — 95.07% to 95.03% — but recall
+        jumps from 69% to 84%. Nearly free, and invisible to accuracy.</li>
     </ol>
 
     <h2>The two numbers to quote instead</h2>
     <div class="formula">precision = of those you flagged, how many were right
 recall    = of those that mattered, how many did you catch</div>
-    <p>They pull against each other, and which one you favour is a <b>business decision,
-      not a statistical one</b>. Screening for a cheap follow-up? Favour recall; a false
+    <p>They pull against each other, and which one you favour is a business decision,
+      not a statistical one. Screening for a cheap follow-up? Favour recall; a false
       alarm costs a phone call. Triggering something expensive or irreversible? Favour
       precision.</p>
-    <p><b>F1</b> is their harmonic mean — a single number again, but one that cannot be
+    <p>F1 is their harmonic mean — a single number again, but one that cannot be
       won by doing nothing, because ignoring every case sends recall to zero and takes F1
       with it.</p>
 
     <h2>Where this bites</h2>
     <ul class="uses">
-      <li><b>Fraud.</b> Under 1% of transactions. A 99% accurate model can be "approve
+      <li>Fraud. Under 1% of transactions. A 99% accurate model can be "approve
         everything".</li>
-      <li><b>Churn.</b> Predicting nobody leaves scores well and saves no one.</li>
-      <li><b>Defect screening.</b> Accuracy rewards passing everything; the cost lands
+      <li>Churn. Predicting nobody leaves scores well and saves no one.</li>
+      <li>Defect screening. Accuracy rewards passing everything; the cost lands
         with the customer.</li>
-      <li><b>Any rare event.</b> The rarer the thing, the better doing nothing looks.</li>
+      <li>Any rare event. The rarer the thing, the better doing nothing looks.</li>
     </ul>
     <p class="punch warn">Ask for the base rate before the accuracy. Without it the
       accuracy figure cannot be interpreted at all — and its absence is usually

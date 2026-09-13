@@ -21,17 +21,17 @@
   <section>
     <div class="cap">UDJ · Module 3 — <span class="on">Describing a Distribution</span></div>
     <h1>Most people are below average</h1>
-    <p class="sub">And that is not an insult. It is arithmetic.</p>
+    <p class="sub">That is arithmetic rather than an insult.</p>
 
-    <p class="lede">Someone tells you the average order is <b>£519</b>. You picture a
+    <p class="lede">Someone tells you the average order is £519. You picture a
       typical customer spending about £519. On this real data, that customer
-      <b>barely exists</b> — and more than three in every four orders come in under it.</p>
+      barely exists — and more than three in every four orders come in under it.</p>
 
     <h2>The number everyone reaches for first</h2>
     <p>The average is the first thing anyone computes and the first thing anyone
       quotes. Add everything up, divide by how many. It is the most useful single
       number in statistics and the easiest one to be misled by, because of a
-      property people rarely think about: <b>the average is not a vote.</b> A
+      property people rarely think about: the average is not a vote. A
       single very large value moves it as much as thousands of ordinary ones.</p>
 
     <p>Here is the same three real datasets, and how many observations actually
@@ -47,7 +47,7 @@
             <td class="g">39.3%</td></tr>
       </tbody>
     </table>
-    <p class="punch warn">On the orders, <b>15,285 of 19,773</b> are below the
+    <p class="punch warn">On the orders, 15,285 of 19,773 are below the
       average. Quote £519.50 as the typical order and you have described a
       customer that 77% of them are not.</p>
 
@@ -55,13 +55,13 @@
     <p>Order values and diamond prices have the same shape: a great many small
       ones, then a long thin tail of very large ones running off to the right.
       That tail cannot pull the average down — there is nothing below zero — so it
-      only ever pulls it <b>up</b>, away from the crowd.</p>
+      only ever pulls it up, away from the crowd.</p>
 
     <div class="formula">a few huge values drag the average up
       <span>the crowd stays where it was → most of the crowd is now "below average"</span>
     </div>
 
-    <p>The fix is the one statistic almost nobody quotes: the <b>median</b>, the
+    <p>The fix is the one statistic almost nobody quotes: the median, the
       value with half the observations either side. It is a vote. One giant order
       counts once, like everyone else.</p>
     <table class="cov">
@@ -73,17 +73,17 @@
             <td class="b">1.64×</td></tr>
       </tbody>
     </table>
-    <p>The middle order is <b>£302.59</b>. That is the one to picture. The average
+    <p>The middle order is £302.59. That is the one to picture. The average
       is 72% higher than it, and the difference is entirely a handful of very
       large orders.</p>
 
     <h2>The third dataset breaks the rule — and that is the real lesson</h2>
     <p>Only 39.3% of geyser waits are below their average, so "most are below
       average" is simply false there. But the average fails on that data too, in a
-      completely different way: <b>it lands on a value that hardly ever happens.</b></p>
-    <p>Old Faithful has two habits. Short waits cluster around <b>52.9 minutes</b>
-      and long waits around <b>79.4 minutes</b>. The average of the two habits is
-      70.90 minutes — a wait that belongs to <b>neither</b>. Only <b>7.0%</b> of
+      completely different way: it lands on a value that hardly ever happens.</p>
+    <p>Old Faithful has two habits. Short waits cluster around 52.9 minutes
+      and long waits around 79.4 minutes. The average of the two habits is
+      70.90 minutes — a wait that belongs to neither. Only 7.0% of
       waits land within a couple of minutes of it, against 16.9% at the busier
       cluster.</p>
     <p class="punch">Turn up at the average time and you have picked the emptiest
@@ -102,8 +102,8 @@
         <tr><td>Geyser waits</td><td class="b">7.0%</td><td class="g">16.9%</td></tr>
       </tbody>
     </table>
-    <p>The commonest diamond price is about <b>$965</b>. The average is
-      <b>$3,932.80</b> — more than four times higher. Both numbers are correct.
+    <p>The commonest diamond price is about $965. The average is
+      $3,932.80 — more than four times higher. Both numbers are correct.
       Only one of them describes a diamond you are likely to see.</p>
 
     <h2>Try it yourself</h2>
@@ -115,14 +115,14 @@
     <h2>Where this appears in practice</h2>
     <p>You already rely on this and may not have noticed:</p>
     <ul>
-      <li><b>Salaries.</b> Average pay at a company is pulled up by a few senior
+      <li>Salaries. Average pay at a company is pulled up by a few senior
         packages. The median is what a new joiner should ask about.</li>
-      <li><b>House prices.</b> Property reporting quotes medians almost
+      <li>House prices. Property reporting quotes medians almost
         exclusively, precisely because a handful of mansions would wreck the mean.</li>
-      <li><b>Page load times.</b> Engineers watch the median and the 95th
+      <li>Page load times. Engineers watch the median and the 95th
         percentile, never the average, because the average hides both the normal
         case and the disaster.</li>
-      <li><b>Capacity planning.</b> Sizing anything for the average demand
+      <li>Capacity planning. Sizing anything for the average demand
         guarantees you are short whenever demand is above it — which, on
         right-skewed demand, is the busy periods that matter.</li>
     </ul>

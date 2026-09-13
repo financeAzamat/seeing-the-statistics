@@ -162,7 +162,7 @@ def claim(name: str, pattern: str, want, tol=0.0, group=1):
         fails.append(f"{name}: prose says {gotv!r}, data says {want!r}")
 
 
-claim("lede average order", r"the average order is <b>£(\d+)</b>", 519.0, 0.5)
+claim("lede average order", r"the average order is (?:<b>)?£(\d+)", 519.0, 0.5)
 claim("table: retail average", r"Online orders <em>\(19,773\)</em></td><td class=\"b\">£([\d,]+\.\d+)", R["mu"], 0.01)
 claim("table: retail percent below", r"£519\.50</td>\s*<td class=\"b\">(\d+\.\d+)%", R["pctBelow"], 0.05)
 claim("table: diamond average", r"Diamonds <em>\(53,940\)</em></td><td class=\"b\">\$([\d,]+\.\d+)", DI["mu"], 0.01)
@@ -179,8 +179,8 @@ claim("middle order restated", r"The middle order is (?:<b>)?£([\d,]+\.\d+)(?:<
 claim("how much higher the average is", r"average is (\d+)% higher than it",
       round(100 * (R["ratio"] - 1)), 0.51)
 claim("geyser percent below restated", r"Only (\d+\.\d+)% of geyser waits", G["pctBelow"], 0.05)
-claim("geyser short cluster", r"cluster around <b>(\d+\.\d+) minutes</b>", G["modes"][0], 0.05)
-claim("geyser long cluster", r"long waits around <b>(\d+\.\d+) minutes</b>", G["modes"][1], 0.05)
+claim("geyser short cluster", r"cluster around (?:<b>)?(\d+\.\d+) minutes", G["modes"][0], 0.05)
+claim("geyser long cluster", r"long waits around (?:<b>)?(\d+\.\d+) minutes", G["modes"][1], 0.05)
 claim("geyser mean between", r"The average of the two habits is (\d+\.\d+) minutes", G["mu"], 0.01)
 claim("geyser near-mean share", r"Only (?:<b>)?(\d+\.\d+)%(?:</b>)? of waits land within",
       round(100 * G["nearMean"] / G["n"], 1), 0.05)

@@ -23,12 +23,15 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 
-# Pages held to the rules today. Add to this as pages are rewritten.
-ENFORCED = {"simpson.html", "ru/simpson.html", "index.html", "ru/index.html",
-            # batch 1 of the bold reduction
-            "overfit.html", "corr.html", "intuition.html",
-            # batch 2
-            "ci.html", "regression.html", "diagnostics.html"}
+# Every page is held to the rules. The list is no longer a backlog — it is the
+# whole set, so a new page or a reworded paragraph that reintroduces a banned
+# construction or decorative bold fails the build rather than being noted.
+ENFORCED = {
+    "index.html", "intuition.html", "typical.html", "corr.html", "clt.html",
+    "ci.html", "test.html", "regression.html", "overfit.html",
+    "diagnostics.html", "classify.html", "simpson.html",
+    "ru/index.html", "ru/simpson.html",
+}
 
 EN_BANNED = [
     (r"\bis not a [a-z ]+; it is\b|\bisn't [a-z ]+, it's\b|\bnot [a-z]+, but\b",
@@ -66,11 +69,15 @@ def negate_then_assert(txt: str) -> list[str]:
         words = s.split()
         if len(words) > 8:
             continue                      # a long sentence is not the move
-        if not re.search(r"\b(not|never|no)\b", s, re.I):
-            continue
+        # "not"/"never" negate a proposition; a bare "no" is usually a
+        # determiner inside a noun phrase ("with no transform", "no line at
+        # all") and is only rhetorical when it OPENS the sentence ("No model.
+        # No data."). Treating every "no" as rhetorical flagged a setting name.
         tail = " ".join(words[-3:]).lower()
-        if not re.search(r"\b(not|never|no)\b", tail):
-            continue                      # negation must be the sentence's point
+        rhetorical = (re.search(r"\b(not|never)\b", tail)
+                      or re.match(r"^no\b", s, re.I))
+        if not rhetorical:
+            continue
         nxt = sents[i + 1].split()
         if len(nxt) <= 8:
             out.append(f"{s} {sents[i + 1]}"[:60])
@@ -85,6 +92,42 @@ RU_BANNED = [
 ]
 
 MAX_BOLD = 2   # a term at its point of definition, once or twice per page
+
+
+def blocks_of(seg: str) -> list[str]:
+    """The visible text of each block element, separately.
+
+    The rhetorical pair lives INSIDE one paragraph or list item. Running the
+    detector over a flattened page produced four false pairs: an <h2> heading
+    read as the first half ("Why squares, and not just distances." + the
+    paragraph under it), and one list item read as the first half of the next.
+    Neither is the construction; both are just adjacent text.
+    """
+    out = []
+    for m in re.finditer(r"<(p|h1|h2|h3|li|dd|dt)\b[^>]*>(.*?)</\1>", seg,
+                         re.S | re.I):
+        t = re.sub(r"<[^>]+>", " ", m.group(2))
+        t = re.sub(r"\s+", " ", t).strip()
+        if t:
+            out.append(t)
+    return out
+
+
+def text_of(seg: str) -> str:
+    """Visible text, with block boundaries preserved as sentence breaks.
+
+    Stripping tags to a single space merges adjacent blocks into one pseudo
+    sentence: an <h1> followed by a <p class="sub"> became "Most people are below
+    average And that is not an insult." — 10 words, over the length threshold, so
+    the banned construction sitting in the sub-heading was never flagged. Any
+    check that measures sentences has to respect where sentences actually end.
+    """
+    seg = re.sub(r"</(p|h1|h2|h3|li|dt|dd|div|td|th|tr|ol|ul|dl|section)>",
+                 ". ", seg, flags=re.I)
+    seg = re.sub(r"<br\s*/?>", ". ", seg, flags=re.I)
+    seg = re.sub(r"<[^>]+>", " ", seg)
+    seg = re.sub(r"\s+", " ", seg)
+    return re.sub(r"(\.\s*)+\.", ". ", seg)
 
 
 def body_of(s: str) -> str:
@@ -120,12 +163,14 @@ print(f"enforced: {sorted(ENFORCED)}\n")
 for name, path in pages():
     s = path.read_text(encoding="utf-8")
     body = body_of(s)
-    txt = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", body))
+    txt = text_of(body)
     pats = RU_BANNED if name.startswith("ru/") else EN_BANNED
     hits = [(why, m.group(0).strip()[:46])
             for pat, why in pats for m in re.finditer(pat, txt)]
-    for pair in negate_then_assert(txt):
-        hits.append(("'not X. Y' — state X, then state Y in two sentences", pair))
+    for blk in blocks_of(body):
+        for pair in negate_then_assert(blk):
+            hits.append(("'not X. Y' — state X, then state Y in two sentences",
+                         pair))
     # Bold is counted in PROSE only. The .note and .tech blocks are fenced
     # reference material where a bold span is a label (`Coverage:`, `Data:`) and
     # therefore structure rather than emphasis. A banned construction is wrong
