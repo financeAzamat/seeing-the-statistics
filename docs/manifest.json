@@ -1,94 +1,154 @@
 {
- "pages": [
+ "locales": [
   {
-   "order": 1,
-   "href": "intuition.html",
-   "num": "01",
-   "title": "Where your judgment goes wrong"
+   "locale": "en",
+   "pages": 12,
+   "entries": 11,
+   "assets": 22,
+   "order": [
+    {
+     "order": 1,
+     "href": "intuition.html",
+     "num": "01",
+     "title": "Where your judgment goes wrong"
+    },
+    {
+     "order": 2,
+     "href": "typical.html",
+     "num": "03",
+     "title": "The average is not typical"
+    },
+    {
+     "order": 3,
+     "href": "corr.html",
+     "num": "04",
+     "title": "Correlation and the range you looked at"
+    },
+    {
+     "order": 4,
+     "href": "clt.html",
+     "num": "05·1",
+     "title": "The Central Limit Theorem"
+    },
+    {
+     "order": 5,
+     "href": "ci.html",
+     "num": "05·2",
+     "title": "Confidence intervals"
+    },
+    {
+     "order": 6,
+     "href": "test.html",
+     "num": "06",
+     "title": "p-values and hypothesis tests"
+    },
+    {
+     "order": 7,
+     "href": "regression.html",
+     "num": "07",
+     "title": "Regression and R²"
+    },
+    {
+     "order": 8,
+     "href": "overfit.html",
+     "num": "07·2",
+     "title": "Overfitting and adjusted R²"
+    },
+    {
+     "order": 9,
+     "href": "diagnostics.html",
+     "num": "08",
+     "title": "Regression diagnostics"
+    },
+    {
+     "order": 10,
+     "href": "classify.html",
+     "num": "09",
+     "title": "Accuracy and the confusion matrix"
+    },
+    {
+     "order": 11,
+     "href": "simpson.html",
+     "num": "+",
+     "title": "Simpson's paradox"
+    }
+   ]
   },
   {
-   "order": 2,
-   "href": "typical.html",
-   "num": "03",
-   "title": "The average is not typical"
-  },
-  {
-   "order": 3,
-   "href": "corr.html",
-   "num": "04",
-   "title": "Correlation and the range you looked at"
-  },
-  {
-   "order": 4,
-   "href": "clt.html",
-   "num": "05\u00b71",
-   "title": "The Central Limit Theorem"
-  },
-  {
-   "order": 5,
-   "href": "ci.html",
-   "num": "05\u00b72",
-   "title": "Confidence intervals"
-  },
-  {
-   "order": 6,
-   "href": "test.html",
-   "num": "06",
-   "title": "p-values and hypothesis tests"
-  },
-  {
-   "order": 7,
-   "href": "regression.html",
-   "num": "07",
-   "title": "Regression and R\u00b2"
-  },
-  {
-   "order": 8,
-   "href": "overfit.html",
-   "num": "07\u00b72",
-   "title": "Overfitting and adjusted R\u00b2"
-  },
-  {
-   "order": 9,
-   "href": "diagnostics.html",
-   "num": "08",
-   "title": "Regression diagnostics"
-  },
-  {
-   "order": 10,
-   "href": "classify.html",
-   "num": "09",
-   "title": "Accuracy and the confusion matrix"
-  },
-  {
-   "order": 11,
-   "href": "simpson.html",
-   "num": "+",
-   "title": "Simpson's paradox"
+   "locale": "ru",
+   "pages": 1,
+   "entries": 11,
+   "assets": 3,
+   "order": [
+    {
+     "order": 1,
+     "href": "intuition.html",
+     "num": "01",
+     "title": "Где ваше суждение даёт сбой"
+    },
+    {
+     "order": 2,
+     "href": "typical.html",
+     "num": "03",
+     "title": "Среднее — не типичное"
+    },
+    {
+     "order": 3,
+     "href": "corr.html",
+     "num": "04",
+     "title": "Корреляция и окно, через которое вы смотрели"
+    },
+    {
+     "order": 4,
+     "href": "clt.html",
+     "num": "05·1",
+     "title": "Центральная предельная теорема"
+    },
+    {
+     "order": 5,
+     "href": "ci.html",
+     "num": "05·2",
+     "title": "Доверительные интервалы"
+    },
+    {
+     "order": 6,
+     "href": "test.html",
+     "num": "06",
+     "title": "p-значения и проверка гипотез"
+    },
+    {
+     "order": 7,
+     "href": "regression.html",
+     "num": "07",
+     "title": "Регрессия и R²"
+    },
+    {
+     "order": 8,
+     "href": "overfit.html",
+     "num": "07·2",
+     "title": "Переобучение и скорректированный R²"
+    },
+    {
+     "order": 9,
+     "href": "diagnostics.html",
+     "num": "08",
+     "title": "Диагностика регрессии"
+    },
+    {
+     "order": 10,
+     "href": "classify.html",
+     "num": "09",
+     "title": "Точность и матрица ошибок"
+    },
+    {
+     "order": 11,
+     "href": "simpson.html",
+     "num": "+",
+     "title": "Парадокс Симпсона"
+    }
+   ]
   }
  ],
- "assets": [
-  "ci_crit.js",
-  "classify.js",
-  "classify.render.js",
-  "corr.js",
-  "corr.render.js",
-  "datasets.js",
-  "diagnostics.render.js",
-  "draw.js",
-  "intuition.js",
-  "intuition.render.js",
-  "motion.js",
-  "nav.css",
-  "overfit.render.js",
-  "page.css",
-  "pairs.js",
-  "simpson.js",
-  "simpson.render.js",
-  "stats.js",
-  "tokens.css",
-  "typical.js",
-  "typical.render.js"
- ],
- "bytes": 596664
+ "bytes": 615659,
+ "files": 38
 }
