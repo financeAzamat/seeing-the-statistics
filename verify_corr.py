@@ -178,10 +178,10 @@ WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "ni
 claim("headline counts the windows shown",
       r"<h1>The same relationship, (\w+) different answers</h1>",
       WORDS[len(D["windows"])])
-claim("lede r at full range", r"size and price is <b>\+(\d+\.\d+)</b>",
+claim("lede r at full range", r"size and price is (?:<b>)?\+(\d+\.\d+)",
       round(abs(full_r), 2), 0.005)
 claim("lede r in the tightest window",
-      r"<b>\+(\d+\.\d+)</b> depending only on", round(abs(tight_r), 2), 0.005)
+      r"or (?:<b>)?\+(\d+\.\d+)(?:</b>)? depending only on", round(abs(tight_r), 2), 0.005)
 claim("table: all sizes n", r"<td>all sizes</td><td>([\d,]+)</td>", D["windows"][0]["n"])
 claim("table: all sizes r", r"<td>all sizes</td><td>[\d,]+</td><td class=\"g\">\+(\d+\.\d+)</td>",
       at3("full range"), 1e-9)
@@ -194,10 +194,10 @@ claim("table: 0.90-1.10 r", r"<td>0\.90–1\.10 ct</td><td>[\d,]+</td><td class=
 claim("table: 0.99-1.01 n", r"<td>0\.99–1\.01 ct</td><td>([\d,]+)</td>", D["windows"][5]["n"])
 claim("table: 0.99-1.01 r", r"<td>0\.99–1\.01 ct</td><td>[\d,]+</td><td class=\"b\">\+(\d+\.\d+)</td>",
       at3("0.99–1.01 ct"), 1e-9)
-claim("how much of r is lost", r"loses <b>(\d+)%</b> of its size", lost, 0.51)
+claim("how much of r is lost", r"loses (?:<b>)?(\d+)%(?:</b>)? of its size", lost, 0.51)
 claim("prose: r in the tightest window restated",
       r"<b>r = \+(\d+\.\d+) is the correct answer", at3("0.99–1.01 ct"), 1e-9)
-claim("geyser: pooled r", r"correlate at <b>\+(\d+\.\d+)</b>", at3("geyser"), 1e-9)
+claim("geyser: pooled r", r"correlate at (?:<b>)?\+(\d+\.\d+)", at3("geyser"), 1e-9)
 claim("geyser table: all n", r"<td>all of them</td><td>(\d+)</td>", G["nAll"])
 claim("geyser table: all r", r"<td>all of them</td><td>\d+</td><td class=\"g\">\+(\d+\.\d+)</td>",
       at3("geyser"), 1e-9)
@@ -214,7 +214,7 @@ claim("three ways: spearman", r"does it rise at all</td><td class=\"g\">\+(\d+\.
       at3("spearman"), 1e-9)
 claim("three ways: log-log", r"taking logs of both</td><td class=\"g\">\+(\d+\.\d+)</td>",
       at3("logr"), 1e-9)
-claim("pearson restated after the table", r"The <b>\+(\d+\.\d+)</b> is r being docked",
+claim("pearson restated after the table", r"The (?:<b>)?\+(\d+\.\d+)(?:</b>)? is r being docked",
       at3("pearson"), 1e-9)
 claim("dirt: zero-dimension rows", r"<b>(\d+)</b> rows with a physically impossible",
       DIRT["nZero"])

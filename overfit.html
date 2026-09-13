@@ -28,7 +28,7 @@
       is not, on its own, a claim that anything improved.</p>
 
     <h2>The experiment</h2>
-    <p>Take a real relationship. Add columns of <b>random numbers</b> — provably
+    <p>Take a real relationship. Add columns of random numbers — provably
       meaningless, generated on the spot, unrelated to anything. Refit. Repeat.</p>
     <p>Three lines are tracked as the junk piles up:</p>
     <ul class="uses">
@@ -43,7 +43,7 @@
 
     <h2>Why R² cannot fall</h2>
     <p>Least squares picks the coefficients that make the error as small as possible. A
-      new column can always be given a coefficient of <b>zero</b>, which reproduces the
+      new column can always be given a coefficient of zero, which reproduces the
       old fit exactly. So the best fit with the extra column is never worse than the best
       fit without it — and with real numbers it is always very slightly better, because
       random noise always correlates a little with anything by chance.</p>
@@ -57,10 +57,10 @@ adj  = 1 − (1−R²)·(n−1)/(n−k−1)   ← pays k for the privilege</div>
     <ol class="try">
       <li>Watch the lines draw themselves — the page fits a fresh model at each step
         rather than reading a table.</li>
-      <li>Push <b>predictors</b> up. The blue line climbs the whole way. It has to.</li>
-      <li>Watch the <b>red</b> line. It peels away and then dives, often below zero —
+      <li>Push the predictor count up. The blue line climbs the whole way, because it has to.</li>
+      <li>Watch the red line. It peels away and then dives, often below zero —
         which means the model is worse than ignoring the data and guessing the average.</li>
-      <li>Switch to <b>geyser</b>. With only 136 rows to train on, the collapse is
+      <li>Switch to the geyser data. With only 136 rows to train on, the collapse is
         brutal: the model is memorising rather than learning.</li>
     </ol>
 
@@ -70,13 +70,13 @@ adj  = 1 − (1−R²)·(n−1)/(n−k−1)   ← pays k for the privilege</div>
 
     <h2>What to do about it</h2>
     <ul class="uses">
-      <li><b>Quote adjusted R², not R²</b>, the moment there is more than one predictor.
+      <li>Quote adjusted R² rather than R² the moment there is more than one predictor.
         It is free and it is honest.</li>
-      <li><b>Hold data back.</b> Nothing else answers the question. Fit on part, score on
+      <li>Hold data back. Nothing else answers the question. Fit on part, score on
         the rest, report that number.</li>
-      <li><b>Be suspicious of "we added features and R² improved."</b> That sentence is
+      <li>Treat "we added features and R² improved" as no evidence at all. That sentence is
         true of random numbers.</li>
-      <li><b>Count your predictors against your rows.</b> As k approaches n, a model can
+      <li>Count predictors against rows. As k approaches n, a model can
         fit anything perfectly and predict nothing.</li>
     </ul>
 

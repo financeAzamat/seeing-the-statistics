@@ -24,7 +24,9 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 
 # Pages held to the rules today. Add to this as pages are rewritten.
-ENFORCED = {"simpson.html", "ru/simpson.html", "index.html", "ru/index.html"}
+ENFORCED = {"simpson.html", "ru/simpson.html", "index.html", "ru/index.html",
+            # batch 1 of the bold reduction
+            "overfit.html", "corr.html", "intuition.html"}
 
 EN_BANNED = [
     (r"\bis not a [a-z ]+; it is\b|\bisn't [a-z ]+, it's\b|\bnot [a-z]+, but\b",

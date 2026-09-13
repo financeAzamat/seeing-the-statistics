@@ -24,10 +24,10 @@
     <p class="sub">r does not measure a relationship. It measures a relationship
       <em>and the window you looked through</em>.</p>
 
-    <p class="lede">Bigger diamonds cost more. That is a fact about diamonds and it
-      does not change. But the correlation between size and price is
-      <b>+0.92</b> or <b>+0.09</b> depending only on <b>which stones you were
-      allowed to see</b> — and nothing about the stones themselves.</p>
+    <p class="lede">Bigger diamonds cost more, and that fact does not change. The
+      correlation between size and price is +0.92 or +0.09 depending only on
+      <b>which stones you were allowed to see</b>, and on nothing about the stones
+      themselves.</p>
 
     <h2>What r is supposed to tell you</h2>
     <p>The correlation coefficient runs from −1 to +1. Near +1 means the two
@@ -50,8 +50,7 @@
         <tr><td>0.99–1.01 ct</td><td>3,823</td><td class="b">+0.088</td></tr>
       </tbody>
     </table>
-    <p class="punch warn">Between the first row and the last, the correlation
-      loses <b>90%</b> of its size. Not one price changed. Not one stone was
+    <p class="punch warn">Between the first row and the last, the correlation loses 90% of its size. Not one price changed. Not one stone was
       re-cut. The only thing that changed is how wide a range of sizes the sample
       contained.</p>
 
@@ -74,8 +73,7 @@
     <h2>The same trap, running the other way</h2>
     <p>Old Faithful erupts in two habits: short bursts followed by a short wait,
       long bursts followed by a long wait. Across all 272 eruptions, the length of
-      an eruption and the wait that follows correlate at <b>+0.901</b> — which
-      reads as a tight, almost mechanical relationship.</p>
+      an eruption and the wait that follows correlate at +0.901, which reads as a tight, almost mechanical relationship.</p>
     <p>Split it by habit and it disappears:</p>
     <table class="cov">
       <thead><tr><th>Eruptions</th><th>How many</th><th>r</th></tr></thead>
@@ -85,8 +83,7 @@
         <tr><td>long, 3 min or more</td><td>175</td><td class="b">+0.373</td></tr>
       </tbody>
     </table>
-    <p class="punch">That +0.901 is almost entirely the <b>gap between the two
-      groups</b>, not agreement inside them. Knowing which habit you are in tells
+    <p class="punch">That +0.901 is almost entirely the gap between the two groups rather than agreement inside them. Knowing which habit you are in tells
       you a lot. Knowing the exact length of the eruption, once you know the
       habit, tells you very little.</p>
     <p>Both cases are the same mechanism. A wide spread in x inflates r; a narrow
@@ -105,21 +102,20 @@
         <tr><td>r after taking logs of both</td><td class="g">+0.966</td></tr>
       </tbody>
     </table>
-    <p>The relationship was always that tight. The <b>+0.922</b> is r being
-      docked marks for a curve, not evidence of a weaker relationship.</p>
+    <p>The relationship was always that tight. The +0.922 is r being docked marks for a curve, not evidence of a weaker relationship.</p>
 
     <h2>Where this appears in practice</h2>
     <p>Range restriction is not an exotic edge case. It is the normal condition of
       most business data, because most data is already filtered:</p>
     <ul>
-      <li><b>Hiring.</b> You measure how well an aptitude test predicts
+      <li>In hiring, you measure how well an aptitude test predicts
         performance using only the people you hired — who all scored well. The
         test looks useless because you removed the low scores.</li>
-      <li><b>Credit.</b> Default models are fitted on approved loans. Everyone
+      <li>In credit, default models are fitted on approved loans. Everyone
         obviously risky was declined, so the risk factors look weak.</li>
-      <li><b>Pricing.</b> Check whether price affects demand using last quarter's
+      <li>In pricing, checking whether price affects demand using last quarter's
         prices, which barely moved, and price looks irrelevant.</li>
-      <li><b>Cluster inflation.</b> Pool two regions, two products or two seasons
+      <li>Pooling two regions, two products or two seasons
         and a correlation appears that exists in neither of them — the mirror
         image, and the same arithmetic.</li>
     </ul>
