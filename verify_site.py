@@ -201,6 +201,53 @@ check("README lists every locale",
       all(f"`{c}`" in readme for c in codes), True)
 
 print("\n" + "=" * 78)
+print("6. THE CONTENTS PAGES DO NOT LIE ABOUT THEMSELVES")
+print("=" * 78)
+# Every data page has its figures checked; the contents page had nobody checking
+# it, and drifted -- it claimed eleven verification scripts and eight renderers
+# when there were fifteen and eleven. Self-referential counts get the same
+# treatment as any other published figure.
+WORD = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
+        7: "seven", 8: "eight", 9: "nine", 10: "ten", 11: "eleven",
+        12: "twelve", 13: "thirteen", 14: "fourteen", 15: "fifteen",
+        16: "sixteen", 17: "seventeen", 18: "eighteen"}
+n_verify = len(list(HERE.glob("verify_*.py")))
+n_render = len(re.findall(r'^\s+"name": "', (HERE / "verify_render.py")
+                          .read_text(encoding="utf-8"), re.M))
+flat_en = re.sub(r"\s+", " ", (OUT / "index.html").read_text(encoding="utf-8"))
+
+m = re.search(r"<b>Checks:</b> (\w+) verification scripts", flat_en)
+check("claimed verification-script count", m.group(1) if m else None,
+      WORD.get(n_verify))
+m = re.search(r"executes all (\w+) renderers", flat_en)
+check("claimed renderer count", m.group(1) if m else None, WORD.get(n_render))
+
+# the coverage claim must match the module numbers the pages actually carry
+mods = set()
+for p in sorted(HERE.glob("*.html")):
+    for mm in re.finditer(r"UDJ · Module (\d+)", p.read_text(encoding="utf-8")):
+        mods.add(int(mm.group(1)))
+have = sorted(mods)
+gaps = [k for k in range(min(have), max(have) + 1) if k not in mods]
+print(f"  modules with a page: {have}   gap(s): {gaps}")
+if have != [1, 3, 4, 5, 6, 7, 8, 9] or gaps != [2]:
+    fails.append(f"the coverage sentence says modules 1 and 3-9 with module 2 "
+                 f"missing, but the pages carry {have} with gaps {gaps}")
+for loc, cov, acro in (("en", r"modules 1 and 3–9",
+                        r"Uncertainty, Data (&amp;|and) Judgment"),
+                       ("ru", r"разделы 1 и 3–9",
+                        r"Uncertainty, Data and Judgment")):
+    d = OUT if loc == "en" else OUT / loc
+    txt = re.sub(r"\s+", " ", (d / "index.html").read_text(encoding="utf-8"))
+    okc = re.search(cov, txt) is not None
+    oka = re.search(acro, txt) is not None
+    print(f"  {loc}: coverage stated {okc}, acronym expanded {oka}")
+    if not okc:
+        fails.append(f"{loc}/index.html does not state which modules are covered")
+    if not oka:
+        fails.append(f"{loc}/index.html uses 'UDJ' without expanding it")
+
+print("\n" + "=" * 78)
 if fails:
     print("FAILURES:")
     for f_ in fails:

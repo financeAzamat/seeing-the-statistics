@@ -16,57 +16,54 @@
 <nav class="sitenav"><a class="sn-home" href="index.html">UDJ · SEEING THE STATISTICS</a><span class="sn-count">11 visuals · every figure checked against its data</span><span class="sn-lang"><span class="on">EN</span><a href="ru/index.html">RU</a></span><span class="sn-links"><a class="sn-next" href="intuition.html">start · 01 Where your judgment goes wrong →</a></span></nav>
 <!-- NAV:END -->
 <div class="wrap">
-  <div class="cap">Course · <span class="on">Uncertainty, Data &amp; Judgment</span></div>
+  <div class="cap">Course · <span class="on">UDJ — Uncertainty, Data &amp; Judgment</span></div>
   <h1>Seeing the statistics</h1>
-  <p class="lede">Interactive explanations of the ideas in the UDJ course. Every one runs on
-    <b>real published data</b> — no invented numbers, no scripted animations — and every
-    figure quoted in the text is checked against the data by a script that ships beside it.</p>
+  <p class="lede"><b>UDJ</b> — uncertainty, data and judgment. Eleven of the
+    course's ideas, here as things you can push on: real data, and not one
+    invented number.</p>
 
   <ul class="toc">
     <li><a href="intuition.html">
       <span class="n">01</span>
       <span class="t">Where your judgment goes wrong
-        <span class="d">Six questions about real data, answered by you before the
-          measurement is revealed — and a scorecard that shows whether your
-          misses fall on the same side, which is what makes a bias correctable.</span></span>
+        <span class="d">Six questions. You answer first; the measurement comes
+          after. If your misses land on the same side, that is not luck — it
+          is a bias.</span></span>
       <span class="s live">ready</span>
     </a></li>
     <li><a href="typical.html">
       <span class="n">03</span>
       <span class="t">The average is not typical
-        <span class="d">Why more than three in four real orders come in below the
-          "average" order, and why on two-humped data no single number can
-          describe a typical case at all.</span></span>
+        <span class="d">More than three in four real orders come in below the
+          "average". And on two-humped data there is no typical case at all.</span></span>
       <span class="s live">ready</span>
     </a></li>
     <li><a href="corr.html">
       <span class="n">04</span>
       <span class="t">Correlation and the range you looked at
-        <span class="d">Why the same relationship between size and price scores
-          +0.92 or +0.09 depending only on which stones were in the sample — and
-          why splitting two clusters apart destroys a correlation of +0.90.</span></span>
+        <span class="d">The same relationship between size and price scores +0.92
+          or +0.09. The only difference is which stones were in the sample.</span></span>
       <span class="s live">ready</span>
     </a></li>
     <li><a href="clt.html">
       <span class="n">05·1</span>
       <span class="t">The Central Limit Theorem
-        <span class="d">Why the average of 30 things is dependable when one thing is not —
-          and why "n ≈ 30" is a rule about tails, not a constant.</span></span>
+        <span class="d">Why an average of 30 is dependable when one observation is
+          not. And why "n ≈ 30" is a rule about tails, not a constant.</span></span>
       <span class="s live">ready</span>
     </a></li>
     <li><a href="ci.html">
       <span class="n">05·2</span>
       <span class="t">Confidence intervals
-        <span class="d">What "95% confident" promises, why it describes the method rather
-          than your answer, and where it quietly delivers 86% instead.</span></span>
+        <span class="d">"95% confident" is a promise about the method, not about
+          your answer. And sometimes it delivers 86%.</span></span>
       <span class="s live">ready</span>
     </a></li>
     <li><a href="test.html">
       <span class="n">06</span>
       <span class="t">p-values and hypothesis tests
-        <span class="d">Where the 5% false-alarm rate comes from, why testing twenty
-          things manufactures a winner, and why "not significant" usually means the test
-          was never able to see it.</span></span>
+        <span class="d">Test twenty things and a "winner" appears on its own. And
+          "not significant" usually means the test could never have seen it.</span></span>
       <span class="s live">ready</span>
     </a></li>
     <li><a href="regression.html">
@@ -86,8 +83,8 @@
     <li><a href="diagnostics.html">
       <span class="n">08</span>
       <span class="t">Regression diagnostics
-        <span class="d">Four questions to ask a line, each scored pass or fail — then watch
-          a transform repair three of them at once, and meet the one it cannot.</span></span>
+        <span class="d">Four questions to ask a line, each scored pass or fail. A fit
+          can look excellent and still be wrong.</span></span>
       <span class="s live">ready</span>
     </a></li>
     <li><a href="classify.html">
@@ -107,20 +104,24 @@
   </ul>
 
   <div class="note">
+    <b>Coverage:</b> modules 1 and 3–9. Module 2 has no page of its own — its
+    material is worked through in module 3.<br>
     <b>Data:</b> UCI Online Retail (real UK e-commerce invoices), Old Faithful eruption
     waits and durations, and ggplot2 diamond carats, prices and quality grades. Built by
     the scripts in <code>data/</code>.<br>
-    <b>Checks:</b> eleven verification scripts. <code>verify_stats_js.py</code> runs the
-    shipped p-value, inverse-normal and least-squares code under node against scipy and
-    numpy; <code>verify_render.py</code> executes all eight renderers headlessly against a
+    <b>Checks:</b> fifteen verification scripts plus a claims audit.
+    <code>verify_stats_js.py</code> runs the shipped p-value, inverse-normal and
+    least-squares code under node against scipy and numpy;
+    <code>verify_render.py</code> executes all eleven renderers headlessly against a
     stubbed canvas; <code>verify_extras.py</code> re-derives every diamond average from the
     source CSV cell by cell; the rest match every figure in the prose against the
     measurement that produced it.<br>
-    <b>Thirteen errors</b> have been caught by these scripts rather than by review —
+    <b>Every error listed here was caught by a script rather than by review</b> —
     including two invented comparisons, a measurement seeded with Python's per-process
     <code>hash()</code>, a diagnostic computed on the full source while the page plotted a
-    sample, a <code>globalAlpha</code> above 1 that the spec silently ignores, and four
-    checks that quietly stopped matching after a rewording.
+    sample, a <code>globalAlpha</code> above 1 that the spec silently ignores, a peak
+    finder that reported one cluster twice, a choice drawn off the end of its own scale,
+    and several checks that quietly stopped matching after a rewording.
   </div>
 </div>
 </body>
