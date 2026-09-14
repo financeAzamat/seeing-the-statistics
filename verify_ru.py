@@ -46,6 +46,22 @@ def tr_keys(path: Path) -> list[str]:
     return list(dict.fromkeys(out))
 
 
+def shared_keys() -> list[str]:
+    """Keys looked up by the SHARED drawing layer rather than by a renderer.
+
+    draw.js is not a *.render.js and does not call TR -- it reads the strings
+    table directly through its own fmtUnit() helper, for the compact magnitude
+    suffixes on axis labels. Without harvesting these, every such entry looks
+    like an orphan and the check reports a failure for a string that is very
+    much in use.
+    """
+    out: list[str] = []
+    src = HERE / "draw.js"
+    if src.exists():
+        out += re.findall(r"fmtUnit\(\s*'((?:[^'\\]|\\.)*)'", src.read_text(encoding="utf-8"))
+    return list(dict.fromkeys(out))
+
+
 def load_strings() -> dict[str, str]:
     """Load the table with node, so concatenation and escapes are handled by the
     same engine the browser uses rather than by a regex."""
@@ -77,6 +93,7 @@ print(f"ru/strings.js loads under node: {len(table)} entries")
 keys: list[str] = []
 for p in RENDERERS:
     keys.extend(tr_keys(p))
+keys.extend(shared_keys())
 keys = list(dict.fromkeys(keys))
 
 print("\n" + "=" * 74)
@@ -207,6 +224,39 @@ for p in RENDERERS:
                      f"always emits a decimal point — use a locale-aware formatter")
     if hard:
         fails.append(f"{p.name} hard-codes the en-GB locale for digit grouping")
+
+print("\n" + "=" * 74)
+print("7. DATA-FILE TEXT FIELDS ARE ROUTED THROUGH TR")
+print("=" * 74)
+# The bug this catches: the geyser axis printed "50,0 min" beside Russian prose
+# saying "минуты", because the unit affixes live in the DATA file and were
+# concatenated raw. Checks 1-3 cannot see it -- there is no literal key to be
+# missing, and the string IS in a data file so it is not an orphan either. So
+# assert the code shape instead: a textual field read off a data record must be
+# wrapped at every use.
+TEXT_FIELDS = ("unit", "unitAfter", "label", "what", "source")
+for p in RENDERERS:
+    code = re.sub(r"/\*.*?\*/", " ", p.read_text(encoding="utf-8"), flags=re.S)
+    code = re.sub(r"(?m)//[^\n]*$", " ", code)
+    # Two shapes are reads that are NOT display, and counting them produced two
+    # false positives out of four. Removing them before counting is what keeps
+    # the check worth reading:
+    #   `qq.source.split(' ')[0]`  -> tokenising a FILE NAME out of a citation
+    #   `label: g.label`           -> copying a field into a state object
+    # A check that flags these teaches the reader to ignore it.
+    for fld in TEXT_FIELDS:
+        code = re.sub(r"\b\w+\.%s\s*\.\s*split\s*\(" % fld, " SPLIT( ", code)
+        code = re.sub(r"\b\w+\s*:\s*\w+\.%s\b" % fld, " COPY ", code)
+    raw: list[str] = []
+    for fld in TEXT_FIELDS:
+        total = len(re.findall(r"\b\w+\.%s\b" % fld, code))
+        wrapped = len(re.findall(r"TR\(\s*\w+\.%s\b" % fld, code))
+        if total > wrapped:
+            raw.append(f"{fld} ({total - wrapped} raw)")
+    print(f"  {p.name:<26} unwrapped text fields: {', '.join(raw) or 'none'}")
+    for r_ in raw:
+        fails.append(f"{p.name} reads {r_} straight from the data file without "
+                     f"TR(), so it stays English on a translated page")
 
 print("\n" + "=" * 74)
 if fails:

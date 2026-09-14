@@ -29,6 +29,34 @@
   var reduce = !!(window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
+  /* Translation lookup. The KEY is the English string, so a missing entry
+     falls back to correct English rather than to a bare identifier -- which is
+     what keeps the English page working with no strings table loaded at all.
+     Positional slots {0}, {1} let a translation REORDER the values, which a
+     plain key lookup cannot express. */
+  function TR(k) {
+    var m = window.UDJ_STRINGS;
+    var s = (m && m[k]) || k;
+    for (var i = 1; i < arguments.length; i++) {
+      s = s.replace('{' + (i - 1) + '}', arguments[i]);
+    }
+    return s;
+  }
+
+  /* Digit grouping follows the page's locale, declared by the strings table.
+     Hard-coding en-GB printed 19,773 beside Russian prose that writes 19 773. */
+  var UDJ_LOC = (window.UDJ_STRINGS && window.UDJ_STRINGS.__locale) || 'en-GB';
+
+  /* toFixed always emits a decimal POINT whatever the locale, so the canvas
+     printed "77.3%" beside Russian prose that writes 77,3. toLocaleString with
+     fixed fraction digits gets the separator AND the grouping right. */
+  function dec(v, dp) {
+    return Number(v).toLocaleString(UDJ_LOC, {
+      minimumFractionDigits: dp, maximumFractionDigits: dp,
+    });
+  }
+  function grp(v) { return Number(v).toLocaleString(UDJ_LOC); }
+
   var W = 0, H = 0, dpr = 1, phone = false, now = 0, ticker = null;
   var cur = 'retail', mode = 'both';
 
@@ -46,13 +74,16 @@
     return DATA[0];
   }
 
+  /* The unit affixes live in the DATA file, so they need TR as well: the geyser
+     axis printed "50,0 min" beside Russian prose that says "минуты". A currency
+     symbol has no entry and falls through unchanged, and an empty unitAfter
+     returns empty, so only the units that need translating get one. */
   function fmt(d, v, places) {
     var s = K.fmtNum(v);
     if (places !== undefined) {
-      s = v >= 1000 ? Math.round(v).toLocaleString('en-GB')
-                    : v.toFixed(places);
+      s = v >= 1000 ? grp(Math.round(v)) : dec(v, places);
     }
-    return d.unit + s + d.unitAfter;
+    return TR(d.unit) + s + TR(d.unitAfter);
   }
 
   function layout() {
@@ -95,15 +126,18 @@
 
   /* ---- panel 1: the distribution itself */
   function panelHist(d, x, y, w, h, plotL, plotR, sx, xLo, xHi) {
-    var title = 'EVERY ' + (d.id === 'geyser' ? 'WAIT' : 'ONE') + ' · ' +
-                d.label.toUpperCase() + ' · ' + d.n.toLocaleString('en-GB') +
-                ' REAL RECORDS';
-    var counter = d.below.toLocaleString('en-GB') + ' of ' +
-                  d.n.toLocaleString('en-GB') + ' — ' + d.pctBelow.toFixed(1) +
-                  '% — are BELOW the average' +
+    /* The dataset label lives in the data file, so it goes through TR too --
+       otherwise the panel title would read half-Russian. Uppercasing happens
+       AFTER translation, because uppercasing the English key would miss. */
+    var LBL = TR(d.label).toUpperCase();
+    var title = d.id === 'geyser'
+      ? TR('EVERY WAIT · {0} · {1} REAL RECORDS', LBL, grp(d.n))
+      : TR('EVERY ONE · {0} · {1} REAL RECORDS', LBL, grp(d.n));
+    var counter = TR('{0} of {1} — {2}% — are BELOW the average',
+                     grp(d.below), grp(d.n), dec(d.pctBelow, 1)) +
                   (d.beyond > 0
-                    ? '   (+' + d.beyond.toLocaleString('en-GB') + ' beyond ' +
-                      fmt(d, d.cap) + ', off the right of this chart)'
+                    ? TR('   (+{0} beyond {1}, off the right of this chart)',
+                         grp(d.beyond), fmt(d, d.cap))
                     : '');
     K.panel(x, y, w, h, title, null, null, counter, null);
 
@@ -186,8 +220,8 @@
        label (the average) goes flush right and is therefore the one that
        survives if the band runs out of room. */
     var bandY = top - PILL_BAND / 2 - 1;
-    var legend = [['AVERAGE ' + fmt(d, d.mu, 2), P.GOLD]];
-    if (mode === 'both') legend.push(['MIDDLE ' + fmt(d, d.median, 2), P.CYAN]);
+    var legend = [[TR('AVERAGE {0}', fmt(d, d.mu, 2)), P.GOLD]];
+    if (mode === 'both') legend.push([TR('MIDDLE {0}', fmt(d, d.median, 2)), P.CYAN]);
     var rx = plotR;
     for (var q = 0; q < legend.length; q++) {
       if (rx <= plotL + 40) break;          // no room left; drop the rest
@@ -200,8 +234,11 @@
     var pulse = M.breathe(now, dashed ? 2.1 : 0, 0.7, 0.5);
     ctx.save();
     ctx.setLineDash(dashed ? [5, 4] : []);
-    ctx.strokeStyle = 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' +
-                      (0.85 * pulse.a).toFixed(3) + ')';
+    /* K.rgba rather than a hand-built string with .toFixed(3): a CSS alpha must
+       use a decimal POINT, so a locale-aware formatter would be wrong here, and
+       a bare .toFixed() is what the translation check forbids. Using the shared
+       helper sidesteps both -- this is a colour, not displayed text. */
+    ctx.strokeStyle = K.rgba(col, 0.85 * pulse.a);
     ctx.lineWidth = dashed ? 1.4 : 2;
     ctx.beginPath(); ctx.moveTo(px, top - 4); ctx.lineTo(px, bot); ctx.stroke();
     ctx.restore();
@@ -211,11 +248,11 @@
 
   /* ---- panel 2: one square per percent */
   function panelBlock(d, x, y, w, h, plotL, plotR) {
-    K.panel(x, y, w, h, 'THE SAME FACT AS A COUNT OF 100',
-            d.pctBelow.toFixed(1) + '% BELOW', P.RED,
-            Math.round(d.pctBelow) + ' of every 100 records are below the ' +
-            'average — one square is one percent of ' +
-            d.n.toLocaleString('en-GB'), null);
+    K.panel(x, y, w, h, TR('THE SAME FACT AS A COUNT OF 100'),
+            TR('{0}% BELOW', dec(d.pctBelow, 1)), P.RED,
+            TR('{0} of every 100 records are below the average — one square ' +
+               'is one percent of {1}',
+               grp(Math.round(d.pctBelow)), grp(d.n)), null);
 
     var top = y + (phone ? 42 : 50), bot = y + h - (phone ? 8 : 10);
     var cols = 25, rows = 4;
@@ -249,17 +286,17 @@
   /* ---- panel 3: how often does the average actually happen */
   function panelCommon(d, x, y, w, h, plotL, plotR) {
     var pm = 100 * d.nearMean / d.n, pb = 100 * d.nearBusiest / d.n;
-    K.panel(x, y, w, h, 'HOW OFTEN THE AVERAGE ACTUALLY HAPPENS',
-            d.bimodal ? 'NO TYPICAL CASE' : null, P.GOLD,
-            'within ' + '\u00b1' + fmt(d, d.window) + ' of each value', null);
+    K.panel(x, y, w, h, TR('HOW OFTEN THE AVERAGE ACTUALLY HAPPENS'),
+            d.bimodal ? TR('NO TYPICAL CASE') : null, P.GOLD,
+            TR('within ±{0} of each value', fmt(d, d.window)), null);
 
     var top = y + (phone ? 40 : 48), bot = y + h - (phone ? 12 : 16);
     var rowH = Math.min(26, (bot - top) / 2.4);
     var maxP = Math.max(pm, pb, 1);
     var grow = M.ease.cubicOut(tGrow.v);
     var items = [
-      ['NEAR THE AVERAGE  ' + fmt(d, d.mu, 2), pm, d.nearMean, P.GOLD],
-      ['NEAR THE COMMONEST  ' + fmt(d, d.busiest, 2), pb, d.nearBusiest, P.CYAN],
+      [TR('NEAR THE AVERAGE  {0}', fmt(d, d.mu, 2)), pm, d.nearMean, P.GOLD],
+      [TR('NEAR THE COMMONEST  {0}', fmt(d, d.busiest, 2)), pb, d.nearBusiest, P.CYAN],
     ];
     /* Gutter for the label on the left, and RESERVED room for the value label
        on the right. Without the reservation the longest bar pushed its own
@@ -279,14 +316,18 @@
       K.roundRect(bx, by + 2, Math.max(1, barW), rowH - 6, 3);
       ctx.fill();
       ctx.globalAlpha = 1;
-      K.tracked(it[1].toFixed(1) + '%  (' + it[2].toLocaleString('en-GB') + ')',
+      /* Not routed through TR: this label is purely numeric, so there is
+         nothing to translate -- and forcing an entry for it would mean writing
+         a fake "translation" to satisfy the identical-to-key check. The two
+         numbers are already locale-aware. */
+      K.tracked(dec(it[1], 1) + '%  (' + grp(it[2]) + ')',
                 bx + Math.max(1, barW) + 8, by + rowH * 0.62, phone ? 8 : 9.5,
                 'rgba(' + it[3][0] + ',' + it[3][1] + ',' + it[3][2] + ',0.95)',
                 0.7, 'left');
     }
     if (d.bimodal) {
-      K.tracked('two clusters at ' + fmt(d, d.modes[0], 1) + ' and ' +
-                fmt(d, d.modes[1], 1) + ' — the average sits in the gap',
+      K.tracked(TR('two clusters at {0} and {1} — the average sits in the gap',
+                   fmt(d, d.modes[0], 1), fmt(d, d.modes[1], 1)),
                 plotL, bot - 2, phone ? 8.5 : 9.5, 'rgba(255,190,120,0.85)',
                 0.6, 'left');
     }
@@ -314,21 +355,31 @@
 
   function describe() {
     var d = D();
+    /* Every one of these strings lives in the DATA file, not the page, so the
+       provenance line would stay English unless it goes through TR as well.
+       filters is an array, so each entry is looked up individually. */
+    var flt = [];
+    for (var i = 0; i < d.filters.length; i++) flt.push(TR(d.filters[i]));
     prov.innerHTML =
-      '<b>' + d.label + '</b> — ' + d.what +
-      ' <span class="src">' + d.source +
-      ' · <a href="' + d.url + '" target="_blank" rel="noopener">source</a></span>' +
-      '<span class="flt">' + d.filters.join(' · ') + '</span>';
-    live.textContent = d.label + ': average ' + fmt(d, d.mu, 2) +
-      ', middle value ' + fmt(d, d.median, 2) + '. ' +
-      d.pctBelow.toFixed(1) + ' percent of ' + d.n + ' records are below the average. ' +
+      '<b>' + TR(d.label) + '</b> — ' + TR(d.what) +
+      ' <span class="src">' + TR(d.source) +
+      ' · <a href="' + d.url + '" target="_blank" rel="noopener">' +
+      TR('source') + '</a></span>' +
+      '<span class="flt">' + flt.join(' · ') + '</span>';
+
+    var pm = dec(100 * d.nearMean / d.n, 1);
+    live.textContent =
+      TR('{0}: average {1}, middle value {2}. {3} percent of {4} records are ' +
+         'below the average.',
+         TR(d.label), fmt(d, d.mu, 2), fmt(d, d.median, 2),
+         dec(d.pctBelow, 1), grp(d.n)) + ' ' +
       (d.bimodal
-        ? 'This data has two clusters, at ' + d.modes[0] + ' and ' + d.modes[1] +
-          '; the average falls between them and only ' +
-          (100 * d.nearMean / d.n).toFixed(1) + ' percent of values are near it.'
-        : 'Only ' + (100 * d.nearMean / d.n).toFixed(1) +
-          ' percent of values are near the average, against ' +
-          (100 * d.nearBusiest / d.n).toFixed(1) + ' percent near the commonest value.');
+        ? TR('This data has two clusters, at {0} and {1}; the average falls ' +
+             'between them and only {2} percent of values are near it.',
+             dec(d.modes[0], 2), dec(d.modes[1], 2), pm)
+        : TR('Only {0} percent of values are near the average, against {1} ' +
+             'percent near the commonest value.',
+             pm, dec(100 * d.nearBusiest / d.n, 1)));
   }
 
   /* One step per tween per frame, then draw. `t` is SECONDS, which is what

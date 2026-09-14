@@ -30,7 +30,7 @@ ENFORCED = {
     "index.html", "intuition.html", "typical.html", "corr.html", "clt.html",
     "ci.html", "test.html", "regression.html", "overfit.html",
     "diagnostics.html", "classify.html", "simpson.html",
-    "ru/index.html", "ru/simpson.html",
+    "ru/index.html", "ru/simpson.html", "ru/intuition.html", "ru/typical.html",
 }
 
 EN_BANNED = [

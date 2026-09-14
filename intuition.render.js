@@ -72,7 +72,11 @@
 
   function fmtV(qq, v) {
     var s = qq.dp === 0 ? Math.round(v).toLocaleString(UDJ_LOC) : dec(v, qq.dp);
-    return qq.unit + s + qq.after;
+    /* Units come from the data file, so they need TR too. Here they happen to
+       be symbols ($, +, %) that need no translation and fall through unchanged,
+       but wrapping them is what stops a future unit like " min" from silently
+       staying English -- which is exactly what happened on the geyser axis. */
+    return TR(qq.unit) + s + TR(qq.after);
   }
 
   function layout() {
@@ -323,23 +327,30 @@
 
   function describe() {
     var qq = q(), done = answered(qi);
+    /* This whole block was raw English and stayed English on the Russian page:
+       it is built here rather than living in the markup, so nothing in the
+       translated HTML could cover it. qq.source.split(' ')[0] is a FILE NAME
+       (typical.js), so it is deliberately not translated. */
     prov.innerHTML =
-      '<b>Question ' + (qi + 1) + '</b> — the measured answer comes from ' +
-      '<code>' + qq.source.split(' ')[0] + '</code>, which has its own ' +
-      'verification script. ' +
-      '<span class="src">Worked through in ' + qq.moduleLabel +
-      ' · <a href="' + qq.module + '">open that page</a></span>' +
-      '<span class="flt">This page reports no figure for what other people ' +
-      'guess — there is no survey data behind it, only your own answer against ' +
-      'the measurement.</span>';
-    live.textContent = 'Question ' + (qi + 1) + ' of ' + Q.length + '. ' +
-      qq.prompt + ' ' +
+      TR('<b>Question {0}</b> — the measured answer comes from <code>{1}</code>, '
+         + 'which has its own verification script. ',
+         qi + 1, qq.source.split(' ')[0]) +
+      '<span class="src">' +
+      TR('Worked through in {0}', TR(qq.moduleLabel)) +
+      ' · <a href="' + qq.module + '">' + TR('open that page') + '</a></span>' +
+      '<span class="flt">' +
+      TR('This page reports no figure for what other people guess — there is '
+         + 'no survey data behind it, only your own answer against the '
+         + 'measurement.') + '</span>';
+    live.textContent =
+      TR('Question {0} of {1}.', qi + 1, Q.length) + ' ' +
+      TR(qq.prompt) + ' ' +
       (done
-        ? 'You answered ' + fmtV(qq, qq.choices[given[qi]]) +
-          '. The measured answer is ' + fmtV(qq, qq.truth) + '. ' +
-          (correct(qi) ? 'Correct.' : 'Not correct.')
-        : 'Choices: ' + qq.choices.map(function (c) { return fmtV(qq, c); })
-            .join(', ') + '.');
+        ? TR('You answered {0}. The measured answer is {1}.',
+             fmtV(qq, qq.choices[given[qi]]), fmtV(qq, qq.truth)) + ' ' +
+          (correct(qi) ? TR('Correct.') : TR('Not correct.'))
+        : TR('Choices: {0}.',
+             qq.choices.map(function (c) { return fmtV(qq, c); }).join(', ')));
   }
 
   function frame(dt, t) {

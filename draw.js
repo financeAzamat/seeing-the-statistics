@@ -173,13 +173,34 @@
       return (r >= 5 ? 5 : r >= 2 ? 2 : 1) * p;
     }
 
+    /* Axis and gridline labels. This is SHARED by every page, so it reads the
+       locale from the strings table and falls back to en-GB when no table is
+       loaded -- which is what leaves the English pages unchanged.
+       toFixed always emits a decimal POINT whatever the locale, so on a Russian
+       page the geyser axis printed "50.0 min" beside prose written "50,0".
+       useGrouping is OFF deliberately: toFixed(0) never grouped, so turning it
+       on here would silently reformat every English axis label from 1000 to
+       1,000. Only the decimal SEPARATOR was ever wrong. */
+    function fmtLoc(v, dp) {
+      var m = root && root.UDJ_STRINGS;
+      var loc = (m && m.__locale) || 'en-GB';
+      return Number(v).toLocaleString(loc, {
+        minimumFractionDigits: dp, maximumFractionDigits: dp,
+        useGrouping: false,
+      });
+    }
+    function fmtUnit(k) {
+      var m = root && root.UDJ_STRINGS;
+      return (m && m[k]) || k;
+    }
+
     function fmtNum(v) {
       var a = Math.abs(v);
-      if (a >= 1e6) return (v / 1e6).toFixed(1) + 'm';
-      if (a >= 1e4) return (v / 1e3).toFixed(0) + 'k';
-      if (a >= 100) return v.toFixed(0);
-      if (a >= 1) return v.toFixed(1);
-      return v.toFixed(2);
+      if (a >= 1e6) return fmtLoc(v / 1e6, 1) + fmtUnit('m');
+      if (a >= 1e4) return fmtLoc(v / 1e3, 0) + fmtUnit('k');
+      if (a >= 100) return fmtLoc(v, 0);
+      if (a >= 1) return fmtLoc(v, 1);
+      return fmtLoc(v, 2);
     }
 
     /* An ordered colour ramp across a grade scale: warm = worse, cool = better.

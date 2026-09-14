@@ -358,15 +358,19 @@
   }
 
   function provenance() {
+    /* The closing paragraph was raw English and stayed English on the Russian
+       page. S.source is the dataset CITATION and is displayed, so it goes
+       through TR as well. */
     $('prov').innerHTML =
       `<div class="cap">${TR('Data source')}</div>
-       <p><a href="${S.url}" target="_blank" rel="noopener">${S.source}</a> — ${TR(S.what)}</p>
+       <p><a href="${S.url}" target="_blank" rel="noopener">${TR(S.source)}</a> — ${TR(S.what)}</p>
        <ul>${S.filters.map(f => `<li>${TR(f)}</li>`).join('')}</ul>
        <p style="font-size:var(--micro);color:var(--muted-2);font-family:var(--font-mono)">
-         Bars are averages over every matching record. The scatter shows
-         ${S.n_embed.toLocaleString(LOC)} drawn at random, so a bar will not equal the
-         eyeballed centre of the dots. Cells with fewer than ${MIN_CELL} stones are drawn
-         hollow and excluded from the direction verdict.</p>`;
+         ${TR('Bars are averages over every matching record. The scatter shows '
+            + '{0} drawn at random, so a bar will not equal the eyeballed centre '
+            + 'of the dots. Cells with fewer than {1} stones are drawn hollow '
+            + 'and excluded from the direction verdict.',
+            S.n_embed.toLocaleString(LOC), MIN_CELL)}</p>`;
   }
 
   /* ---------------- wiring ---------------- */
@@ -376,14 +380,18 @@
   document.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', () => {
     gKey = b.dataset.g; press('[data-g]', gKey, 'g'); retarget();
     if (reduce) paint();
-    $('live').textContent = `${G().label}: aggregate ${G().agg_reversed ? 'reversed' : 'as expected'}, `
-      + `${G().bands_correct} of ${G().bands_tested} size bands agree.`;
+    $('live').textContent = TR(
+      '{0}: aggregate {1}, {2} of {3} size bands agree.',
+      TR(G().label),
+      G().agg_reversed ? TR('reversed') : TR('as expected'),
+      G().bands_correct, G().bands_tested);
   }));
   document.querySelectorAll('[data-b]').forEach(b => b.addEventListener('click', () => {
     band = +b.dataset.b; press('[data-b]', band, 'b'); retarget();
     if (reduce) paint();
     $('live').textContent = band < 0 ? TR('Comparing across all sizes.')
-      : `Comparing within ${S.bands[band].lo} to ${S.bands[band].hi} carats only.`;
+      : TR('Comparing within {0} to {1} carats only.',
+           S.bands[band].lo, S.bands[band].hi);
   }));
   addEventListener('resize', () => { layout(); paint(); });
 

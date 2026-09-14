@@ -1,4 +1,8 @@
-/* Russian strings for the Simpson's paradox renderer.
+/* Russian strings for every translated renderer — one table per locale.
+ *
+ * Currently covers Simpson's paradox, Module 1 (heuristics and biases),
+ * Module 3 (the average is not typical), and the shared axis formatter in
+ * draw.js.
  *
  * Keys are the ENGLISH format strings exactly as they appear in TR(...) calls,
  * so a key missing from this table falls back to correct English rather than
@@ -236,4 +240,145 @@ window.UDJ_STRINGS = {
     'все 53 940 записей с ценой использованы для всех средних ниже',
   '900 drawn at random (seed 20260913) as the points on screen':
     '900 отобраны случайно (seed 20260913) — это точки на экране',
+
+  /* ================================================================
+     MODULE 3 — the average is not typical (typical.render.js)
+     ================================================================ */
+
+  /* ---- shared axis formatter (draw.js fmtNum). Compact magnitude suffixes on
+     tick labels. A leading space is part of the value because the formatter
+     concatenates directly: '17' + ' тыс.' reads correctly, '17тыс.' does not. */
+  'k': ' тыс.',
+  'm': ' млн',
+
+  /* ---- panel 1: the distribution.
+     Two title variants rather than one with an interpolated noun: Russian
+     inflects the noun with the quantifier, so "ВСЕ" + a substituted word
+     cannot be made to agree in every case. */
+  'EVERY WAIT · {0} · {1} REAL RECORDS':
+    'ВСЕ ОЖИДАНИЯ · {0} · {1} РЕАЛЬНЫХ ЗАПИСЕЙ',
+  'EVERY ONE · {0} · {1} REAL RECORDS':
+    'ВСЕ НАБЛЮДЕНИЯ · {0} · {1} РЕАЛЬНЫХ ЗАПИСЕЙ',
+  '{0} of {1} — {2}% — are BELOW the average':
+    '{0} из {1} — {2}% — НИЖЕ среднего',
+  '   (+{0} beyond {1}, off the right of this chart)':
+    '   (+{0} за пределом {1}, правее края графика)',
+  'AVERAGE {0}': 'СРЕДНЕЕ {0}',
+  'MIDDLE {0}': 'СЕРЕДИНА {0}',
+
+  /* ---- panel 2: one square per percent */
+  'THE SAME FACT AS A COUNT OF 100': 'ТО ЖЕ САМОЕ В ПЕРЕСЧЁТЕ НА 100',
+  '{0}% BELOW': '{0}% НИЖЕ',
+  ['{0} of every 100 records are below the average — one square is one percent '
+   + 'of {1}']:
+    '{0} из каждых 100 записей ниже среднего — один квадрат равен одному '
+    + 'проценту от {1}',
+
+  /* ---- panel 3: how often the average happens */
+  'HOW OFTEN THE AVERAGE ACTUALLY HAPPENS':
+    'КАК ЧАСТО СРЕДНЕЕ ВСТРЕЧАЕТСЯ НА САМОМ ДЕЛЕ',
+  'NO TYPICAL CASE': 'ТИПИЧНОГО СЛУЧАЯ НЕТ',
+  'within ±{0} of each value': 'в пределах ±{0} от каждого значения',
+  'NEAR THE AVERAGE  {0}': 'РЯДОМ СО СРЕДНИМ  {0}',
+  'NEAR THE COMMONEST  {0}': 'РЯДОМ С САМЫМ ЧАСТЫМ  {0}',
+  'two clusters at {0} and {1} — the average sits in the gap':
+    'две группы: {0} и {1} — среднее попадает в промежуток',
+
+  /* ---- provenance line and the screen-reader description.
+     "процента", not "процентов": a decimal quantity in Russian takes the
+     genitive SINGULAR, so "77,3 процентов" is ungrammatical. These strings are
+     only ever fed a one-decimal figure, so the singular is always right here. */
+  'source': 'источник',
+  ['{0}: average {1}, middle value {2}. {3} percent of {4} records are below '
+   + 'the average.']:
+    '{0}: среднее {1}, срединное значение {2}. {3} процента из {4} записей '
+    + 'ниже среднего.',
+  ['This data has two clusters, at {0} and {1}; the average falls between them '
+   + 'and only {2} percent of values are near it.']:
+    'В этих данных две группы: {0} и {1}. Среднее попадает между ними, и рядом '
+    + 'с ним оказывается только {2} процента значений.',
+  ['Only {0} percent of values are near the average, against {1} percent near '
+   + 'the commonest value.']:
+    'Рядом со средним только {0} процента значений, рядом с самым частым — '
+    + '{1} процента.',
+
+  /* ---- data-file prose from typical.js, passed through TR so the generated
+     data file needs no rebuild. The dataset citations keep their original
+     titles (that is how they are cited) with the descriptive part in Russian. */
+  'Order value': 'Сумма заказа',
+  'Diamond price': 'Цена бриллианта',
+  'Wait between eruptions': 'Ожидание между извержениями',
+
+  /* The unit suffix on the geyser axis. The leading space is part of the value
+     because fmt() concatenates it straight onto the number. */
+  ' min': ' мин',
+
+  ['Every completed order placed with a UK online gift retailer between 1 Dec '
+   + '2010 and 9 Dec 2011, with line items summed to one total per invoice.']:
+    'Каждый завершённый заказ у британского интернет-магазина подарков с '
+    + '1 декабря 2010 по 9 декабря 2011 года; позиции сведены в один итог по счёту.',
+  'UCI Online Retail (Chen, D., 2015)':
+    'Онлайн-ритейл UCI (Chen, D., 2015)',
+  '541,909 line items in the source file': '541 909 позиций в исходном файле',
+  "credit notes and cancellations removed (invoice no. begins 'C')":
+    'кредитные ноты и отмены удалены (номер счёта начинается на «C»)',
+  'non-product lines removed (postage, samples, bank charges)':
+    'непродуктовые строки удалены (доставка, образцы, банковские сборы)',
+  'returns and zero-priced rows removed':
+    'возвраты и строки с нулевой ценой удалены',
+  '19,773 invoices remain': 'осталось 19 773 счёта',
+
+  'Every stone in the standard diamonds reference table, priced in US dollars.':
+    'Каждый камень из стандартной эталонной таблицы бриллиантов, цена в '
+    + 'долларах США.',
+  'Diamonds (ggplot2 / seaborn reference dataset, 53,940 stones)':
+    'Бриллианты (эталонный набор ggplot2 / seaborn, 53 940 камней)',
+  'all 53,940 stones, no exclusions': 'все 53 940 камней, без исключений',
+
+  ['The wait before each eruption of the Old Faithful geyser, in minutes, over '
+   + 'a continuous run of observations.']:
+    'Ожидание перед каждым извержением гейзера Old Faithful, в минутах, за '
+    + 'непрерывный ряд наблюдений.',
+  'Old Faithful eruptions (Azzalini & Bowman, 1990; 272 waits)':
+    'Извержения гейзера Old Faithful (Azzalini & Bowman, 1990; 272 ожидания)',
+  'all 272 recorded waits, no exclusions':
+    'все 272 записанных ожидания, без исключений',
+
+  /* ================================================================
+     REPAIRS — text that was built in the renderers rather than in the markup,
+     and so stayed English on the Russian pages until check 7 found it.
+     ================================================================ */
+
+  /* ---- Module 1 provenance and screen-reader text (intuition.render.js).
+     {1} is a FILE NAME and is deliberately not translated. */
+  ['<b>Question {0}</b> — the measured answer comes from <code>{1}</code>, '
+   + 'which has its own verification script. ']:
+    '<b>Вопрос {0}</b> — измеренный ответ берётся из <code>{1}</code>, '
+    + 'у которого есть свой скрипт проверки. ',
+  'Worked through in {0}': 'Разбирается в {0}',
+  'open that page': 'открыть страницу',
+  ['This page reports no figure for what other people guess — there is no '
+   + 'survey data behind it, only your own answer against the measurement.']:
+    'Эта страница не приводит цифр о том, как отвечают другие: опросных данных '
+    + 'за ней нет, есть только ваш собственный ответ против измерения.',
+  'Question {0} of {1}.': 'Вопрос {0} из {1}.',
+  'You answered {0}. The measured answer is {1}.':
+    'Вы ответили {0}. Измеренный ответ — {1}.',
+  'Correct.': 'Верно.',
+  'Not correct.': 'Ответ неверный.',
+  'Choices: {0}.': 'Варианты: {0}.',
+
+  /* ---- Simpson provenance and screen-reader text (simpson.render.js) */
+  ['Bars are averages over every matching record. The scatter shows {0} drawn '
+   + 'at random, so a bar will not equal the eyeballed centre of the dots. '
+   + 'Cells with fewer than {1} stones are drawn hollow and excluded from the '
+   + 'direction verdict.']:
+    'Столбцы — это средние по всем подходящим записям. На диаграмме рассеяния '
+    + 'показаны {0} случайно отобранных точек, поэтому столбец не совпадёт с '
+    + 'центром облака на глаз. Ячейки, где меньше {1} камней, нарисованы '
+    + 'пустыми и исключены из вывода о направлении.',
+  '{0}: aggregate {1}, {2} of {3} size bands agree.':
+    '{0}: сводный результат {1}, совпадают {2} из {3} диапазонов размера.',
+  'Comparing within {0} to {1} carats only.':
+    'Сравнение только внутри диапазона от {0} до {1} карат.',
 };
