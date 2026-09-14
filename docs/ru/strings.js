@@ -458,4 +458,123 @@ window.UDJ_STRINGS = {
   '0.90–1.10 ct': '0,90–1,10 кар',
   '0.95–1.05 ct': '0,95–1,05 кар',
   '0.99–1.01 ct': '0,99–1,01 кар',
+
+  /* ================================================================
+     MODULE 5 — the Central Limit Theorem (clt.render.js)
+     ================================================================ */
+
+  /* ---- the caption above the canvas and the population axis */
+  'The data — <em>{0}, {1} · {2} real records, one dot each</em>':
+    'Данные — <em>{0}, {1} · {2} реальных записей, по точке на каждую</em>',
+  'one dot = one record': 'одна точка = одна запись',
+
+  /* ---- readouts. 'min' is the geyser's unit as the data file spells it —
+     distinct from corr's ' min' and from the magnitude keys above. */
+  'min': 'мин',
+  '{0}  ·  pred {1}': '{0}  ·  прогноз {1}',
+  '  ✓ yours is enough': '  ✓ у вас достаточно',
+  '  ✗ yours is too small': '  ✗ у вас меньше',
+
+  /* ---- provenance */
+  'On screen: <b>{0}</b> records, mean <b>{1}</b>, spread <b>{2}</b>.':
+    'На экране: <b>{0}</b> записей, среднее <b>{1}</b>, разброс <b>{2}</b>.',
+  'This is the complete dataset.': 'Это полный набор данных.',
+  ['Drawn from <b>{0}</b> whose mean is <b>{1}</b> and spread <b>{2}</b> — '
+   + 'close enough that the sample on screen represents the pool it came from.']:
+    'Отобрано из <b>{0}</b>, где среднее <b>{1}</b> и разброс <b>{2}</b>: '
+    + 'достаточно близко, чтобы выборка на экране представляла ту совокупность, '
+    + 'из которой она взята.',
+
+  /* ---- controls and the screen-reader announcements */
+  'Sample size {0}. Predicted standard error {1}.':
+    'Размер выборки {0}. Прогнозируемая стандартная ошибка {1}.',
+  '{0}: {1} records, mean {2}, spread {3}.':
+    '{0}: {1} записей, среднее {2}, разброс {3}.',
+  '{0} averages drawn.': 'Набрано средних: {0}.',
+  'resume': 'продолжить',
+  'pause': 'пауза',
+  'Reset.': 'Сброшено.',
+
+  /* ---- data-file prose from datasets.js */
+  'Order value per invoice': 'Сумма заказа по счёту',
+  'Wait between eruptions': 'Ожидание между извержениями',
+  'Price per diamond': 'Цена за бриллиант',
+
+  'Old Faithful (Härdle, W., 1991)': 'Гейзер Old Faithful (Härdle, W., 1991)',
+  'diamonds (Wickham, H., ggplot2)': 'Бриллианты (Wickham, H., ggplot2)',
+
+  ['Every completed order placed with a UK online gift retailer between 1 Dec '
+   + '2010 and 9 Dec 2011. Line items summed to one total per invoice.']:
+    'Каждый завершённый заказ у британского интернет-магазина подарков с '
+    + '1 декабря 2010 по 9 декабря 2011 года. Позиции сведены в один итог по счёту.',
+  ['Minutes between consecutive eruptions of the Old Faithful geyser, '
+   + 'Yellowstone. Short waits and long waits, with very little in between.']:
+    'Минуты между последовательными извержениями гейзера Old Faithful, '
+    + 'Йеллоустон. Короткие ожидания и длинные, и почти ничего между ними.',
+  ['Retail prices of 53,940 diamonds. Most are inexpensive and the dearest '
+   + 'costs close to eight times the middle one, which is what gives this data '
+   + 'its long tail.']:
+    'Розничные цены 53 940 бриллиантов. Большинство недорогие, а самый дорогой '
+    + 'стоит почти в восемь раз больше срединного — именно это даёт данным '
+    + 'длинный хвост.',
+
+  "9,288 credit notes / cancellations removed (invoice no. begins 'C')":
+    'удалено 9 288 кредитных нот и отмен (номер счёта начинается на «C»)',
+  ['2,332 non-product lines removed (postage, bank charges, manual '
+   + 'adjustments, samples)']:
+    'удалено 2 332 непродуктовые строки (доставка, банковские сборы, ручные '
+    + 'корректировки, образцы)',
+  '2,500 lines with a non-positive quantity or price removed':
+    'удалено 2 500 строк с неположительным количеством или ценой',
+  'aggregated to 19,773 invoices': 'сведено к 19 773 счетам',
+  ['190 wholesale invoices above 4,450 excluded so the axis is readable (the '
+   + '99th percentile is 4,409); 19,583 invoices remain']:
+    'исключено 190 оптовых счетов выше 4 450, чтобы ось оставалась читаемой '
+    + '(99-й процентиль равен 4 409); осталось 19 583 счёта',
+  'all 272 observations used — nothing excluded':
+    'использованы все 272 наблюдения — ничего не исключено',
+  'all 53,940 priced records used — nothing excluded':
+    'использованы все 53 940 записей с ценой — ничего не исключено',
+  '700 drawn at random (seed 20260913) as the population on screen':
+    '700 отобраны случайно (seed 20260913) как совокупность на экране',
+
+  /* ---- the three dataset hints. These are the longest strings in the table;
+     each is the explanatory paragraph under the canvas for one dataset. */
+  ['Real invoices from a UK online shop. Most orders are small and a few are '
+   + 'huge, so the average order (£458) is much bigger than the typical one '
+   + '(£305) — a handful of big spenders drag the average up. This is the hard '
+   + 'case: even 30 orders is not enough to make the averages sit evenly. '
+   + 'Click 300 to see them finally settle.']:
+    'Настоящие счета британского интернет-магазина. Большинство заказов '
+    + 'небольшие, а несколько — огромные, поэтому средний заказ (£458) намного '
+    + 'больше типичного (£305): горстка крупных покупателей тянет среднее '
+    + 'вверх. Это трудный случай: даже 30 заказов не хватает, чтобы средние '
+    + 'легли ровно. Нажмите 300, чтобы увидеть, как они наконец устаканиваются.',
+
+  ['Minutes between eruptions of a real geyser. It waits either about 54 '
+   + 'minutes or about 80 — almost never in between, which is why the data has '
+   + 'two separate humps. Its average of 71 minutes lands in the quiet gap '
+   + 'between them: only about one wait in fourteen falls near it, so the '
+   + 'average is a number that describes the geyser without describing any of '
+   + 'its actual behaviour. Even so, just 5 eruptions per sample is enough to '
+   + 'make the averages form one clean bell.']:
+    'Минуты между извержениями настоящего гейзера. Он ждёт либо около 54 минут, '
+    + 'либо около 80, и почти никогда — между: поэтому у данных два отдельных '
+    + 'горба. Их среднее в 71 минуту попадает в тихий промежуток между ними: '
+    + 'рядом с ним оказывается лишь примерно одно ожидание из четырнадцати, так '
+    + 'что среднее — это число, которое описывает гейзер, не описывая ни одного '
+    + 'его настоящего поведения. И всё же всего 5 извержений на выборку хватает, '
+    + 'чтобы средние сложились в один аккуратный колокол.',
+
+  ['Prices of 53,940 real diamonds. Most are inexpensive and the dearest costs '
+   + 'nearly eight times the middle one, so the tail is long. At 5 and even at '
+   + '30 stones per sample the averages still lean right; they only even out '
+   + 'around 66, which is why 100 works and 30 does not. This is exactly the '
+   + 'case the course\'s "n ≈ 30" rule of thumb is really about.']:
+    'Цены 53 940 настоящих бриллиантов. Большинство недорогие, а самый дорогой '
+    + 'стоит почти в восемь раз больше срединного, поэтому хвост длинный. При 5 '
+    + 'и даже при 30 камнях на выборку средние всё ещё скошены вправо; они '
+    + 'выравниваются только около 66 — поэтому 100 работает, а 30 нет. Это '
+    + 'ровно тот случай, о котором на самом деле и говорит принятое в курсе '
+    + 'правило «n ≈ 30».',
 };

@@ -166,10 +166,33 @@ def data_strings() -> set[str]:
     return out
 
 
-runtime_ok = {k for k in extra if k in data_strings()}
+def renderer_literals() -> set[str]:
+    """Every string literal that appears verbatim in a renderer.
+
+    A renderer may hold its own lookup table whose values are fetched at runtime
+    and passed through TR -- clt.render.js keeps a HINTS object with one
+    explanatory paragraph per dataset, read as `TR(HINTS[D.id])`. The literal
+    therefore never appears INSIDE a TR( call and is not in a data file either,
+    so without this the three paragraphs were reported as orphans while being
+    very much on screen.
+
+    This keeps the check's real purpose intact: an entry whose text appears
+    nowhere in the code or the data is still an orphan.
+    """
+    out: set[str] = set()
+    for p in RENDERERS:
+        src = p.read_text(encoding="utf-8")
+        for m in re.finditer(r"'((?:[^'\\\n]|\\.){12,})'", src):
+            out.add(m.group(1).replace("\\'", "'").replace('\\"', '"'))
+        for m in re.finditer(r'"((?:[^"\\\n]|\\.){12,})"', src):
+            out.add(m.group(1).replace("\\'", "'").replace('\\"', '"'))
+    return out
+
+
+runtime_ok = {k for k in extra if k in data_strings() or k in renderer_literals()}
 orphans = [k for k in extra if k not in runtime_ok]
 print(f"  {len(extra)} entries not literal keys; {len(runtime_ok)} come from a "
-      f"data file, {len(orphans)} orphaned")
+      f"data file or a renderer lookup table, {len(orphans)} orphaned")
 for k in orphans:
     print(f"   ORPHAN: {k[:66]!r}")
     fails.append(f"{k[:60]!r} matches nothing in the code or the data")
@@ -240,15 +263,17 @@ TEXT_FIELDS = ("unit", "unitAfter", "label", "what", "source", "xLabel", "yLabel
 for p in RENDERERS:
     code = re.sub(r"/\*.*?\*/", " ", p.read_text(encoding="utf-8"), flags=re.S)
     code = re.sub(r"(?m)//[^\n]*$", " ", code)
-    # Two shapes are reads that are NOT display, and counting them produced two
-    # false positives out of four. Removing them before counting is what keeps
-    # the check worth reading:
-    #   `qq.source.split(' ')[0]`  -> tokenising a FILE NAME out of a citation
-    #   `label: g.label`           -> copying a field into a state object
+    # Three shapes are reads that are NOT display, and counting them produced
+    # false positives. Removing them before counting is what keeps the check
+    # worth reading:
+    #   `qq.source.split(' ')[0]`   -> tokenising a FILE NAME out of a citation
+    #   `label: g.label`            -> copying a field into a state object
+    #   `/^[£$€]$/.test(D.unit)`    -> branching on the unit, not printing it
     # A check that flags these teaches the reader to ignore it.
     for fld in TEXT_FIELDS:
         code = re.sub(r"\b\w+\.%s\s*\.\s*split\s*\(" % fld, " SPLIT( ", code)
         code = re.sub(r"\b\w+\s*:\s*\w+\.%s\b" % fld, " COPY ", code)
+        code = re.sub(r"\.test\(\s*\w+\.%s\s*\)" % fld, ".test( TESTED )", code)
     raw: list[str] = []
     for fld in TEXT_FIELDS:
         total = len(re.findall(r"\b\w+\.%s\b" % fld, code))
@@ -282,6 +307,32 @@ for p in scanned:
     if hits:
         fails.append(f"ru/{p.name} contains {len(hits)} CJK/fullwidth "
                      f"character(s) {uniq[:4]} — almost certainly a typo")
+
+print("\n" + "=" * 74)
+print("9. NO OVERSIZED NON-BREAKING RUNS IN RUSSIAN HEADINGS")
+print("=" * 74)
+# The English headings use &nbsp; to keep a short pair together ("The
+# Central&nbsp;Limit"). Copying that into Russian glued "Центральная предельная"
+# into ONE unbreakable ~700px token, which overflowed the 29rem left column and
+# painted the h1 straight over the stage's control bar -- buttons included. The
+# left column is `minmax(300px, 29rem)`, so an unbreakable run much past ~16
+# characters cannot fit at the display size. No existing check could see this:
+# the markup is valid, the prose is correct, and only a screenshot showed it.
+NBSP_RUN = re.compile(r"(?s)<(h1|h2)[^>]*>(.*?)</\1>")
+for page in sorted(RU.glob("*.html")):
+    text = page.read_text(encoding="utf-8")
+    worst: list[str] = []
+    for m in NBSP_RUN.finditer(text):
+        inner = re.sub(r"<[^>]+>", "", m.group(2))
+        # a "run" is words joined only by non-breaking spaces
+        for run in re.split(r"[ \t\n]+", inner.replace("&nbsp;", "\u00a0")):
+            joined = run.replace("\u00a0", " ").strip()
+            if "\u00a0" in run and len(joined) > 16:
+                worst.append(joined)
+    print(f"  {page.name:<18} oversized non-breaking runs: {len(worst)} {worst[:2]}")
+    for w in worst:
+        fails.append(f"ru/{page.name} glues {w!r} ({len(w)} chars) with a "
+                     f"non-breaking space; it cannot wrap and overflows the column")
 
 print("\n" + "=" * 74)
 if fails:
