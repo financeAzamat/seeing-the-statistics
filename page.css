@@ -161,6 +161,13 @@ input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offs
 .prov p { font-size: var(--small); margin: .45rem 0 0; }
 .prov ul { margin: .55rem 0 0; padding-left: 1.1rem; }
 .prov li { font-size: var(--micro); color: var(--muted-2); margin-bottom: .18rem; font-family: var(--font-mono); }
+/* The provenance line is assembled by the renderers as `<b>label</b> — what
+   <span class="src">…</span><span class="flt">…</span>`. Both classes were
+   emitted by three renderers and styled NOWHERE, so as bare inline spans they
+   ran straight into the preceding sentence: the corr page read
+   "…dataset) · sourceall 53,940 stones" and "for the plot onlyGeyser: all 272".
+   Each gets its own line, in the same mono/micro register as .prov li. */
+.prov .src, .prov .flt { display: block; margin-top: .35rem; font-family: var(--font-mono); font-size: var(--micro); color: var(--muted-2); }
 
 .note { margin-top: var(--space-s); padding-top: var(--space-s); border-top: 1px solid var(--line); font-size: var(--small); color: var(--muted-2); }
 .note code, p code, li code, td code, dd code { font-family: var(--font-mono); font-size: var(--micro); color: var(--accent); background: var(--accent-05); padding: .08rem .3rem; border-radius: 2px; }

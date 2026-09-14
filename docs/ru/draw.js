@@ -189,15 +189,20 @@
         useGrouping: false,
       });
     }
-    function fmtUnit(k) {
+    /* The magnitude suffixes are an internal detail of THIS formatter, so their
+       keys are namespaced. A bare 'k'/'m' key collides with page text -- corr
+       abbreviates minutes as "m" on its eruption-length axis, and with a shared
+       'm' key that axis rendered "2,0 млн" instead of minutes. The English
+       fallback is passed explicitly because the key is no longer the English. */
+    function fmtUnit(k, fallback) {
       var m = root && root.UDJ_STRINGS;
-      return (m && m[k]) || k;
+      return (m && m[k]) || fallback;
     }
 
     function fmtNum(v) {
       var a = Math.abs(v);
-      if (a >= 1e6) return fmtLoc(v / 1e6, 1) + fmtUnit('m');
-      if (a >= 1e4) return fmtLoc(v / 1e3, 0) + fmtUnit('k');
+      if (a >= 1e6) return fmtLoc(v / 1e6, 1) + fmtUnit('__mag_m', 'm');
+      if (a >= 1e4) return fmtLoc(v / 1e3, 0) + fmtUnit('__mag_k', 'k');
       if (a >= 100) return fmtLoc(v, 0);
       if (a >= 1) return fmtLoc(v, 1);
       return fmtLoc(v, 2);

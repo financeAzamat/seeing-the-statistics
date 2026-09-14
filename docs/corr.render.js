@@ -30,6 +30,33 @@
   var reduce = !!(window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
+  /* Translation lookup. The KEY is the English string, so a missing entry falls
+     back to correct English rather than a bare identifier — which is what keeps
+     the English page working with no strings table loaded at all. Positional
+     slots {0}, {1} let a translation REORDER values. */
+  function TR(k) {
+    var m = window.UDJ_STRINGS;
+    var s = (m && m[k]) || k;
+    for (var i = 1; i < arguments.length; i++) {
+      s = s.replace('{' + (i - 1) + '}', arguments[i]);
+    }
+    return s;
+  }
+
+  /* Digit grouping follows the locale declared by the strings table. */
+  var UDJ_LOC = (window.UDJ_STRINGS && window.UDJ_STRINGS.__locale) || 'en-GB';
+
+  /* toFixed always emits a decimal POINT whatever the locale, and this page is
+     almost entirely decimals — every r, every carat tick. Formatting them with
+     toFixed printed "+0.922" and "0.5" beside Russian prose written with a
+     comma. */
+  function dec(v, dp) {
+    return Number(v).toLocaleString(UDJ_LOC, {
+      minimumFractionDigits: dp, maximumFractionDigits: dp,
+    });
+  }
+  function grp(v) { return Number(v).toLocaleString(UDJ_LOC); }
+
   var W = 0, H = 0, dpr = 1, phone = false, now = 0, ticker = null;
   var wi = 0;                 // active carat window index
   var gsel = 'all';           // geyser selection
@@ -86,11 +113,11 @@
   // ---------------------------------------------------------------- panel 1
   function panelScatter(b) {
     var w = win();
-    var note = 'r = ' + fmtR(w.r) + ' on all ' + w.n.toLocaleString('en-GB') +
-               ' stones in this window   ·   ' + w.drawn.toLocaleString('en-GB') +
-               ' of ' + D.nDrawn.toLocaleString('en-GB') + ' drawn here fall inside';
+    var note = TR('r = {0} on all {1} stones in this window   ·   {2} of {3} '
+                  + 'drawn here fall inside',
+                  fmtR(w.r), grp(w.n), grp(w.drawn), grp(D.nDrawn));
     K.panel(b.pad, b.y1, W - b.pad * 2, b.h1,
-            'SIZE AGAINST PRICE · ' + w.label.toUpperCase(),
+            TR('SIZE AGAINST PRICE · {0}', TR(w.label).toUpperCase()),
             null, null, note, null);
 
     var top = b.y1 + (phone ? 44 : 52), bot = b.y1 + b.h1 - (phone ? 26 : 30);
@@ -98,7 +125,10 @@
     var sx = function (v) { return b.L + Math.min(v, xMax) / xMax * (b.R - b.L); };
     var sy = function (v) { return bot - Math.min(v, yMax) / yMax * (bot - top); };
 
-    grid(b, top, bot, sx, sy, xMax, yMax, function (v) { return v.toFixed(1); },
+    /* '$' is not routed through TR: a currency symbol is the same in both
+       languages, so an entry for it could only ever be identical to its key —
+       which is exactly what the "nothing left in English" check rejects. */
+    grid(b, top, bot, sx, sy, xMax, yMax, function (v) { return dec(v, 1); },
          function (v) { return '$' + K.fmtNum(v); });
 
     // the shaded window, tweened so a change slides rather than jumps
@@ -142,9 +172,9 @@
   // ---------------------------------------------------------------- panel 2
   function panelBars(b) {
     K.panel(b.pad, b.y2, W - b.pad * 2, b.h2,
-            'WHAT r SAYS, WINDOW BY WINDOW',
+            TR('WHAT r SAYS, WINDOW BY WINDOW'),
             fmtR(win().r), win().r > 0.6 ? P.CYAN : P.RED,
-            'same stones, same prices — only the range of sizes differs', null);
+            TR('same stones, same prices — only the range of sizes differs'), null);
 
     var top = b.y2 + (phone ? 40 : 48), bot = b.y2 + b.h2 - (phone ? 26 : 32);
     var n = D.windows.length;
@@ -162,7 +192,7 @@
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(b.L, refY); ctx.lineTo(b.R, refY); ctx.stroke();
     ctx.restore();
-    K.tracked('r = ' + fmtR(full) + ' at full range', b.R, refY - 5,
+    K.tracked(TR('r = {0} at full range', fmtR(full)), b.R, refY - 5,
               phone ? 8 : 9, 'rgba(150,180,220,0.55)', 0.6, 'right');
 
     for (var i = 0; i < n; i++) {
@@ -183,7 +213,12 @@
                   act ? 'rgba(255,205,140,0.98)' : 'rgba(200,220,245,0.75)',
                   0.7, 'center');
       }
-      K.tracked(wd.label.replace(' ct', ''), cx, bot + (phone ? 11 : 14),
+      /* Translate first, THEN strip the unit: the bar row is narrow so the
+         label drops " ct" to fit, and stripping before translation would leave
+         the Russian "кар" in place. `n=` stays as it is — mathematical
+         notation, not prose. */
+      K.tracked(TR(wd.label).replace(/\s+(?:ct|кар)\.?$/, ''),
+                cx, bot + (phone ? 11 : 14),
                 phone ? 7.5 : 8.5,
                 act ? 'rgba(255,205,140,0.9)' : 'rgba(150,180,220,0.5)',
                 0.6, 'center');
@@ -203,10 +238,10 @@
     var nNow = gsel === 'all' ? G.nAll
              : gsel === 'short' ? G.groups[0].n : G.groups[1].n;
     K.panel(b.pad, b.y3, W - b.pad * 2, b.h3,
-            'THE SAME TRAP IN REVERSE · OLD FAITHFUL',
+            TR('THE SAME TRAP IN REVERSE · OLD FAITHFUL'),
             fmtR(rNow), Math.abs(rNow) > 0.6 ? P.CYAN : P.RED,
-            'r = ' + fmtR(rNow) + ' on ' + nNow + ' eruptions   ·   ' +
-            'high across the two clusters, low inside either one', null);
+            TR('r = {0} on {1} eruptions   ·   high across the two clusters, '
+               + 'low inside either one', fmtR(rNow), grp(nNow)), null);
 
     var top = b.y3 + (phone ? 44 : 52), bot = b.y3 + b.h3 - (phone ? 26 : 30);
     var xLo = 1.5, xHi = 5.2, yLo = 40, yHi = 100;
@@ -214,8 +249,8 @@
     var sy = function (v) { return bot - (v - yLo) / (yHi - yLo) * (bot - top); };
 
     grid(b, top, bot, sx, sy, null, null, null, null, xLo, xHi, yLo, yHi,
-         function (v) { return v.toFixed(1) + 'm'; },
-         function (v) { return v.toFixed(0) + ' min'; });
+         function (v) { return dec(v, 1) + TR('m'); },
+         function (v) { return dec(v, 0) + TR(' min'); });
 
     var appear = M.ease.cubicOut(tIn.v);
     for (var pass = 0; pass < 2; pass++) {
@@ -243,16 +278,18 @@
       ctx.strokeStyle = 'rgba(150,180,220,0.35)';
       ctx.beginPath(); ctx.moveTo(xs, top); ctx.lineTo(xs, bot); ctx.stroke();
       ctx.restore();
-      K.tracked('SHORT  r = ' + fmtR(G.groups[0].r), b.L + 8, top + 12,
+      K.tracked(TR('SHORT  r = {0}', fmtR(G.groups[0].r)), b.L + 8, top + 12,
                 phone ? 8 : 9, 'rgba(' + P.GOLD.join(',') + ',0.9)', 0.7, 'left');
-      K.tracked('LONG  r = ' + fmtR(G.groups[1].r), b.R - 20, top + 12,
+      K.tracked(TR('LONG  r = {0}', fmtR(G.groups[1].r)), b.R - 20, top + 12,
                 phone ? 8 : 9, 'rgba(' + P.CYAN.join(',') + ',0.9)', 0.7, 'right');
     }
   }
 
   // ---------------------------------------------------------------- helpers
   function fmtR(r) {
-    return (r >= 0 ? '+' : '\u2212') + Math.abs(r).toFixed(3);
+    /* dec(), not toFixed(): every r on this page is displayed, and toFixed
+       always emits a decimal point. The minus sign stays U+2212. */
+    return (r >= 0 ? '+' : '\u2212') + dec(Math.abs(r), 3);
   }
 
   /* Shared gridlines. Two calling shapes because panel 1 is anchored at zero
@@ -309,18 +346,25 @@
 
   function describe() {
     var w = win();
+    /* Both filter lists and every axis label live in the DATA file, so they all
+       go through TR — this is the block that stayed English on the first two
+       Russian pages until a check went looking for it. */
+    var dFlt = [], gFlt = [], i;
+    for (i = 0; i < D.filters.length; i++) dFlt.push(TR(D.filters[i]));
+    for (i = 0; i < G.filters.length; i++) gFlt.push(TR(G.filters[i]));
     prov.innerHTML =
-      '<b>' + D.xLabel + ' → ' + D.yLabel + '</b> — ' + D.what +
-      ' <span class="src">' + D.source +
-      ' · <a href="' + D.url + '" target="_blank" rel="noopener">source</a></span>' +
-      '<span class="flt">' + D.filters.join(' · ') + '</span>' +
-      '<span class="flt">Geyser: ' + G.filters.join(' · ') + '</span>';
-    live.textContent =
-      'Diamonds, ' + w.label + ': correlation ' + w.r.toFixed(3) + ' on ' +
-      w.n + ' stones, against ' + D.windows[0].r.toFixed(3) +
-      ' across all sizes. Geyser: ' + G.r.toFixed(3) + ' overall, ' +
-      G.groups[0].r.toFixed(3) + ' within short eruptions and ' +
-      G.groups[1].r.toFixed(3) + ' within long ones.';
+      '<b>' + TR(D.xLabel) + ' → ' + TR(D.yLabel) + '</b> — ' + TR(D.what) +
+      ' <span class="src">' + TR(D.source) +
+      ' · <a href="' + D.url + '" target="_blank" rel="noopener">' +
+      TR('source') + '</a></span>' +
+      '<span class="flt">' + dFlt.join(' · ') + '</span>' +
+      '<span class="flt">' + TR('Geyser: {0}', gFlt.join(' · ')) + '</span>';
+    live.textContent = TR(
+      'Diamonds, {0}: correlation {1} on {2} stones, against {3} across all '
+      + 'sizes. Geyser: {4} overall, {5} within short eruptions and {6} within '
+      + 'long ones.',
+      TR(w.label), dec(w.r, 3), grp(w.n), dec(D.windows[0].r, 3),
+      dec(G.r, 3), dec(G.groups[0].r, 3), dec(G.groups[1].r, 3));
   }
 
   function frame(dt, t) {

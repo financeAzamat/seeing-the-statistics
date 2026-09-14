@@ -246,10 +246,12 @@ window.UDJ_STRINGS = {
      ================================================================ */
 
   /* ---- shared axis formatter (draw.js fmtNum). Compact magnitude suffixes on
-     tick labels. A leading space is part of the value because the formatter
-     concatenates directly: '17' + ' тыс.' reads correctly, '17тыс.' does not. */
-  'k': ' тыс.',
-  'm': ' млн',
+     tick labels. Namespaced keys: a bare 'k'/'m' key collided with page text —
+     corr abbreviates minutes as "m", and a shared 'm' made its eruption-length
+     axis read "2,0 млн". A leading space is part of the value because the
+     formatter concatenates directly: '17' + ' тыс.' reads correctly. */
+  '__mag_k': ' тыс.',
+  '__mag_m': ' млн',
 
   /* ---- panel 1: the distribution.
      Two title variants rather than one with an interpolated noun: Russian
@@ -381,4 +383,79 @@ window.UDJ_STRINGS = {
     '{0}: сводный результат {1}, совпадают {2} из {3} диапазонов размера.',
   'Comparing within {0} to {1} carats only.':
     'Сравнение только внутри диапазона от {0} до {1} карат.',
+
+  /* ================================================================
+     MODULE 4 — correlation and the range you looked at (corr.render.js)
+     ================================================================ */
+
+  /* ---- panel 1: the scatter */
+  ['r = {0} on all {1} stones in this window   ·   {2} of {3} drawn here fall '
+   + 'inside']:
+    'r = {0} по всем {1} камням в этом окне   ·   {2} из {3} нанесённых здесь '
+    + 'попадают внутрь',
+  'SIZE AGAINST PRICE · {0}': 'РАЗМЕР ПРОТИВ ЦЕНЫ · {0}',
+
+  /* ---- panel 2: r window by window */
+  'WHAT r SAYS, WINDOW BY WINDOW': 'ЧТО ГОВОРИТ r, ОКНО ЗА ОКНОМ',
+  'same stones, same prices — only the range of sizes differs':
+    'те же камни, те же цены — различается только диапазон размеров',
+  'r = {0} at full range': 'r = {0} на всём диапазоне',
+
+  /* ---- panel 3: the geyser.
+     'm' abbreviates MINUTES on the eruption-length axis. It is a page string,
+     which is why draw.js's magnitude suffixes had to be namespaced away from
+     it — with a shared key this axis rendered "2,0 млн". */
+  'THE SAME TRAP IN REVERSE · OLD FAITHFUL':
+    'ТА ЖЕ ЛОВУШКА НАОБОРОТ · OLD FAITHFUL',
+  ['r = {0} on {1} eruptions   ·   high across the two clusters, low inside '
+   + 'either one']:
+    'r = {0} по {1} извержениям   ·   высокий поперёк двух групп, низкий '
+    + 'внутри каждой',
+  'm': ' мин',
+  'SHORT  r = {0}': 'КОРОТКИЕ  r = {0}',
+  'LONG  r = {0}': 'ДЛИННЫЕ  r = {0}',
+
+  /* ---- provenance and screen-reader text */
+  'Geyser: {0}': 'Гейзер: {0}',
+  ['Diamonds, {0}: correlation {1} on {2} stones, against {3} across all '
+   + 'sizes. Geyser: {4} overall, {5} within short eruptions and {6} within '
+   + 'long ones.']:
+    'Бриллианты, {0}: корреляция {1} по {2} камням против {3} по всем размерам. '
+    + 'Гейзер: {4} в целом, {5} внутри коротких извержений и {6} внутри длинных.',
+
+  /* ---- data-file prose from corr.js */
+  'Size (carat)': 'Размер (караты)',
+  'Price ($)': 'Цена ($)',
+  'Eruption length (min)': 'Длительность извержения (мин)',
+  'Wait until next (min)': 'Ожидание следующего (мин)',
+
+  'Diamonds (ggplot2 / seaborn reference dataset)':
+    'Бриллианты (эталонный набор ggplot2 / seaborn)',
+  ['Every stone in the standard diamonds reference table: its weight in carats '
+   + 'against its price in US dollars.']:
+    'Каждый камень из стандартной эталонной таблицы бриллиантов: вес в каратах '
+    + 'против цены в долларах США.',
+  'every r computed on the FULL population inside its window':
+    'каждый r посчитан по ПОЛНОЙ совокупности внутри своего окна',
+  '1200 stones drawn at random (MINSTD seed 20260913) for the plot only':
+    '1 200 камней отобраны случайно (MINSTD seed 20260913) только для графика',
+
+  'Old Faithful eruptions (Azzalini & Bowman, 1990)':
+    'Извержения гейзера Old Faithful (Azzalini & Bowman, 1990)',
+  ['272 consecutive Old Faithful eruptions: how long each one lasted against '
+   + 'how long you then waited for the next.']:
+    '272 последовательных извержения гейзера Old Faithful: сколько длилось '
+    + 'каждое против того, сколько потом пришлось ждать следующего.',
+  'all 272 eruptions, no exclusions': 'все 272 извержения, без исключений',
+  'split at an eruption length of 3 minutes':
+    'разделение по длительности извержения в 3 минуты',
+  'every point plotted — no sampling': 'нанесены все точки — без выборки',
+
+  /* ---- the carat windows. Comma decimals, and "кар" for carats. */
+  'full range': 'весь диапазон',
+  '0.30–1.50 ct': '0,30–1,50 кар',
+  '0.50–1.20 ct': '0,50–1,20 кар',
+  '0.90–1.10 ct': '0,90–1,10 кар',
+  '0.95–1.05 ct': '0,95–1,05 кар',
+  '0.99–1.01 ct': '0,99–1,01 кар',
 };

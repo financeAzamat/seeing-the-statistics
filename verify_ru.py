@@ -53,12 +53,14 @@ def shared_keys() -> list[str]:
     table directly through its own fmtUnit() helper, for the compact magnitude
     suffixes on axis labels. Without harvesting these, every such entry looks
     like an orphan and the check reports a failure for a string that is very
-    much in use.
+    much in use. fmtUnit takes (key, english_fallback), so only the first
+    argument is a table key.
     """
     out: list[str] = []
     src = HERE / "draw.js"
     if src.exists():
-        out += re.findall(r"fmtUnit\(\s*'((?:[^'\\]|\\.)*)'", src.read_text(encoding="utf-8"))
+        out += re.findall(r"fmtUnit\(\s*'((?:[^'\\]|\\.)*)'",
+                          src.read_text(encoding="utf-8"))
     return list(dict.fromkeys(out))
 
 
@@ -234,7 +236,7 @@ print("=" * 74)
 # missing, and the string IS in a data file so it is not an orphan either. So
 # assert the code shape instead: a textual field read off a data record must be
 # wrapped at every use.
-TEXT_FIELDS = ("unit", "unitAfter", "label", "what", "source")
+TEXT_FIELDS = ("unit", "unitAfter", "label", "what", "source", "xLabel", "yLabel")
 for p in RENDERERS:
     code = re.sub(r"/\*.*?\*/", " ", p.read_text(encoding="utf-8"), flags=re.S)
     code = re.sub(r"(?m)//[^\n]*$", " ", code)
@@ -257,6 +259,29 @@ for p in RENDERERS:
     for r_ in raw:
         fails.append(f"{p.name} reads {r_} straight from the data file without "
                      f"TR(), so it stays English on a translated page")
+
+print("\n" + "=" * 74)
+print("8. NO STRAY CJK / FULLWIDTH CHARACTERS")
+print("=" * 74)
+# Twice now a CJK character has been typed into Russian prose by accident
+# ("短cuts" in a sub-heading, "даёт많 много" in a paragraph). Both were caught by
+# eye, which is not a control -- a single ideograph inside a Cyrillic word is
+# easy to read straight past. This scans the Russian sources AND the strings
+# table, since a bad character in a translation value renders just the same.
+CJK = re.compile(
+    "[\u3000-\u303f\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff"
+    "\uac00-\ud7af\uff00-\uffef]"
+)
+scanned = sorted(RU.glob("*.html")) + [STRINGS]
+for p in scanned:
+    if not p.exists():
+        continue
+    hits = CJK.findall(p.read_text(encoding="utf-8"))
+    uniq = sorted(set(hits))
+    print(f"  {p.name:<18} CJK/fullwidth: {len(hits)} {uniq[:6]}")
+    if hits:
+        fails.append(f"ru/{p.name} contains {len(hits)} CJK/fullwidth "
+                     f"character(s) {uniq[:4]} — almost certainly a typo")
 
 print("\n" + "=" * 74)
 if fails:
