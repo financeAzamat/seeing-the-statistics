@@ -259,21 +259,25 @@ print("=" * 74)
 # missing, and the string IS in a data file so it is not an orphan either. So
 # assert the code shape instead: a textual field read off a data record must be
 # wrapped at every use.
-TEXT_FIELDS = ("unit", "unitAfter", "label", "what", "source", "xLabel", "yLabel")
+TEXT_FIELDS = ("unit", "unitAfter", "label", "what", "source", "xLabel", "yLabel",
+               "xunit", "yunit", "xlab", "ylab", "note")
 for p in RENDERERS:
     code = re.sub(r"/\*.*?\*/", " ", p.read_text(encoding="utf-8"), flags=re.S)
     code = re.sub(r"(?m)//[^\n]*$", " ", code)
-    # Three shapes are reads that are NOT display, and counting them produced
+    # Four shapes are reads that are NOT display, and counting them produced
     # false positives. Removing them before counting is what keeps the check
     # worth reading:
     #   `qq.source.split(' ')[0]`   -> tokenising a FILE NAME out of a citation
     #   `label: g.label`            -> copying a field into a state object
     #   `/^[£$€]$/.test(D.unit)`    -> branching on the unit, not printing it
+    #   `fmt(v, D.xunit, XDP)`      -> FORWARDING it into a formatter that
+    #                                  itself calls TR on it
     # A check that flags these teaches the reader to ignore it.
     for fld in TEXT_FIELDS:
         code = re.sub(r"\b\w+\.%s\s*\.\s*split\s*\(" % fld, " SPLIT( ", code)
         code = re.sub(r"\b\w+\s*:\s*\w+\.%s\b" % fld, " COPY ", code)
         code = re.sub(r"\.test\(\s*\w+\.%s\s*\)" % fld, ".test( TESTED )", code)
+        code = re.sub(r"(fmt\([^)]*?)\b\w+\.%s\b" % fld, r"\1 FORWARDED ", code)
     raw: list[str] = []
     for fld in TEXT_FIELDS:
         total = len(re.findall(r"\b\w+\.%s\b" % fld, code))

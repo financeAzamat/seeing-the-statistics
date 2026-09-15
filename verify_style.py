@@ -33,6 +33,7 @@ ENFORCED = {
     "diagnostics.html", "classify.html", "simpson.html",
     "ru/index.html", "ru/simpson.html", "ru/intuition.html", "ru/typical.html",
     "ru/corr.html", "ru/clt.html", "ru/ci.html", "ru/test.html",
+    "ru/regression.html",
 }
 
 EN_BANNED = [
@@ -85,9 +86,34 @@ def negate_then_assert(txt: str) -> list[str]:
             out.append(f"{s} {sents[i + 1]}"[:60])
     return out
 
+def ru_negate_replace(txt: str) -> list[str]:
+    """The Russian «не X, а Y» move: a negated word immediately replaced by its
+    positive counterpart.
+
+    A bare `не <word>, а` regex is too loose, because Russian «а» is also an
+    ordinary clause-joining conjunction. It flagged "почти ничего не стоит, а
+    R² = 0,84 не сказал об этом ничего" -- two independent statements, where the
+    English original simply reads ", and". The discriminator is the same one the
+    English detector uses: the rhetorical move is SHORT. «не изъян, а
+    особенность» replaces one noun with another; a following clause that carries
+    its own subject and verb is not the move.
+    """
+    out = []
+    for m in re.finditer(r"\bне ([а-яё]+), а\b(.*)", txt):
+        tail = m.group(2).strip()
+        # Words up to the end of this clause. The comma split must IGNORE a
+        # comma between digits: Russian writes decimals as "0,84", and splitting
+        # on it cut the clause down to "R² = 0" -- three words, so a two-clause
+        # sentence was read as the clipped rhetorical move. The checker had the
+        # very locale bug the pages are being fixed for.
+        clause = re.split(r"(?<!\d),(?!\d)|[.;—]", tail)[0].strip()
+        if clause and len(clause.split()) <= 4:
+            out.append(f"не {m.group(1)}, а {clause}"[:46])
+    return out
+
+
 RU_BANNED = [
     (r"Не [а-яё]+\.\s+[А-ЯЁ]", "«Не X. Y» — сформулируйте X, затем Y"),
-    (r"\bне [а-яё]+, а\b", "«не X, а Y»"),
     (r"\bважно отметить\b|\bстоит отметить\b|\bследует отметить\b",
      "удаляемая вставка"),
     (r"\bглавный вывод\b|\bключевой инсайт\b", "лишнее выделение"),
@@ -109,6 +135,7 @@ ENFORCED_FORMULA = {
     "simpson.html", "test.html", "typical.html", "diagnostics.html",
     "ru/ci.html", "ru/clt.html", "ru/corr.html", "ru/index.html",
     "ru/intuition.html", "ru/simpson.html", "ru/test.html", "ru/typical.html",
+    "ru/regression.html",
 }
 
 
@@ -189,6 +216,10 @@ for name, path in pages():
         for pair in negate_then_assert(blk):
             hits.append(("'not X. Y' — state X, then state Y in two sentences",
                          pair))
+        if name.startswith("ru/"):
+            for pair in ru_negate_replace(blk):
+                hits.append(("«не X, а Y» — сформулируйте утверждение прямо",
+                             pair))
     # Bold is counted in PROSE only. The .note and .tech blocks are fenced
     # reference material where a bold span is a label (`Coverage:`, `Data:`) and
     # therefore structure rather than emphasis. A banned construction is wrong

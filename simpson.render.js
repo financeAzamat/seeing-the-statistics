@@ -105,7 +105,7 @@
   /* toFixed always emits a decimal POINT regardless of locale, so carat values
      printed "1.16 ct" beside Russian prose that writes 1,16. toLocaleString with
      fixed fraction digits gets the separator and the grouping right. */
-  const dec = (v, dp) => Number(v).toLocaleString(LOC, {
+  const dec = (v, dp) => (Math.abs(Number(v)) < Math.pow(10, -dp) / 2 ? 0 : Number(v)).toLocaleString(LOC, {
     minimumFractionDigits: dp, maximumFractionDigits: dp,
   });
 

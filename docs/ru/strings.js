@@ -720,4 +720,102 @@ window.UDJ_STRINGS = {
     + 'предположить: шум ÷ среднее равен 1,00, поэтому реальный прирост в 5% '
     + 'улавливается в 12% случаев при 500 на группу. Цены выглядят как '
     + 'приличное число, а ведут себя как неприличное.',
+
+  /* ================================================================
+     MODULE 7 — regression and R² (regression.render.js)
+     ================================================================ */
+
+  /* ---- 'bn' joins the namespaced magnitude suffixes. Sums of squares on the
+     diamonds run to 1e11, so big() shortens them. */
+  '__mag_bn': ' млрд',
+
+  '{0} — <em>{1} ({2}) against {3} ({4}) · {5} real records</em>':
+    '{0} — <em>{1} ({2}) против {3} ({4}) · {5} реальных записей</em>',
+
+  /* ---- canvas labels */
+  'no line at all: always guess the average':
+    'вообще без линии: всегда угадывать среднее',
+  'drag either handle': 'потяните любую ручку',
+  'R² = {0} — worse than no line at all':
+    'R² = {0} — хуже, чем вообще без линии',
+  'explained {0}%': 'объяснено {0}%',
+  'left over {0}%': 'осталось {0}%',
+  'average error in each slice — a flat line here means the shape is right':
+    'средняя ошибка в каждом срезе — плоская линия здесь означает, что форма верна',
+
+  /* ---- readouts */
+  'nothing — this IS the best': 'ничего — это И ЕСТЬ лучшее',
+  '{0} per {1}': '{0} на {1}',
+
+  /* ---- provenance and the screen-reader announcements */
+  ['On screen: {0} points, R² {1}, slope {2}. Whole source: {3} records, '
+   + 'R² {4}, slope {5}.']:
+    'На экране: {0} точек, R² {1}, наклон {2}. Весь источник: {3} записей, '
+    + 'R² {4}, наклон {5}.',
+  '{0}. Best R² {1}, best slope {2}.':
+    '{0}. Лучший R² {1}, лучший наклон {2}.',
+  'Best fit applied. R² {0}. No line can do better.':
+    'Применена лучшая подгонка. R² {0}. Лучше не может никакая линия.',
+  'Line reset to flat through the average — the no-model position.':
+    'Линия сброшена в плоскую через среднее — положение «без модели».',
+
+  /* ---- data-file prose from pairs.js */
+  'Diamond price by size': 'Цена бриллианта от размера',
+  'Old Faithful eruptions': 'Извержения гейзера Old Faithful',
+  'Invoice value by size of order': 'Сумма счёта от размера заказа',
+  'Carat': 'Караты',
+  'Price': 'Цена',
+  'Eruption length': 'Длительность извержения',
+  'Wait until next': 'Ожидание следующего',
+  'Items on the order': 'Позиций в заказе',
+  'Invoice value': 'Сумма счёта',
+  'ct': 'кар',
+  'items': 'поз.',
+
+  ['Every diamond in the ggplot2 diamonds dataset: its weight in carats '
+   + 'against its retail price.']:
+    'Каждый бриллиант из набора diamonds в ggplot2: вес в каратах против '
+    + 'розничной цены.',
+  'all 53,940 priced records used': 'использованы все 53 940 записей с ценой',
+  '800 drawn at random (seed 20260913) as the points on screen':
+    '800 отобраны случайно (seed 20260913) — это точки на экране',
+  ['Each Old Faithful eruption: how long it lasted, against how long the geyser '
+   + 'then waited before the next one.']:
+    'Каждое извержение гейзера Old Faithful: сколько оно длилось против того, '
+    + 'сколько гейзер потом ждал до следующего.',
+  'all 272 eruptions used — nothing excluded':
+    'использованы все 272 извержения — ничего не исключено',
+  ['Every completed order placed with a UK online gift retailer: how many '
+   + 'separate items it contained, against what it came to.']:
+    'Каждый завершённый заказ у британского интернет-магазина подарков: сколько '
+    + 'в нём было отдельных позиций против того, на какую сумму он вышел.',
+  'cancellations, non-product lines and non-positive rows removed':
+    'удалены отмены, непродуктовые строки и строки с неположительными значениями',
+  ['aggregated to 19,773 invoices, 19,583 at or below 4,450 (the cutoff '
+   + 'datasets.js uses)']:
+    'сведено к 19 773 счетам, из них 19 583 не выше 4 450 (порог, который '
+    + 'использует datasets.js)',
+
+  /* ---- the three dataset notes shown under the canvas */
+  ['A high R-squared hiding two separate faults: the residuals bend into a U '
+   + 'instead of scattering evenly, and their spread grows many times over from '
+   + 'the smallest stones to the largest. The line summarises the middle and is '
+   + 'close to useless at the top.']:
+    'Высокий R-квадрат, скрывающий два отдельных изъяна: остатки изгибаются в '
+    + 'букву U вместо ровного разброса, а их размах вырастает многократно от '
+    + 'самых мелких камней к самым крупным. Линия описывает середину и почти '
+    + 'бесполезна наверху.',
+  ['Almost the same R-squared as the diamonds, and it comes mostly from there '
+   + 'being two KINDS of eruption rather than from a trend. Fit the short ones '
+   + 'alone and R-squared falls to 0.08; the long ones alone, 0.14.']:
+    'Почти тот же R-квадрат, что у бриллиантов, и берётся он в основном из того, '
+    + 'что извержений два ВИДА, а не из тренда. Подгоните только короткие — и '
+    + 'R-квадрат упадёт до 0,08; только длинные — до 0,14.',
+  ['The lowest R-squared of the three and the best-behaved fit of the three. '
+   + 'Most of the variation is unexplained, and the slope is still a number you '
+   + 'could plan with: each extra item on an order is worth about £7.']:
+    'Самый низкий R-квадрат из трёх и самая приличная подгонка из трёх. '
+    + 'Большая часть разброса не объяснена, а наклон всё равно остаётся числом, '
+    + 'с которым можно планировать: каждая дополнительная позиция в заказе '
+    + 'стоит около £7.',
 };

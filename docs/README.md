@@ -12,7 +12,7 @@ or `/docs` and nothing else. The name is that convention, not a description.
 | Code | Path | Pages translated |
 |---|---|---|
 | `en` | `/` | 12 of 12 |
-| `ru` | `/ru/` | 8 of 12 |
+| `ru` | `/ru/` | 9 of 12 |
 
 A locale carries only the pages actually translated for it. Its contents page
 links to the English page for anything not yet done, so no entry 404s.

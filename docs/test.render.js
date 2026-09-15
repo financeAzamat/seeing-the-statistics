@@ -125,7 +125,7 @@
   const grp = v => Number(v).toLocaleString(UDJ_LOC);
   /* toFixed always emits a decimal POINT whatever the locale. This page is p-values
      and percentages end to end, so every one of them needs a locale formatter. */
-  const dec = (v, dp) => Number(v).toLocaleString(UDJ_LOC, {
+  const dec = (v, dp) => (Math.abs(Number(v)) < Math.pow(10, -dp) / 2 ? 0 : Number(v)).toLocaleString(UDJ_LOC, {
     minimumFractionDigits: dp, maximumFractionDigits: dp,
   });
 

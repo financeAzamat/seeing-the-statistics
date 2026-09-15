@@ -30,8 +30,22 @@ psrc = (HERE / "pairs.js").read_text(encoding="utf-8")
 PAIRS = {o["id"]: o for o in json.loads(psrc[psrc.index("["):psrc.rindex("]") + 1])}
 
 fails: list[str] = []
+# The renderer used to live in an inline <script> block. It was extracted to
+# regression.render.js so BOTH locales can load the same file -- a Russian copy
+# of the page would otherwise have carried its own duplicate of 615 lines, and
+# the two would have drifted on the first fix that reached only one. This reads
+# whichever form the page uses, so the check works either way rather than
+# pinning the page to one structure.
 inline = re.findall(r"<script>(.*?)</script>", html, re.S)
-js = inline[-1]
+if inline:
+    js_source, js = "inline <script>", inline[-1]
+else:
+    ext = re.findall(r'<script src="([^"]+\.render\.js)"', html)
+    if not ext:
+        fails.append("regression.html has neither an inline script nor a *.render.js")
+    js_source = ext[-1] if ext else "(none)"
+    js = (HERE / ext[-1]).read_text(encoding="utf-8") if ext else ""
+print(f"renderer source: {js_source}")
 markup = html.split("<script")[0]
 
 # ---------------------------------------------------------------- parses
@@ -39,9 +53,9 @@ with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as f:
     f.write(js)
     tmp = f.name
 r = subprocess.run(["node", "--check", tmp], capture_output=True, text=True)
-print("node --check regression.html:", "OK" if r.returncode == 0 else "FAILED\n" + r.stderr)
+print("node --check the renderer:", "OK" if r.returncode == 0 else "FAILED\n" + r.stderr)
 if r.returncode:
-    fails.append("regression.html inline script does not parse")
+    fails.append("the regression renderer does not parse")
 r2 = subprocess.run(["node", "--check", str(HERE / "pairs.js")], capture_output=True, text=True)
 print("pairs.js parse:", "OK" if r2.returncode == 0 else "FAILED")
 if r2.returncode:

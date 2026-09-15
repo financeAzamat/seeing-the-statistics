@@ -51,7 +51,7 @@
      printed "77.3%" beside Russian prose that writes 77,3. toLocaleString with
      fixed fraction digits gets the separator AND the grouping right. */
   function dec(v, dp) {
-    return Number(v).toLocaleString(UDJ_LOC, {
+    return (Math.abs(Number(v)) < Math.pow(10, -dp) / 2 ? 0 : Number(v)).toLocaleString(UDJ_LOC, {
       minimumFractionDigits: dp, maximumFractionDigits: dp,
     });
   }

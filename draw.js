@@ -184,7 +184,7 @@
     function fmtLoc(v, dp) {
       var m = root && root.UDJ_STRINGS;
       var loc = (m && m.__locale) || 'en-GB';
-      return Number(v).toLocaleString(loc, {
+      return (Math.abs(Number(v)) < Math.pow(10, -dp) / 2 ? 0 : Number(v)).toLocaleString(loc, {
         minimumFractionDigits: dp, maximumFractionDigits: dp,
         useGrouping: false,
       });
