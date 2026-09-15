@@ -34,6 +34,7 @@ ENFORCED = {
     "ru/index.html", "ru/simpson.html", "ru/intuition.html", "ru/typical.html",
     "ru/corr.html", "ru/clt.html", "ru/ci.html", "ru/test.html",
     "ru/regression.html", "ru/overfit.html", "ru/diagnostics.html",
+    "ru/classify.html",
 }
 
 EN_BANNED = [
@@ -124,19 +125,23 @@ MAX_BOLD = 2   # a term at its point of definition, once or twice per page
 # A .formula block does not wrap, so a line wider than the left column is cut
 # off. 44 monospace characters is what 29rem holds at --body size minus the
 # block's own padding; the English pages that fit sit at 32-43.
+#
+# A long line is a LAYOUT problem, not a wording one: break it after the term
+# and indent the continuation (see clt.html, classify.html) rather than cutting
+# words. Genuine prose commentary goes in a <span>, which `.formula span` in
+# page.css renders as a wrapping block — that rule is what makes the <span>
+# exclusion below honest, so do not exclude a span without it.
 MAX_FORMULA = 44
 
-# Pages whose formula blocks fit today, so a regression on them is a failure.
-# The rest are a NAMED BACKLOG, not an exemption: overfit.html (70 chars),
-# clt.html (60) and classify.html (58) each lose the right-hand end of a line
-# and need their formulas reworded, which is prose work on the English pages.
+# Every page with a formula block is now enforced; the backlog is empty.
 ENFORCED_FORMULA = {
     "ci.html", "corr.html", "index.html", "intuition.html", "regression.html",
     "simpson.html", "test.html", "typical.html", "diagnostics.html",
-    "overfit.html",
+    "overfit.html", "clt.html", "classify.html",
     "ru/ci.html", "ru/clt.html", "ru/corr.html", "ru/index.html",
     "ru/intuition.html", "ru/simpson.html", "ru/test.html", "ru/typical.html",
     "ru/regression.html", "ru/overfit.html", "ru/diagnostics.html",
+    "ru/classify.html",
 }
 
 

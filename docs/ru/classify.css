@@ -1,0 +1,9 @@
+/* Accuracy and the confusion matrix — page-specific canvas sizing.
+   Extracted from an inline <style> so the English and Russian pages load one
+   shared copy instead of carrying a duplicate each.
+
+   The canvas is taller than the course default because it holds three stacked
+   panels: the scatter cut into four quadrants, and the two metric panels under
+   it. ew-resize is the cursor because the whole interaction is dragging the
+   vertical decision line left and right. */
+canvas { height: 76vh; min-height: 660px; cursor: ew-resize; }

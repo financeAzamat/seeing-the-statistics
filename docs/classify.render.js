@@ -41,6 +41,26 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const K = DR.kit(ctx), P = DR.PAL;
 
+  /* ---- translation ------------------------------------------------------
+     TR's key IS the English string, so a missing entry falls back to correct
+     English and the English page needs no strings table. {0}/{1} are
+     positional so a translation may reorder them. Pure notation is never
+     wrapped: its translation would equal its key.                        */
+  function TR(k) {
+    const m = window.UDJ_STRINGS;
+    let s = (m && m[k]) || k;
+    for (let i = 1; i < arguments.length; i++) s = s.replace('{' + (i - 1) + '}', arguments[i]);
+    return s;
+  }
+  const UDJ_LOC = (window.UDJ_STRINGS && window.UDJ_STRINGS.__locale) || 'en-GB';
+  const grp = v => Number(v).toLocaleString(UDJ_LOC);
+  const dec = (v, dp) => (Math.abs(Number(v)) < Math.pow(10, -dp) / 2 ? 0 : Number(v))
+    .toLocaleString(UDJ_LOC, { minimumFractionDigits: dp, maximumFractionDigits: dp });
+  /* Namespaced so the carat abbreviation cannot collide with a bare unit
+     elsewhere in the course; the fallback keeps the English page correct. */
+  const unit = (k, fb) => { const m = window.UDJ_STRINGS; return (m && m[k]) || fb; };
+  const CT = () => unit('__unit_ct', 'ct');
+
   let ci = C.cuts.indexOf(1.5);
   if (ci < 0) ci = Math.floor(C.cuts.length / 2);
   let W = 0, Hh = 0, dpr = 1, now = 0, ticker = null, dragging = false;
@@ -90,8 +110,8 @@
   const YMAX = 19000;
   const yScale = v => Math.sqrt(Math.max(0, v) / YMAX);
   const XMAX = Math.min(3.2, C.carat_max);
-  const pct = v => (v * 100).toFixed(2) + '%';
-  const pct1 = v => (v * 100).toFixed(1) + '%';
+  const pct = v => dec(v * 100, 2) + '%';
+  const pct1 = v => dec(v * 100, 1) + '%';
 
   let plot = null;      // remembered so the pointer can hit-test the cut line
 
@@ -107,8 +127,9 @@
 
     /* ---------------- the scatter, cut into four quadrants ---------------- */
     K.panel(8, sTop, W - 8, sBot,
-      C.question, null, P.CYAN,
-      `truth line at $${C.threshold.toLocaleString('en-GB')} · decision line at ${cutNow.toFixed(2)} ct · drag it`,
+      TR(C.question), null, P.CYAN,
+      TR('truth line at {0} · decision line at {1} · drag it',
+         '$' + grp(C.threshold), dec(cutNow, 2) + ' ' + CT()),
       (x0, y0, x1, y1) => {
         plot = { x0, y0, x1, y1 };
         const sx = v => x0 + Math.min(1, v / XMAX) * (x1 - x0);
@@ -121,6 +142,7 @@
           { x: tx, y: ty, w: x1 - tx, h: y1 - ty, c: P.GOLD, n: 'FALSE POSITIVE', s: 'flagged, but cheap' },
           { x: x0, y: y0, w: tx - x0, h: ty - y0, c: P.RED, n: 'FALSE NEGATIVE', s: 'missed' },
           { x: x0, y: ty, w: tx - x0, h: y1 - ty, c: P.GREY, n: 'TRUE NEGATIVE', s: 'correctly ignored' },
+          /* n and s are TR KEYS, resolved where they are drawn below. */
         ];
         for (const q of Q) {
           if (q.w <= 1 || q.h <= 1) continue;
@@ -134,7 +156,7 @@
           ctx.strokeStyle = 'rgba(150,178,225,.06)';
           ctx.beginPath(); ctx.moveTo(sx(v) + .5, y0); ctx.lineTo(sx(v) + .5, y1); ctx.stroke();
           ctx.fillStyle = 'rgba(143,162,196,.8)';
-          ctx.fillText(v.toFixed(1) + ' ct', sx(v), y1 + 5);
+          ctx.fillText(dec(v, 1) + ' ' + CT(), sx(v), y1 + 5);
         }
         ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         for (const v of [500, 2000, 5000, 10000, 15000]) {
@@ -175,7 +197,7 @@
         ctx.beginPath(); ctx.moveTo(x0, ty + .5); ctx.lineTo(x1, ty + .5); ctx.stroke();
         ctx.setLineDash([]);
         ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-        K.tracked(`THE TRUTH · $${C.threshold.toLocaleString('en-GB')}`, x0 + 4, ty - 4, 9,
+        K.tracked(TR('THE TRUTH') + ' · $' + grp(C.threshold), x0 + 4, ty - 4, 9,
                   K.rgba(P.GOLD, .9), 1.5, 'left');
 
         // the decision line: yours, and glowing so it reads as the handle
@@ -195,15 +217,42 @@
           shown[hot ? (flg ? 0 : 2) : (flg ? 1 : 3)]++;
         }
         Q.forEach((q, i) => {
-          if (q.w < 84 || q.h < 40) return;
+          /* Vertical budget, measured rather than guessed. The name is drawn
+             with baseline 'top' (set above) at ly+8, so it occupies ly+8..ly+17
+             — the count used to start at ly+14 and overlapped it by 3px in BOTH
+             locales. The count now clears the name, and the guard matches the
+             space the three lines actually need (name + 15px count + 9px gloss
+             ≈ 43px below ly, itself q.y+7). */
+          if (q.w < 84 || q.h < 56) return;
           const lx = q.x + 8, ly = q.y + 7;
-          K.tracked(q.n, lx, ly + 8, 9, K.rgba(q.c, .95), 1.5, 'left');
+          const nm = TR(q.n), cnt = grp(Math.round(cNow[i]));
+          const gloss = TR(q.s) + ' · ' + TR('{0} shown', grp(shown[i]));
+
+          /* A backing plate under the label group. The dots are drawn before
+             this and the text after, so the text is already on top — but in
+             the two FLAGGED quadrants the dot field is dense enough to read
+             THROUGH the gaps between glyphs: the thousands space in '4 388'
+             took a dot and read as '4•388', and the leading '2' of '2 847'
+             was lost in the gold mass. Both locales, both pre-existing. The
+             plate is opaque enough to stop a bright dot bleeding through: at
+             .72 a full-brightness dot still showed at ~28% and the thousands
+             gap in '4 388' kept reading as '4•388'. */
+          ctx.font = `600 9px ${K.MONO}`;
+          const wName = ctx.measureText(nm).width + nm.length * 1.5;  // tracking
+          const wGloss = ctx.measureText(gloss).width;
+          ctx.font = `700 15px ${K.MONO}`;
+          const wCount = ctx.measureText(cnt).width;
+          const plate = Math.min(Math.max(wName, wGloss, wCount) + 11, q.w - 9);
+          ctx.fillStyle = 'rgba(9,12,20,.93)';
+          K.roundRect(lx - 5, ly + 2, plate, 45, 3); ctx.fill();
+
+          K.tracked(nm, lx, ly + 8, 9, K.rgba(q.c, .95), 1.5, 'left');
           ctx.font = `700 15px ${K.MONO}`; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
           ctx.fillStyle = K.rgba(q.c, .95);
-          ctx.fillText(Math.round(cNow[i]).toLocaleString('en-GB'), lx, ly + 14);
+          ctx.fillText(cnt, lx, ly + 19);
           ctx.font = `600 9px ${K.MONO}`;
-          ctx.fillStyle = 'rgba(143,162,196,.8)';
-          ctx.fillText(`${q.s} · ${shown[i]} shown`, lx, ly + 33);
+          ctx.fillStyle = 'rgba(143,162,196,.85)';
+          ctx.fillText(gloss, lx, ly + 36);
         });
       });
 
@@ -211,10 +260,14 @@
     const gap = 9, colW = (W - 16 - gap) / 2;
     const m1x0 = 8, m1x1 = 8 + colW, m2x0 = m1x1 + gap, m2x1 = W - 8;
     const beats = s.acc - C.trivial_accuracy;
-    K.panel(m1x0, mTop, m1x1, mBot, 'the score everyone quotes',
-      beats > 0.005 ? 'BEATS DOING NOTHING' : 'NO BETTER THAN NOTHING',
+    /* The title and the verdict pill share one row in a half-width panel, so
+       both are kept short: 'BEATS DOING NOTHING' pushed the pill over the last
+       word of the title in BOTH locales. */
+    K.panel(m1x0, mTop, m1x1, mBot, TR('the score everyone quotes'),
+      beats > 0.005 ? TR('REAL GAIN') : TR('NO GAIN'),
       beats > 0.005 ? P.CYAN : P.RED,
-      `accuracy ${pct(s.acc)} · doing nothing scores ${pct(C.trivial_accuracy)}`,
+      TR('accuracy {0} · doing nothing scores {1}',
+         pct(s.acc), pct(C.trivial_accuracy)),
       (x0, y0, x1, y1) => {
         // accuracy against the do-nothing baseline, on a zoomed scale, because
         // both numbers live in the top 10% and a 0..1 axis hides the gap
@@ -233,24 +286,34 @@
         ctx.strokeStyle = K.rgba(P.RED, .9); ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(tvx, y0 + 8); ctx.lineTo(tvx, y0 + 46); ctx.stroke();
         ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-        K.tracked('DOING NOTHING', tvx, y0 + 6, 9, K.rgba(P.RED, .9), 1.4, 'center');
+        K.tracked(TR('DOING NOTHING'), tvx, y0 + 6, 9, K.rgba(P.RED, .9), 1.4, 'center');
         ctx.font = `700 13px ${K.MONO}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
         ctx.fillStyle = 'rgba(240,248,255,.95)';
         ctx.fillText(pct(s.acc), x0 + 8, y0 + 27);
         ctx.font = `600 10px ${K.MONO}`;
         ctx.fillStyle = 'rgba(143,162,196,.85)'; ctx.textBaseline = 'top';
-        ctx.fillText(`scale starts at ${(lo * 100).toFixed(0)}% — both numbers live up here`,
-                     x0, y0 + 50);
+        ctx.fillText(TR('scale starts at {0} — both numbers live up here',
+                        dec(lo * 100, 0) + '%'), x0, y0 + 50);
         ctx.fillStyle = beats > 0.005 ? K.rgba(P.CYAN, .95) : K.rgba(P.RED, .95);
-        ctx.fillText(`${beats >= 0 ? '+' : '−'}${Math.abs(beats * 100).toFixed(2)} points `
-                     + `${beats >= 0 ? 'better' : 'worse'} than predicting "no" every time`,
+        /* Two whole keys rather than a glued comparative: Russian needs its
+           own word order, which a spliced 'better'/'worse' cannot give. Kept
+           short because at 10px mono this line ran past the panel's right
+           edge on the English page. */
+        const lift = (beats >= 0 ? '+' : '−') + dec(Math.abs(beats * 100), 2);
+        ctx.fillText(beats >= 0
+                     ? TR('{0} points better than always predicting "no"', lift)
+                     : TR('{0} points worse than always predicting "no"', lift),
                      x0, y0 + 66);
       });
 
-    K.panel(m2x0, mTop, m2x1, mBot, 'the two that cannot be gamed', null, P.CYAN,
-      `precision ${s.prec === null ? '—' : pct1(s.prec)} · recall ${pct1(s.rec)} · F1 ${s.f1 === null ? '—' : pct1(s.f1)}`,
+    K.panel(m2x0, mTop, m2x1, mBot, TR('the two that cannot be gamed'), null, P.CYAN,
+      TR('precision {0} · recall {1} · F1 {2}',
+         s.prec === null ? '—' : pct1(s.prec), pct1(s.rec),
+         s.f1 === null ? '—' : pct1(s.f1)),
       (x0, y0, x1, y1) => {
         const rows = [
+          /* n and s are TR keys, resolved at draw time. 'F1' is notation and
+             deliberately has NO table entry: it falls through unchanged. */
           { n: 'PRECISION', v: s.prec, c: P.GOLD, s: 'of those flagged, right' },
           { n: 'RECALL', v: s.rec, c: P.CYAN, s: 'of what mattered, caught' },
           { n: 'F1', v: s.f1, c: P.VIO, s: 'both at once' },
@@ -274,14 +337,14 @@
             ctx.globalAlpha = 1;
           }
           ctx.textBaseline = 'middle';
-          K.tracked(r.n, x0 + 90, yy + h / 2 + 3, 9, K.rgba(r.c, .95), 1.5, 'right');
+          K.tracked(TR(r.n), x0 + 90, yy + h / 2 + 3, 9, K.rgba(r.c, .95), 1.5, 'right');
           ctx.font = `700 11px ${K.MONO}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
           ctx.fillStyle = 'rgba(240,248,255,.95)';
           ctx.fillText(r.v === null ? '—' : pct1(r.v), x1 - 48, yy + h / 2);
         });
         ctx.font = `600 9px ${K.MONO}`; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
         ctx.fillStyle = 'rgba(143,162,196,.8)';
-        ctx.fillText('drag the line: precision and recall trade against each other',
+        ctx.fillText(TR('drag the line: precision and recall trade against each other'),
                      x0, y1 - 12);
       });
 
@@ -291,37 +354,40 @@
   const $ = id => document.getElementById(id);
   function readouts(s, cutNow, beats) {
     $('v-acc').textContent = pct(s.acc);
-    $('v-acc-s').textContent = `at ${cutNow.toFixed(2)} ct`;
+    $('v-acc-s').textContent = TR('at {0}', dec(cutNow, 2) + ' ' + CT());
     $('v-triv').textContent = pct(C.trivial_accuracy);
     $('v-rec').textContent = pct1(s.rec);
-    $('r-cut').textContent = cutNow.toFixed(2) + ' ct';
+    $('r-cut').textContent = dec(cutNow, 2) + ' ' + CT();
     $('r-prec').textContent = s.prec === null ? '—' : pct1(s.prec);
     $('r-f1').textContent = s.f1 === null ? '—' : pct1(s.f1);
     $('r-base').textContent = pct(C.base_rate);
-    $('r-fn').textContent = s.fn.toLocaleString('en-GB');
-    $('r-fp').textContent = s.fp.toLocaleString('en-GB');
-    $('r-lift').textContent = (beats >= 0 ? '+' : '−') + Math.abs(beats * 100).toFixed(2);
+    $('r-fn').textContent = grp(s.fn);
+    $('r-fp').textContent = grp(s.fp);
+    $('r-lift').textContent = (beats >= 0 ? '+' : '−') + dec(Math.abs(beats * 100), 2);
     $('r-lift').className = 'v ' + (beats > 0.005 ? 'on' : 'bad');
-    $('r-n').textContent = C.n_source.toLocaleString('en-GB');
+    $('r-n').textContent = grp(C.n_source);
+    const gain = beats > 0.005
+      ? TR('{0} points of real gain.', dec(beats * 100, 2))
+      : TR('no real gain at all.');
     $('hint').textContent =
-      `At ${cutNow.toFixed(2)} ct you flag ${(s.tp + s.fp).toLocaleString('en-GB')} stones, `
-      + `${s.tp.toLocaleString('en-GB')} of them correctly, and miss `
-      + `${s.fn.toLocaleString('en-GB')} expensive ones. Accuracy ${pct(s.acc)} against `
-      + `${pct(C.trivial_accuracy)} for predicting "no" every time — `
-      + (beats > 0.005 ? `${(beats * 100).toFixed(2)} points of real gain.`
-                       : 'no real gain at all.');
+      TR('At {0} you flag {1} stones, {2} of them correctly, and miss {3} expensive ones.',
+         dec(cutNow, 2) + ' ' + CT(), grp(s.tp + s.fp), grp(s.tp), grp(s.fn))
+      + ' '
+      + TR('Accuracy {0} against {1} for predicting "no" every time — {2}',
+           pct(s.acc), pct(C.trivial_accuracy), gain);
   }
 
   function provenance() {
     $('prov').innerHTML =
-      `<div class="cap">Data source</div>
-       <p><a href="${C.url}" target="_blank" rel="noopener">${C.source}</a> — ${C.what}</p>
-       <ul>${C.filters.map(f => `<li>${f}</li>`).join('')}</ul>
+      `<div class="cap">${TR('Data source')}</div>
+       <p><a href="${C.url}" target="_blank" rel="noopener">${TR(C.source)}</a> — ${TR(C.what)}</p>
+       <ul>${C.filters.map(f => `<li>${TR(f)}</li>`).join('')}</ul>
        <p style="font-size:var(--micro);color:var(--muted-2);font-family:var(--font-mono)">
-         Every rate is measured over all ${C.n_source.toLocaleString('en-GB')} records across
-         ${C.cuts.length} candidate cut-offs, so nothing on screen is interpolated. The
-         scatter shows ${C.n_embed.toLocaleString('en-GB')} drawn at random, and each
-         quadrant prints both its full-set count and how many dots are visible in it.</p>`;
+         ${TR('Every rate is measured over all {0} records across {1} candidate cut-offs, '
+              + 'so nothing on screen is interpolated. The scatter shows {2} drawn at '
+              + 'random, and each quadrant prints both its full-set count and how many '
+              + 'dots are visible in it.',
+              grp(C.n_source), grp(C.cuts.length), grp(C.n_embed))}</p>`;
   }
 
   /* ---------------- interaction ---------------- */
@@ -372,10 +438,12 @@
     if (target < 0) target = ci;
     setCut(target, true);
     const s = C.sweep[target];
+    const at = dec(cutOf(target), 2) + ' ' + CT();
     $('live').textContent = p === 'none'
-      ? `Cut-off pushed to ${cutOf(target).toFixed(2)} carats: accuracy ${pct(s.acc)}, recall ${pct1(s.rec)}.`
-      : `Best ${p === 'acc' ? 'accuracy' : 'F1'} at ${cutOf(target).toFixed(2)} carats: `
-        + `accuracy ${pct(s.acc)}, recall ${pct1(s.rec)}.`;
+      ? TR('Cut-off pushed to {0}: accuracy {1}, recall {2}.', at, pct(s.acc), pct1(s.rec))
+      : p === 'acc'
+        ? TR('Best accuracy at {0}: accuracy {1}, recall {2}.', at, pct(s.acc), pct1(s.rec))
+        : TR('Best F1 at {0}: accuracy {1}, recall {2}.', at, pct(s.acc), pct1(s.rec));
   }));
   addEventListener('resize', () => { layout(); paint(); });
 

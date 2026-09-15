@@ -178,6 +178,17 @@ def renderer_literals() -> set[str]:
 
     This keeps the check's real purpose intact: an entry whose text appears
     nowhere in the code or the data is still an orphan.
+
+    Two harvests, because one floor cannot serve both jobs. The length floor of
+    12 stops the general sweep dragging in every incidental short literal
+    ('left', 'top', 'center', a font name), which would match almost any short
+    key and leave the check unable to fail. But a SHORT lookup-table value is
+    then invisible: classify.render.js labels its quadrants and metric rows
+    `{ n: 'PRECISION', s: 'missed' }` and draws them via TR(r.n) / TR(q.s), and
+    all three were reported as orphans while being on screen. So harvest
+    object-literal property values at ANY length as well -- `key: 'text'` is
+    the lookup-table shape itself, and a literal that really is written in a
+    renderer is by definition not an orphan.
     """
     out: set[str] = set()
     for p in RENDERERS:
@@ -186,6 +197,8 @@ def renderer_literals() -> set[str]:
             out.add(m.group(1).replace("\\'", "'").replace('\\"', '"'))
         for m in re.finditer(r'"((?:[^"\\\n]|\\.){12,})"', src):
             out.add(m.group(1).replace("\\'", "'").replace('\\"', '"'))
+        for m in re.finditer(r"""\b\w+\s*:\s*(['"])((?:[^'"\\\n]|\\.)+)\1""", src):
+            out.add(m.group(2).replace("\\'", "'").replace('\\"', '"'))
     return out
 
 
@@ -264,7 +277,7 @@ TEXT_FIELDS = ("unit", "unitAfter", "label", "what", "source", "xLabel", "yLabel
 for p in RENDERERS:
     code = re.sub(r"/\*.*?\*/", " ", p.read_text(encoding="utf-8"), flags=re.S)
     code = re.sub(r"(?m)//[^\n]*$", " ", code)
-    # Four shapes are reads that are NOT display, and counting them produced
+    # Five shapes are reads that are NOT display, and counting them produced
     # false positives. Removing them before counting is what keeps the check
     # worth reading:
     #   `qq.source.split(' ')[0]`   -> tokenising a FILE NAME out of a citation
@@ -272,12 +285,20 @@ for p in RENDERERS:
     #   `/^[£$€]$/.test(D.unit)`    -> branching on the unit, not printing it
     #   `fmt(v, D.xunit, XDP)`      -> FORWARDING it into a formatter that
     #                                  itself calls TR on it
+    #   `C.label[i]`                -> SUBSCRIPTING a parallel ARRAY. On the
+    #                                  classify page `label` is the per-row
+    #                                  boolean "is this one expensive", one
+    #                                  entry per record -- an array of flags,
+    #                                  not a caption. A field that is indexed
+    #                                  is being read per row, so it cannot be
+    #                                  the display string this check is about.
     # A check that flags these teaches the reader to ignore it.
     for fld in TEXT_FIELDS:
         code = re.sub(r"\b\w+\.%s\s*\.\s*split\s*\(" % fld, " SPLIT( ", code)
         code = re.sub(r"\b\w+\s*:\s*\w+\.%s\b" % fld, " COPY ", code)
         code = re.sub(r"\.test\(\s*\w+\.%s\s*\)" % fld, ".test( TESTED )", code)
         code = re.sub(r"(fmt\([^)]*?)\b\w+\.%s\b" % fld, r"\1 FORWARDED ", code)
+        code = re.sub(r"\b\w+\.%s\s*\[" % fld, " INDEXED[ ", code)
     raw: list[str] = []
     for fld in TEXT_FIELDS:
         total = len(re.findall(r"\b\w+\.%s\b" % fld, code))
