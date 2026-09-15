@@ -856,4 +856,93 @@ window.UDJ_STRINGS = {
   'ADJUSTED R²': 'СКОРРЕКТИРОВАННЫЙ R²',
   'R² ON HELD-BACK DATA': 'R² НА ОТЛОЖЕННЫХ ДАННЫХ',
   'NOISE PREDICTORS ADDED': 'ДОБАВЛЕНО ШУМОВЫХ ПРЕДИКТОРОВ',
+
+  /* ================================================================
+     MODULE 8 — regression diagnostics (diagnostics.render.js)
+     ================================================================ */
+
+  /* ---- verdict pills and scorecard badges.
+     The pill sits right-aligned in a narrow panel whose title is left-aligned in
+     the same row, so a long verdict crowds the title: «НЕ ПРОЙДЕНО» (11 chars
+     against FAIL's 4) touched it. The pills are short; the scorecard below has
+     its own row and can be explicit. */
+  'PASS': 'ПРОШЛА',
+  'FAIL': 'ПРОВАЛ',
+  'N/A': 'Н/Д',
+  'pass': 'пройдено',
+  'fail': 'не пройдено',
+  'not testable': 'не проверяемо',
+  'yes': 'да',
+  'no': 'нет',
+  'infinite': 'бесконечность',
+
+  /* ---- panel titles and notes. Each title is left-aligned in the same row as
+     a right-aligned verdict pill, in a half-width panel, so a title longer than
+     its English original runs under the pill: «нормальность · ошибки против
+     колокола» was clipped. Both of these are kept SHORTER than the English. */
+  'shape · average error along x': 'форма · средняя ошибка по x',
+  'spread · error size along x': 'разброс · размер ошибки по x',
+  'independence · error vs order': 'независимость · ошибка и порядок',
+  'normality · errors vs a bell curve': 'нормальность · ошибки и колокол',
+  'R² {0}   ·   slope {1}': 'R² {0}   ·   наклон {1}',
+  '   ·   worst point dropped': '   ·   худшая точка убрана',
+  'MOST INFLUENTIAL': 'САМАЯ ВЛИЯТЕЛЬНАЯ',
+  'bend {0}   want < {1}': 'изгиб {0}   нужно < {1}',
+  'fan {0}×   want < {1}': 'расхождение {0}×   нужно < {1}',
+  'skew {0}   ·   kurtosis {1}': 'перекос {0}   ·   эксцесс {1}',
+  'cannot be tested on this data': 'на этих данных проверить нельзя',
+
+  /* ---- captions under each panel */
+  'flat = the shape is right': 'плоско = форма верна',
+  'equal heights = even accuracy': 'равные высоты = ровная точность',
+  'on the dashed line = bell-shaped': 'на пунктире = колоколообразно',
+  'zig-zag = alternating, not independent':
+    'зигзаг = чередование, независимости нет',
+  'runs = drifting, not independent': 'серии = дрейф, независимости нет',
+  'no pattern = independent': 'без узора = независимо',
+
+  /* ---- the no-order panel. Lines are separated by '|' so the translation
+     chooses its own breaks; three lines here, and the count may differ. */
+  ['these rows have no real order,|so consecutive errors cannot be|related. '
+   + 'Scoring this would be']:
+    'у этих строк нет настоящего порядка,|поэтому последовательные ошибки не '
+    + 'могут|быть связаны. Оценивать это значило бы',
+  'measuring a file, not the world.': 'измерять файл, а не мир.',
+
+  /* ---- readouts */
+  'lag-1, want |r| < {0}': 'lag-1, нужно |r| < {0}',
+  'no meaningful row order': 'осмысленного порядка строк нет',
+
+  /* ---- controls and screen-reader announcements */
+  'drop the worst point': 'убрать худшую точку',
+  'put it back': 'вернуть её',
+  'Order is meaningful, so all four checks run.':
+    'Порядок осмыслен, поэтому выполняются все четыре проверки.',
+  'No row order, so independence cannot be tested.':
+    'Порядка строк нет, поэтому независимость проверить нельзя.',
+  'Transform {0}. R² {1}, fan {2}, kurtosis {3}.':
+    'Преобразование {0}. R² {1}, расхождение {2}, эксцесс {3}.',
+  'Most influential point removed. Slope moved {0} percent.':
+    'Самая влиятельная точка убрана. Наклон сдвинулся на {0} процентов.',
+  'Point restored.': 'Точка возвращена.',
+
+  /* ---- data-file prose from pairs.js */
+  ['A cross-section of stones with no sequence: they were not measured one after '
+   + 'another, so there is no order in which consecutive errors could be related. '
+   + 'Independence cannot be tested here, and a number pretending otherwise would '
+   + 'be measuring the order of a CSV file.']:
+    'Срез камней без последовательности: их не измеряли один за другим, поэтому '
+    + 'нет порядка, в котором последовательные ошибки могли бы быть связаны. '
+    + 'Независимость здесь проверить нельзя, а число, делающее вид, что можно, '
+    + 'измеряло бы порядок строк в CSV-файле.',
+  ['The 272 eruptions are stored in the order they happened, so consecutive '
+   + 'errors are a real question — and the answer is interesting.']:
+    '272 извержения хранятся в том порядке, в котором происходили, поэтому '
+    + 'последовательные ошибки — настоящий вопрос, и ответ на него интересен.',
+  ['These 800 invoices were drawn at random from 19,583, which destroys any time '
+   + 'order the source had. Even if it were preserved, a lag-1 correlation across '
+   + 'a random sample would not be autocorrelation.']:
+    'Эти 800 счетов отобраны случайно из 19 583, что уничтожает любой временной '
+    + 'порядок, который был в источнике. Даже если бы он сохранился, корреляция '
+    + 'lag-1 по случайной выборке не была бы автокорреляцией.',
 };

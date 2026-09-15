@@ -370,22 +370,39 @@ print("=" * 74)
 # through K.tracked instead. Every text-drawing entry point has to be covered, or
 # a page ships with English on the canvas and every other check still passes --
 # canvas text is not in the DOM, so the prose checks cannot see it either.
-DRAW_CALLS = r"(?:ctx\.fillText|K\.tracked|K\.pill|K\.panel)"
+#
+# Two widenings, both from real misses. The call name may be a renderer's OWN
+# helper rather than the shared kit's (diagnostics.render.js defines a local
+# panel()), so the K. prefix is optional. And the text is often NOT the first
+# argument -- panel() takes title, verdict and note in positions 5, 6 and 8 --
+# so this scans a window of the call's arguments rather than just argument one.
+DRAW_CALLS = r"(?:(?:ctx|K)\.)?(?:fillText|tracked|pill|panel)"
+LIT = r"(['\"])((?:(?!\1)[^\\\n]|\\.)*)\1"
+# Blanking a TR key must cover a key built by CONCATENATION -- TR('a ' + 'b') --
+# or the later fragments stay visible and get reported as bare. Missing this made
+# the check flag 'is one percent of {1}' and 'held back', which are the tails of
+# keys already wrapped.
+TR_KEY = r"TR\(\s*" + LIT + r"(?:\s*\+\s*" + LIT + r")*"
+# Not prose: colours, and the canvas keywords for alignment/baseline/compositing.
+NOT_PROSE = re.compile(
+    r"^(?:rgba?\(|hsla?\(|#)|^(?:left|right|center|centre|top|bottom|middle|"
+    r"alphabetic|hanging|ideographic|butt|round|square|source-over|lighter|"
+    r"destination-out)$"
+)
 for p in RENDERERS:
     code = re.sub(r"/\*.*?\*/", " ", p.read_text(encoding="utf-8"), flags=re.S)
     code = re.sub(r"(?m)//[^\n]*$", " ", code)
+    code = re.sub(TR_KEY, " TRWRAPPED ", code)
     bare: list[str] = []
-    # a quoted literal as the FIRST argument, not wrapped in TR(
-    for m in re.finditer(DRAW_CALLS + r"\(\s*(['\"])((?:[^'\"\\\n]|\\.)*)\1", code):
-        lit = m.group(2)
-        if re.search(r"[A-Za-z]{4}", lit):
-            bare.append(lit[:40])
-    # and the `name:` / `title:` fields of a series/legend object literal
-    for m in re.finditer(r"(?:name|title|caption)\s*:\s*(['\"])((?:[^'\"\\\n]|\\.)*)\1",
-                         code):
-        lit = m.group(2)
-        if re.search(r"[A-Za-z]{4}", lit):
-            bare.append(lit[:40])
+    for m in re.finditer(DRAW_CALLS + r"\(", code):
+        window = code[m.end():m.end() + 420]
+        window = re.split(r"\(x0|\)\s*;", window)[0]
+        for lm in re.finditer(LIT, window):
+            lit = lm.group(2)
+            if NOT_PROSE.match(lit):
+                continue
+            if re.search(r"[A-Za-z]{4}", lit) and lit not in bare:
+                bare.append(lit[:44])
     print(f"  {p.name:<26} bare drawn literals: {len(bare)} {bare[:2]}")
     for b in bare:
         fails.append(f"{p.name} draws {b!r} as a bare literal; it stays English "

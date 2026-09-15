@@ -65,6 +65,27 @@
   const PALE = [196, 228, 255];
   const TAU = 6.283185307;
 
+  /* Translation lookup. The KEY is the English string, so a missing entry falls
+     back to correct English rather than a bare identifier — which is what lets
+     the English page load this same file with no strings table at all. */
+  function TR(k) {
+    const m = window.UDJ_STRINGS;
+    let s = (m && m[k]) || k;
+    for (let i = 1; i < arguments.length; i++) {
+      s = s.replace('{' + (i - 1) + '}', arguments[i]);
+    }
+    return s;
+  }
+  const UDJ_LOC = (window.UDJ_STRINGS && window.UDJ_STRINGS.__locale) || 'en-GB';
+  const grp = v => Number(v).toLocaleString(UDJ_LOC);
+  /* toFixed always emits a decimal POINT whatever the locale. The zero-snap
+     stops a value that rounds to zero printing as "-0". */
+  const dec = (v, dp) => (Math.abs(Number(v)) < Math.pow(10, -dp) / 2 ? 0 : Number(v))
+    .toLocaleString(UDJ_LOC, {
+      minimumFractionDigits: dp, maximumFractionDigits: dp,
+    });
+  const sgn = (v, dp) => (v >= 0 ? '+' : '') + dec(v, dp);
+
   /* thresholds, matching data/measure_diagnostics.py */
   const T_BEND = 0.5, T_FAN = 2.0, T_LAG = 0.15, T_SKEW = 1.0, T_KURT = 2.0;
 
@@ -119,7 +140,11 @@
       worstX: (!drop && full.worst >= 0) ? xs[full.worst] : null,
       worstY: (!drop && full.worst >= 0) ? ys[full.worst] : null,
       maxCookFull: full.maxCook, shift, qq,
-      xl: t.xl + D.xlab, yl: t.yl + D.ylab, xlp: t.xl, ylp: t.yl,
+      /* The transform prefix ('', 'log ') is a function name, identical in both
+         languages, so only the DATA label goes through TR. Wrapping the prefix
+         would need a table entry equal to its own key, which the "nothing left
+         in English" check rejects. */
+      xl: t.xl + TR(D.xlab), yl: t.yl + TR(D.ylab), xlp: t.xl, ylp: t.yl,
     };
   }
 
@@ -141,7 +166,7 @@
   function load(d) {
     D = d; dropWorst = false; A = null; B = null; morph = null;
     document.getElementById('drop').setAttribute('aria-pressed', 'false');
-    document.getElementById('drop').textContent = 'drop the worst point';
+    document.getElementById('drop').textContent = TR('drop the worst point');
     // seeded per-point brightness and twinkle phase, so the field looks
     // identical on every reload
     let sd = 1907;
@@ -150,7 +175,7 @@
     pphase = new Float32Array(D.x.length);
     for (let i = 0; i < pmag.length; i++) { pmag[i] = Math.pow(rnd(), 2.0); pphase[i] = rnd() * TAU; }
     A = buildState(tf, false);
-    document.getElementById('hint').textContent = D.order_note;
+    document.getElementById('hint').textContent = TR(D.order_note);
   }
 
   function layout() {
@@ -250,11 +275,12 @@
   }
   function fmtNum(v) {
     const a = Math.abs(v);
-    if (a >= 1e6) return (v / 1e6).toFixed(1) + 'm';
-    if (a >= 1e4) return (v / 1e3).toFixed(0) + 'k';
-    if (a >= 100) return v.toFixed(0);
-    if (a >= 1) return v.toFixed(1);
-    return v.toFixed(2);
+    const u = k => (window.UDJ_STRINGS && window.UDJ_STRINGS[k[0]]) || k[1];
+    if (a >= 1e6) return dec(v / 1e6, 1) + u(['__mag_m', 'm']);
+    if (a >= 1e4) return dec(v / 1e3, 0) + u(['__mag_k', 'k']);
+    if (a >= 100) return dec(v, 0);
+    if (a >= 1) return dec(v, 1);
+    return dec(v, 2);
   }
   /* a panel: hairline box, tracked title, verdict pill, subtitle, plot rect */
   function panel(x0, y0, x1, y1, title, verdict, vcolour, note, draw) {
@@ -269,7 +295,7 @@
 
     ctx.textBaseline = 'alphabetic';
     tracked(title.toUpperCase(), x0 + 12, y0 + 19, 10, 'rgba(210,225,250,.95)', 1.6, 'left');
-    if (verdict) pill(verdict, x1 - 12, y0 + 9, vcolour, verdict !== 'N/A');
+    if (verdict) pill(verdict, x1 - 12, y0 + 9, vcolour, verdict !== TR('N/A'));
     if (note) {
       ctx.font = `600 10px ${MONO}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
       ctx.fillStyle = 'rgba(143,162,196,.85)';
@@ -315,9 +341,11 @@
 
     /* ================= the scatter ================= */
     panel(8, sTop, W - 8, sBot,
-      `${T.xl} → ${T.yl}`, null, CYAN,
-      `R² ${r2.toFixed(3)}   ·   slope ${slope.toFixed(Math.abs(slope) > 100 ? 0 : 3)}`
-        + (T.drop ? '   ·   worst point dropped' : ''),
+      /* Not routed through TR: an arrow between two already-translated labels
+         is notation, so an entry could only equal its key. */
+      T.xl + ' → ' + T.yl, null, CYAN,
+      TR('R² {0}   ·   slope {1}', dec(r2, 3), dec(slope, Math.abs(slope) > 100 ? 0 : 3))
+        + (T.drop ? TR('   ·   worst point dropped') : ''),
       (px0, py0, px1, py1) => {
         const mA = mapper(A, px0, py0, px1, py1);
         const mB = mapper(T, px0, py0, px1, py1);
@@ -403,15 +431,15 @@
           ctx.beginPath(); ctx.arc(cx, cy, 8 + pu * 3.5, 0, TAU); ctx.stroke();
           ctx.globalAlpha = 1;
           ctx.beginPath(); ctx.arc(cx, cy, 7.5, 0, TAU); ctx.stroke();
-          tracked('MOST INFLUENTIAL', cx + 14, cy + 3.5, 9,
+          tracked(TR('MOST INFLUENTIAL'), cx + 14, cy + 3.5, 9,
                   `rgba(${RED[0]},${RED[1]},${RED[2]},.95)`, 1.4, 'left');
         }
       });
 
     /* ================= shape ================= */
-    panel(p1x0, rTop, p1x1, rBot, 'shape · average error along x',
-      bendOk ? 'PASS' : 'FAIL', bendOk ? CYAN : RED,
-      `bend ${bend.toFixed(2)}   want < ${T_BEND}`,
+    panel(p1x0, rTop, p1x1, rBot, TR('shape · average error along x'),
+      bendOk ? TR('PASS') : TR('FAIL'), bendOk ? CYAN : RED,
+      TR('bend {0}   want < {1}', dec(bend, 2), dec(T_BEND, 1)),
       (x0, y0, x1, y1) => {
         const a = gA.sliceMeans, b = gB.sliceMeans;
         const n = Math.min(a.length, b.length);
@@ -447,13 +475,13 @@
         }
         ctx.font = `600 9px ${MONO}`; ctx.fillStyle = 'rgba(143,162,196,.7)';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-        ctx.fillText('flat = the shape is right', x0, y1 + 15);
+        ctx.fillText(TR('flat = the shape is right'), x0, y1 + 15);
       });
 
     /* ================= spread ================= */
-    panel(p2x0, rTop, p2x1, rBot, 'spread · error size along x',
-      fanOk ? 'PASS' : 'FAIL', fanOk ? CYAN : RED,
-      `fan ${isFinite(fan) ? fan.toFixed(2) : '∞'}×   want < ${T_FAN}`,
+    panel(p2x0, rTop, p2x1, rBot, TR('spread · error size along x'),
+      fanOk ? TR('PASS') : TR('FAIL'), fanOk ? CYAN : RED,
+      TR('fan {0}×   want < {1}', isFinite(fan) ? dec(fan, 2) : '∞', dec(T_FAN, 1)),
       (x0, y0, x1, y1) => {
         const a = gA.sliceSds, b = gB.sliceSds;
         const n = Math.min(a.length, b.length);
@@ -484,26 +512,39 @@
         ctx.beginPath(); ctx.moveTo(x0, y1 + .5); ctx.lineTo(x1, y1 + .5); ctx.stroke();
         ctx.font = `600 9px ${MONO}`; ctx.fillStyle = 'rgba(143,162,196,.7)';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-        ctx.fillText('equal heights = even accuracy', x0, y1 + 15);
+        ctx.fillText(TR('equal heights = even accuracy'), x0, y1 + 15);
       });
 
     /* ================= independence, or a refusal ================= */
-    panel(p1x0, r2Top, p1x1, r2Bot, 'independence · error vs order',
-      D.ordered ? (lagOk ? 'PASS' : 'FAIL') : 'N/A',
+    panel(p1x0, r2Top, p1x1, r2Bot, TR('independence · error vs order'),
+      D.ordered ? (lagOk ? TR('PASS') : TR('FAIL')) : TR('N/A'),
       D.ordered ? (lagOk ? CYAN : RED) : [116, 134, 159],
       D.ordered
-        ? `lag-1 ${lag1 >= 0 ? '+' : ''}${lag1.toFixed(3)}   ·   DW ${mv('dw').toFixed(2)}`
-        : 'cannot be tested on this data',
+        /* Not routed through TR: 'lag-1' and 'DW' are technical abbreviations
+           kept in Latin in Russian too, so an entry could only equal its key. */
+        ? 'lag-1 ' + sgn(lag1, 3) + '   ·   DW ' + dec(mv('dw'), 2)
+        : TR('cannot be tested on this data'),
       (x0, y0, x1, y1) => {
         if (!D.ordered) {
           const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
           ctx.font = `600 10px ${MONO}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
           ctx.fillStyle = 'rgba(143,162,196,.9)';
-          ctx.fillText('these rows have no real order,', cx, cy - 18);
-          ctx.fillText('so consecutive errors cannot be', cx, cy - 3);
-          ctx.fillText('related. Scoring this would be', cx, cy + 12);
+          /* The translation owns its own line breaks: Russian does not wrap
+             at the same three points, so hard-coding four fillText calls at
+             fixed offsets would have run the text past the panel. The block is
+             centred for whatever number of lines comes back.
+             Lines are separated by '|', not '\n': an escape sequence in a key
+             reads as a real newline at runtime but as a literal backslash-n in
+             the source, so the key the checker extracts would never match the
+             key the table holds. */
+          const grey = TR('these rows have no real order,'
+                        + '|so consecutive errors cannot be'
+                        + '|related. Scoring this would be').split('|');
+          const gold = TR('measuring a file, not the world.');
+          const top = cy - (grey.length * 15) / 2;
+          grey.forEach((ln, i) => ctx.fillText(ln, cx, top + i * 15));
           ctx.fillStyle = 'rgba(255,196,116,.95)';
-          ctx.fillText('measuring a file, not the world.', cx, cy + 27);
+          ctx.fillText(gold, cx, top + grey.length * 15);
           return;
         }
         const ra = gA.resid, rb = gB.resid;
@@ -544,15 +585,15 @@
         }
         ctx.font = `600 9px ${MONO}`; ctx.fillStyle = 'rgba(143,162,196,.7)';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-        ctx.fillText(V.lag1 < -T_LAG ? 'zig-zag = alternating, not independent'
-                   : V.lag1 > T_LAG ? 'runs = drifting, not independent'
-                   : 'no pattern = independent', x0, y1 + 15);
+        ctx.fillText(V.lag1 < -T_LAG ? TR('zig-zag = alternating, not independent')
+                   : V.lag1 > T_LAG ? TR('runs = drifting, not independent')
+                   : TR('no pattern = independent'), x0, y1 + 15);
       });
 
     /* ================= normality ================= */
-    panel(p2x0, r2Top, p2x1, r2Bot, 'normality · errors vs a bell curve',
-      normOk ? 'PASS' : 'FAIL', normOk ? CYAN : RED,
-      `skew ${skew >= 0 ? '+' : ''}${skew.toFixed(2)}   ·   kurtosis ${kurt >= 0 ? '+' : ''}${kurt.toFixed(2)}`,
+    panel(p2x0, r2Top, p2x1, r2Bot, TR('normality · errors vs a bell curve'),
+      normOk ? TR('PASS') : TR('FAIL'), normOk ? CYAN : RED,
+      TR('skew {0}   ·   kurtosis {1}', sgn(skew, 2), sgn(kurt, 2)),
       (x0, y0, x1, y1) => {
         const qa = A.qq, qb = T.qq;
         const n = Math.min(qa.length, qb.length);
@@ -575,7 +616,7 @@
         }
         ctx.font = `600 9px ${MONO}`; ctx.fillStyle = 'rgba(143,162,196,.7)';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-        ctx.fillText('on the dashed line = bell-shaped', x0, y1 + 15);
+        ctx.fillText(TR('on the dashed line = bell-shaped'), x0, y1 + 15);
       });
 
     scorecard(bendOk, fanOk, lagOk, normOk, {
@@ -595,37 +636,38 @@
   }
   function scorecard(bendOk, fanOk, lagOk, normOk, m) {
     badge('sc-shape', 'v-bend', 'b-bend', bendOk ? 'pass' : 'fail',
-          m.bend.toFixed(2), bendOk ? 'pass' : 'fail');
+          dec(m.bend, 2), bendOk ? TR('pass') : TR('fail'));
     badge('sc-spread', 'v-fan', 'b-fan', fanOk ? 'pass' : 'fail',
-          (isFinite(m.fan) ? m.fan.toFixed(2) : '∞') + '×', fanOk ? 'pass' : 'fail');
+          (isFinite(m.fan) ? dec(m.fan, 2) : '∞') + '×', fanOk ? TR('pass') : TR('fail'));
     if (D.ordered) {
       badge('sc-indep', 'v-lag', 'b-lag', lagOk ? 'pass' : 'fail',
-            (m.lag1 >= 0 ? '+' : '') + m.lag1.toFixed(3), lagOk ? 'pass' : 'fail');
-      $('t-lag').textContent = 'lag-1, want |r| < ' + T_LAG;
+            sgn(m.lag1, 3), lagOk ? TR('pass') : TR('fail'));
+      $('t-lag').textContent = TR('lag-1, want |r| < {0}', dec(T_LAG, 2));
     } else {
-      badge('sc-indep', 'v-lag', 'b-lag', 'na', '—', 'not testable');
-      $('t-lag').textContent = 'no meaningful row order';
+      badge('sc-indep', 'v-lag', 'b-lag', 'na', '—', TR('not testable'));
+      $('t-lag').textContent = TR('no meaningful row order');
     }
     badge('sc-norm', 'v-norm', 'b-norm', normOk ? 'pass' : 'fail',
-          `${m.skew >= 0 ? '+' : ''}${m.skew.toFixed(1)} / ${m.kurt >= 0 ? '+' : ''}${m.kurt.toFixed(1)}`,
-          normOk ? 'pass' : 'fail');
+          `${sgn(m.skew, 1)} / ${sgn(m.kurt, 1)}`,
+          normOk ? TR('pass') : TR('fail'));
 
-    $('r-r2').textContent = m.r2.toFixed(3);
-    $('r-slope').textContent = m.slope.toFixed(Math.abs(m.slope) > 100 ? 0 : 3);
+    $('r-r2').textContent = dec(m.r2, 3);
+    $('r-slope').textContent = dec(m.slope, Math.abs(m.slope) > 100 ? 0 : 3);
     const t = TF[tf];
-    $('r-slope-sub').textContent = `${t.yl}${D.yunit} per ${t.xl}${D.xunit}`;
+    $('r-slope-sub').textContent = TR('{0} per {1}',
+      t.yl + TR(D.yunit), t.xl + TR(D.xunit));
     const runnable = D.ordered ? 4 : 3;
     const passed = (bendOk ? 1 : 0) + (fanOk ? 1 : 0) + (normOk ? 1 : 0)
                  + (D.ordered && lagOk ? 1 : 0);
-    $('r-pass').textContent = `${passed} of ${runnable}`;
+    $('r-pass').textContent = TR('{0} of {1}', grp(passed), grp(runnable));
     $('r-pass').className = 'v ' + (passed === runnable ? 'on' : (passed <= 1 ? 'bad' : 'gold'));
-    $('r-dw').textContent = D.ordered ? m.dw.toFixed(2) : '—';
-    $('r-cook').textContent = m.maxCook.toFixed(3);
+    $('r-dw').textContent = D.ordered ? dec(m.dw, 2) : '—';
+    $('r-cook').textContent = dec(m.maxCook, 3);
     $('r-cook').className = 'v ' + (m.maxCook > 0.2 ? 'bad' : 'on');
-    $('r-shift').textContent = (m.shift * 100).toFixed(1) + '%';
+    $('r-shift').textContent = dec(m.shift * 100, 1) + '%';
     $('r-shift').className = 'v ' + (m.shift > 0.03 ? 'bad' : 'on');
-    $('r-n').textContent = m.n.toLocaleString('en-GB');
-    $('r-ord').textContent = D.ordered ? 'yes' : 'no';
+    $('r-n').textContent = grp(m.n);
+    $('r-ord').textContent = D.ordered ? TR('yes') : TR('no');
     $('r-ord').className = 'v ' + (D.ordered ? 'on' : 'gold');
   }
 
@@ -646,25 +688,30 @@
   document.querySelectorAll('[data-set]').forEach(b => b.addEventListener('click', () => {
     const d = PAIRS.find(x => x.id === b.dataset.set); if (!d) return;
     press('[data-set]', d.id, 'set'); load(d); layout(); paint();
-    $('live').textContent = `${D.label}. ${D.ordered ? 'Order is meaningful, so all four checks run.' : 'No row order, so independence cannot be tested.'}`;
+    $('live').textContent = TR(D.label) + '. ' + (D.ordered
+      ? TR('Order is meaningful, so all four checks run.')
+      : TR('No row order, so independence cannot be tested.'));
   }));
   document.querySelectorAll('[data-tf]').forEach(b => b.addEventListener('click', () => {
     tf = b.dataset.tf; press('[data-tf]', tf, 'tf');
     retarget(tf, dropWorst);
     if (reduce) paint();
     const g = (B || A).g;
-    $('live').textContent = `Transform ${tf}. R² ${g.r2.toFixed(3)}, fan ${isFinite(g.fan) ? g.fan.toFixed(2) : 'infinite'}, kurtosis ${g.kurt.toFixed(2)}.`;
+    $('live').textContent = TR('Transform {0}. R² {1}, fan {2}, kurtosis {3}.',
+      tf, dec(g.r2, 3), isFinite(g.fan) ? dec(g.fan, 2) : TR('infinite'),
+      dec(g.kurt, 2));
   }));
   $('drop').addEventListener('click', e => {
     dropWorst = !dropWorst;
     e.target.setAttribute('aria-pressed', String(dropWorst));
-    e.target.textContent = dropWorst ? 'put it back' : 'drop the worst point';
+    e.target.textContent = dropWorst ? TR('put it back') : TR('drop the worst point');
     retarget(tf, dropWorst);
     if (reduce) paint();
     const st = B || A;
     $('live').textContent = dropWorst
-      ? `Most influential point removed. Slope moved ${(st.shift * 100).toFixed(1)} percent.`
-      : 'Point restored.';
+      ? TR('Most influential point removed. Slope moved {0} percent.',
+           dec(st.shift * 100, 1))
+      : TR('Point restored.');
   });
   addEventListener('resize', () => { layout(); paint(); });
 
