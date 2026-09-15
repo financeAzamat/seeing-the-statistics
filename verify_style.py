@@ -33,7 +33,7 @@ ENFORCED = {
     "diagnostics.html", "classify.html", "simpson.html",
     "ru/index.html", "ru/simpson.html", "ru/intuition.html", "ru/typical.html",
     "ru/corr.html", "ru/clt.html", "ru/ci.html", "ru/test.html",
-    "ru/regression.html",
+    "ru/regression.html", "ru/overfit.html",
 }
 
 EN_BANNED = [
@@ -133,9 +133,10 @@ MAX_FORMULA = 44
 ENFORCED_FORMULA = {
     "ci.html", "corr.html", "index.html", "intuition.html", "regression.html",
     "simpson.html", "test.html", "typical.html", "diagnostics.html",
+    "overfit.html",
     "ru/ci.html", "ru/clt.html", "ru/corr.html", "ru/index.html",
     "ru/intuition.html", "ru/simpson.html", "ru/test.html", "ru/typical.html",
-    "ru/regression.html",
+    "ru/regression.html", "ru/overfit.html",
 }
 
 

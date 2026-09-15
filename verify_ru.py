@@ -363,6 +363,35 @@ for k in dupes:
                  f"ru/strings.js; the object literal keeps only the last")
 
 print("\n" + "=" * 74)
+print("11. NO BARE STRING LITERALS REACHING A TEXT-DRAWING CALL")
+print("=" * 74)
+# How the overfit legend was missed: an inventory built by grepping ctx.fillText
+# found two calls, while three series names and a threshold caption were drawn
+# through K.tracked instead. Every text-drawing entry point has to be covered, or
+# a page ships with English on the canvas and every other check still passes --
+# canvas text is not in the DOM, so the prose checks cannot see it either.
+DRAW_CALLS = r"(?:ctx\.fillText|K\.tracked|K\.pill|K\.panel)"
+for p in RENDERERS:
+    code = re.sub(r"/\*.*?\*/", " ", p.read_text(encoding="utf-8"), flags=re.S)
+    code = re.sub(r"(?m)//[^\n]*$", " ", code)
+    bare: list[str] = []
+    # a quoted literal as the FIRST argument, not wrapped in TR(
+    for m in re.finditer(DRAW_CALLS + r"\(\s*(['\"])((?:[^'\"\\\n]|\\.)*)\1", code):
+        lit = m.group(2)
+        if re.search(r"[A-Za-z]{4}", lit):
+            bare.append(lit[:40])
+    # and the `name:` / `title:` fields of a series/legend object literal
+    for m in re.finditer(r"(?:name|title|caption)\s*:\s*(['\"])((?:[^'\"\\\n]|\\.)*)\1",
+                         code):
+        lit = m.group(2)
+        if re.search(r"[A-Za-z]{4}", lit):
+            bare.append(lit[:40])
+    print(f"  {p.name:<26} bare drawn literals: {len(bare)} {bare[:2]}")
+    for b in bare:
+        fails.append(f"{p.name} draws {b!r} as a bare literal; it stays English "
+                     f"on a translated page and no prose check can see canvas text")
+
+print("\n" + "=" * 74)
 if fails:
     print("FAILURES:")
     for f_ in fails:

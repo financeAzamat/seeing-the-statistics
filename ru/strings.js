@@ -818,4 +818,42 @@ window.UDJ_STRINGS = {
     + 'Большая часть разброса не объяснена, а наклон всё равно остаётся числом, '
     + 'с которым можно планировать: каждая дополнительная позиция в заказе '
     + 'стоит около £7.',
+
+  /* ================================================================
+     MODULE 7·2 — overfitting and adjusted R² (overfit.render.js)
+     ================================================================ */
+
+  /* ---- countable noun, three Russian forms where English has two.
+     'noise columns (2-4)' is the few-form slot: an English page never selects
+     it, so its odd-reading key is never displayed. */
+  'noise column': 'шумовая колонка',
+  'noise columns (2-4)': 'шумовые колонки',
+  'noise columns': 'шумовых колонок',
+
+  '{0} → {1}   ·   plus pure noise': '{0} → {1}   ·   плюс чистый шум',
+  'FITTING…': 'ПОДГОНКА…',
+  ['each point is a real least-squares fit · {0} rows to fit on, {1} held back']:
+    'каждая точка — настоящая подгонка методом наименьших квадратов · {0} строк '
+    + 'для подгонки, {1} отложено',
+
+  ' (interpolated between measured points)':
+    ' (интерполяция между измеренными точками)',
+  'Fitting {0} models… {1} done.': 'Подгоняется моделей: {0}… готово: {1}.',
+  ['With {0} {1}: R² {2} on the rows it was fitted to, adjusted {3}, and {4} on '
+   + 'the {5} rows held back']:
+    'При {0} {1}: R² {2} на строках, по которым подгоняли, скорректированный '
+    + '{3} и {4} на {5} отложенных строках',
+  ' — negative, so worse than guessing the average.':
+    ' — отрицательный, то есть хуже, чем угадывать среднее.',
+  '{0}. {1} rows to fit on, {2} held back.':
+    '{0}. Строк для подгонки: {1}, отложено: {2}.',
+  '{0} noise predictors.': 'Шумовых предикторов: {0}.',
+
+  /* ---- canvas legend. These are drawn through K.tracked, not ctx.fillText,
+     which is how they were missed on the first pass. */
+  'WORSE THAN GUESSING THE AVERAGE': 'ХУЖЕ, ЧЕМ УГАДЫВАТЬ СРЕДНЕЕ',
+  'R² ON DATA IT SAW': 'R² НА ДАННЫХ, ЧТО ВИДЕЛ',
+  'ADJUSTED R²': 'СКОРРЕКТИРОВАННЫЙ R²',
+  'R² ON HELD-BACK DATA': 'R² НА ОТЛОЖЕННЫХ ДАННЫХ',
+  'NOISE PREDICTORS ADDED': 'ДОБАВЛЕНО ШУМОВЫХ ПРЕДИКТОРОВ',
 };

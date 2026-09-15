@@ -44,6 +44,46 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const K = DR.kit(ctx), P = DR.PAL;
 
+  /* Translation lookup. The KEY is the English string, so a missing entry falls
+     back to correct English rather than a bare identifier — which is what lets
+     the English page load this same file with no strings table at all. */
+  function TR(k) {
+    const m = window.UDJ_STRINGS;
+    let s = (m && m[k]) || k;
+    for (let i = 1; i < arguments.length; i++) {
+      s = s.replace('{' + (i - 1) + '}', arguments[i]);
+    }
+    return s;
+  }
+  const UDJ_LOC = (window.UDJ_STRINGS && window.UDJ_STRINGS.__locale) || 'en-GB';
+  const grp = v => Number(v).toLocaleString(UDJ_LOC);
+  const dec = (v, dp) => (Math.abs(Number(v)) < Math.pow(10, -dp) / 2 ? 0 : Number(v))
+    .toLocaleString(UDJ_LOC, {
+      minimumFractionDigits: dp, maximumFractionDigits: dp,
+    });
+
+  /* Countable nouns. English has two forms, Russian three: 1 колонка,
+     2-4 колонки, 5+ колонок. Interpolating a single pluralised English noun
+     would have printed "1 шумовых колонок" for every count. The 'few' key is
+     never selected on an English page, so its odd-reading English is never
+     displayed — it exists only to give the Russian table somewhere to put the
+     second plural form. */
+  function plCat(n) {
+    if (UDJ_LOC.slice(0, 2) === 'ru') {
+      const a = n % 10, b = n % 100;
+      if (a === 1 && b !== 11) return 'one';
+      if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return 'few';
+      return 'many';
+    }
+    return n === 1 ? 'one' : 'many';
+  }
+  function noiseCols(n) {
+    const c = plCat(n);
+    return c === 'one' ? TR('noise column')
+         : c === 'few' ? TR('noise columns (2-4)')
+         : TR('noise columns');
+  }
+
   const CHECKS = [0, 1, 2, 3, 5, 8, 12, 18, 26, 36, 50, 68, 85, 100];
   const KMAX = CHECKS[CHECKS.length - 1];
 
@@ -143,10 +183,11 @@
     const cur = at(Math.round(kNow));
 
     K.panel(8, 8, W - 8, Hh - 8,
-      `${D.xlab} → ${D.ylab}   ·   plus pure noise`,
-      results.length < CHECKS.length ? 'FITTING…' : null,
+      TR('{0} → {1}   ·   plus pure noise', TR(D.xlab), TR(D.ylab)),
+      results.length < CHECKS.length ? TR('FITTING…') : null,
       results.length < CHECKS.length ? P.GOLD : P.CYAN,
-      `each point is a real least-squares fit · ${train.n} rows to fit on, ${test.n} held back`,
+      TR('each point is a real least-squares fit · {0} rows to fit on, {1} '
+         + 'held back', grp(train.n), grp(test.n)),
       (x0, y0, x1, y1) => {
         const sx = k => x0 + (k / KMAX) * (x1 - x0);
         const sy = v => y1 - (M.clamp01((v - CLIP_LO) / (1 - CLIP_LO))) * (y1 - y0);
@@ -169,21 +210,22 @@
           ctx.beginPath(); ctx.moveTo(x0, yy + .5); ctx.lineTo(x1, yy + .5); ctx.stroke();
           ctx.setLineDash([]);
           ctx.fillStyle = zero ? 'rgba(255,196,116,.85)' : 'rgba(143,162,196,.8)';
-          ctx.fillText(v.toFixed(2), x0 - 5, yy);
+          ctx.fillText(dec(v, 2), x0 - 5, yy);
         }
         ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-        K.tracked('NOISE PREDICTORS ADDED', (x0 + x1) / 2, y1 + 26, 9,
+        K.tracked(TR('NOISE PREDICTORS ADDED'), (x0 + x1) / 2, y1 + 26, 9,
                   'rgba(143,162,196,.8)', 1.6, 'center');
         ctx.textAlign = 'left';
-        K.tracked('WORSE THAN GUESSING THE AVERAGE', x0 + 6, sy(0) + 13, 9,
+        K.tracked(TR('WORSE THAN GUESSING THE AVERAGE'), x0 + 6, sy(0) + 13, 9,
                   'rgba(255,196,116,.55)', 1.4, 'left');
 
         // the three curves
         const SERIES = [
-          { key: 'r2', c: P.CYAN, name: 'R² ON DATA IT SAW' },
-          { key: 'adj', c: P.GOLD, name: 'ADJUSTED R²' },
-          { key: 'test', c: P.RED, name: 'R² ON HELD-BACK DATA' },
+          { key: 'r2', c: P.CYAN, name: TR('R² ON DATA IT SAW') },
+          { key: 'adj', c: P.GOLD, name: TR('ADJUSTED R²') },
+          { key: 'test', c: P.RED, name: TR('R² ON HELD-BACK DATA') },
         ];
+        const endLabels = [];
         for (const s of SERIES) {
           if (results.length < 2) continue;
           // a soft wide pass under the crisp line, so three curves stay apart
@@ -203,10 +245,31 @@
             const pu = 0.8 + 0.2 * Math.sin(now * 1.5 + i * 0.5);
             K.dot(sx(r.k), sy(r[s.key]), 2.8 * pu, s.c, 1, 0.7);
           });
-          // the label rides the end of its own curve
+          // the label rides the end of its own curve — collected here and drawn
+          // after the loop, because on a dataset where the three curves stay
+          // close (retail at 400 training rows) all three ended up inside ~20px
+          // and printed on top of each other. Language-independent: the English
+          // labels collided too, just less visibly.
           const last = results[results.length - 1];
-          K.tracked(s.name, sx(last.k) - 4, sy(last[s.key]) - 9, 9,
-                    K.rgba(s.c, .95), 1.4, 'right');
+          endLabels.push({
+            name: s.name, c: s.c,
+            x: sx(last.k) - 4, y: sy(last[s.key]) - 9,
+          });
+        }
+
+        /* Push the end labels apart to at least LBL_GAP, keeping their order and
+           staying inside the panel. */
+        const LBL_GAP = 12;
+        endLabels.sort((a, b) => a.y - b.y);
+        for (let i = 1; i < endLabels.length; i++) {
+          if (endLabels[i].y - endLabels[i - 1].y < LBL_GAP) {
+            endLabels[i].y = endLabels[i - 1].y + LBL_GAP;
+          }
+        }
+        const overflow = endLabels.length
+          ? Math.max(0, endLabels[endLabels.length - 1].y - (y1 - 4)) : 0;
+        for (const L of endLabels) {
+          K.tracked(L.name, L.x, L.y - overflow, 9, K.rgba(L.c, .95), 1.4, 'right');
         }
 
         // the marker at the selected k
@@ -227,13 +290,13 @@
   }
 
   const $ = id => document.getElementById(id);
-  const pc = v => (v >= 0 ? '' : '−') + Math.abs(v).toFixed(3);
+  const pc = v => (v >= 0 ? '' : '−') + dec(Math.abs(v), 3);
   function readouts(cur, kNow) {
     const k = Math.round(kNow);
     $('r-k').textContent = String(k);
-    $('r-real').textContent = D.xlab;
-    $('r-ntrain').textContent = train ? train.n.toLocaleString('en-GB') : '—';
-    $('r-ntest').textContent = test ? test.n.toLocaleString('en-GB') : '—';
+    $('r-real').textContent = TR(D.xlab);
+    $('r-ntrain').textContent = train ? grp(train.n) : '—';
+    $('r-ntest').textContent = test ? grp(test.n) : '—';
     if (!cur) return;
     $('v-train').textContent = pc(cur.r2);
     $('v-adj').textContent = pc(cur.adj);
@@ -242,15 +305,19 @@
     $('r-dof').className = 'v ' + (cur.dof < 40 ? 'bad' : 'on');
     const base = results.length ? results[0] : null;
     const gain = base ? cur.r2 - base.r2 : 0;
-    $('r-gain').textContent = (gain >= 0 ? '+' : '') + gain.toFixed(3);
+    $('r-gain').textContent = (gain >= 0 ? '+' : '') + dec(gain, 3);
     $('r-gain').className = 'v ' + (gain > 0.02 ? 'bad' : 'on');
-    const exact = isCheckpoint(k) ? '' : ' (interpolated between measured points)';
+    const exact = isCheckpoint(k) ? ''
+      : TR(' (interpolated between measured points)');
     $('hint').textContent = results.length < CHECKS.length
-      ? `Fitting ${CHECKS.length} models… ${results.length} done.`
-      : `With ${k} noise column${k === 1 ? '' : 's'}: R² ${cur.r2.toFixed(3)} on the rows it `
-        + `was fitted to, adjusted ${cur.adj.toFixed(3)}, and ${cur.test.toFixed(3)} on the `
-        + `${test.n} rows held back`
-        + (cur.test < 0 ? ' — negative, so worse than guessing the average.' : '.')
+      ? TR('Fitting {0} models… {1} done.',
+           grp(CHECKS.length), grp(results.length))
+      : TR('With {0} {1}: R² {2} on the rows it was fitted to, adjusted {3}, '
+           + 'and {4} on the {5} rows held back',
+           grp(k), noiseCols(k), dec(cur.r2, 3), dec(cur.adj, 3),
+           dec(cur.test, 3), grp(test.n))
+        + (cur.test < 0
+            ? TR(' — negative, so worse than guessing the average.') : '.')
         + exact;
   }
 
@@ -269,11 +336,12 @@
   document.querySelectorAll('[data-set]').forEach(b => b.addEventListener('click', () => {
     const d = PAIRS.find(x => x.id === b.dataset.set); if (!d) return;
     press('[data-set]', d.id, 'set'); load(d); layout(); paint();
-    $('live').textContent = `${d.label}. ${train.n} rows to fit on, ${test.n} held back.`;
+    $('live').textContent = TR('{0}. {1} rows to fit on, {2} held back.',
+                              TR(d.label), grp(train.n), grp(test.n));
   }));
   document.querySelectorAll('[data-k]').forEach(b => b.addEventListener('click', () => {
     setK(+b.dataset.k, true);
-    $('live').textContent = `${kSel} noise predictors.`;
+    $('live').textContent = TR('{0} noise predictors.', grp(kSel));
   }));
   $('s-k').addEventListener('input', e => setK(+e.target.value, false));
   addEventListener('resize', () => { layout(); paint(); });
