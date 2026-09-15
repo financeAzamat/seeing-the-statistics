@@ -220,8 +220,8 @@ window.UDJ_STRINGS = {
   ['Because only about 9.7% of cases are positive, answering "no" every time is '
    + 'right in the other 90.3%. Accuracy on a lopsided problem rewards doing '
    + 'nothing, which is why it is the wrong score to optimise.']:
-    'Поскольку положительных случаев всего около 9,7 %, ответ «нет» каждый раз '
-    + 'верен в остальных 90,3 %. На перекошенной задаче accuracy награждает за '
+    'Поскольку положительных случаев всего около 9,7%, ответ «нет» каждый раз '
+    + 'верен в остальных 90,3%. На перекошенной задаче точность награждает за '
     + 'бездействие — поэтому оптимизировать её неправильно.',
 
   /* ---- grading labels, from simpson.js. The data file uses the British
