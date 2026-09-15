@@ -4,7 +4,7 @@
    "locale": "en",
    "pages": 12,
    "entries": 11,
-   "assets": 26,
+   "assets": 28,
    "order": [
     {
      "order": 1,
@@ -76,9 +76,9 @@
   },
   {
    "locale": "ru",
-   "pages": 7,
+   "pages": 8,
    "entries": 11,
-   "assets": 21,
+   "assets": 24,
    "order": [
     {
      "order": 1,
@@ -149,6 +149,6 @@
    ]
   }
  ],
- "bytes": 1009682,
- "files": 66
+ "bytes": 1089444,
+ "files": 72
 }

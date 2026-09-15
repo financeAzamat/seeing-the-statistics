@@ -495,9 +495,11 @@ window.UDJ_STRINGS = {
   'pause': 'пауза',
   'Reset.': 'Сброшено.',
 
-  /* ---- data-file prose from datasets.js */
+  /* ---- data-file prose from datasets.js.
+     'Wait between eruptions' is NOT repeated here: typical.js uses the same
+     English label, so the Module 3 entry above already covers it. A second copy
+     would be silently swallowed by the object literal. */
   'Order value per invoice': 'Сумма заказа по счёту',
-  'Wait between eruptions': 'Ожидание между извержениями',
   'Price per diamond': 'Цена за бриллиант',
 
   'Old Faithful (Härdle, W., 1991)': 'Гейзер Old Faithful (Härdle, W., 1991)',
@@ -634,4 +636,88 @@ window.UDJ_STRINGS = {
     + 'розничных заказов: просят 95%, а при n = 30 выходит около 93%. '
     + 'Достаточно, чтобы иметь значение при ценообразовании, и недостаточно, '
     + 'чтобы броситься в глаза.',
+
+  /* ================================================================
+     MODULE 6 — p-values and hypothesis tests (test.render.js)
+     ================================================================ */
+
+  'none': 'нет',
+  'zero': 'ноль',
+  ['The data — <em>{0}, {1} · two samples of {2} drawn from {3} real '
+   + 'records</em>']:
+    'Данные — <em>{0}, {1} · две выборки по {2} из {3} реальных записей</em>',
+
+  /* ---- canvas labels. 'p = ' and 'α = ' stay in the code untranslated:
+     notation, identical in both languages. */
+  '  → "significant"': '  → «значимо»',
+  '  → not significant': '  → не значимо',
+  'level if nothing were going on': 'уровень, если бы ничего не происходило',
+  'showing {0} of {1} per group — the test uses all {2}':
+    'показано {0} из {1} на группу — тест использует все {2}',
+
+  /* ---- the verdict panel */
+  'Nothing changed': 'Ничего не изменилось',
+  'B really is {0} higher': 'B действительно выше на {0}',
+  'the two groups are identical': 'две группы одинаковы',
+  'a real gap of {0}': 'реальный разрыв {0}',
+  '{0} of {1} tests': '{0} из {1} тестов',
+  'of all tests run': 'из всех проведённых тестов',
+  'every one a false alarm': 'каждый из них — ложная тревога',
+  'should be α = {0}': 'должно быть α = {0}',
+  'missed it {0} of the time': 'пропущено в {0} случаев',
+  'this share is the power': 'эта доля и есть мощность',
+
+  /* ---- the single-test readout, graded against the known truth */
+  'below α = {0}': 'ниже α = {0}',
+  'above α = {0}': 'выше α = {0}',
+  'SIGNIFICANT': 'ЗНАЧИМО',
+  'not significant': 'не значимо',
+  'wrong — a Type I error': 'неверно — ошибка первого рода',
+  'correct — nothing to find': 'верно — находить нечего',
+  'correct — the effect is real': 'верно — эффект реален',
+  'wrong — a Type II error, effect missed':
+    'неверно — ошибка второго рода, эффект пропущен',
+
+  /* ---- screen-reader announcements on each control */
+  '{0}. Noise divided by average is {1}.':
+    '{0}. Шум, поделённый на среднее, равен {1}.',
+  ['The two groups are now identical. Every significant result from here is a '
+   + 'false alarm.']:
+    'Теперь две группы одинаковы. Любой значимый результат отсюда — ложная '
+    + 'тревога.',
+  ['Group B really is {0} higher. The share of tests that notice is the '
+   + 'power.']:
+    'Группа B действительно выше на {0}. Доля тестов, которые это замечают, и '
+    + 'есть мощность.',
+  '{0} per group.': '{0} на группу.',
+  'Cut-off {0}. Chance of a fake winner across 20 tests: {1}.':
+    'Порог {0}. Шанс ложного победителя на 20 тестах: {1}.',
+  '{0} tests run.': 'Проведено тестов: {0}.',
+
+  /* ---- the three dataset hints for this page */
+  ['The expensive case. Order value is so noisy relative to its own average '
+   + '(1.28) that a real 5% lift needs enormous samples: 9.3% power at 500 per '
+   + 'group, still only 23% at 2,000. Set the change to none and the histogram '
+   + 'goes flat — that flatness is where the 5% false-alarm rate comes from.']:
+    'Дорогой случай. Сумма заказа настолько шумная относительно собственного '
+    + 'среднего (1,28), что реальный прирост в 5% требует огромных выборок: '
+    + 'мощность 9,3% при 500 на группу и всё ещё лишь 23% при 2 000. Поставьте '
+    + 'изменение на «нет» — и гистограмма станет плоской: именно из этой '
+    + 'плоскости и берётся частота ложных тревог в 5%.',
+  ['The cheap case. Eruption waits are tightly clustered (noise ÷ average = '
+   + '0.19), so a 5% shift is easy to see: 43% power at 100 per group and 98% '
+   + 'at 500. Same test, same α, forty-five times less data needed — because '
+   + 'the metric is quieter.']:
+    'Дешёвый случай. Ожидания извержений плотно сгруппированы (шум ÷ среднее = '
+    + '0,19), поэтому сдвиг в 5% увидеть легко: мощность 43% при 100 на группу '
+    + 'и 98% при 500. Тот же тест, та же α, и данных нужно в сорок пять раз '
+    + 'меньше — потому что метрика тише.',
+  ['In between, and closer to retail than you would guess: noise ÷ average is '
+   + '1.00, so a real 5% lift is caught 12% of the time at 500 per group. '
+   + 'Prices look like a well-behaved number and behave like a badly-behaved '
+   + 'one.']:
+    'Промежуточный случай, и он ближе к розничным заказам, чем можно было бы '
+    + 'предположить: шум ÷ среднее равен 1,00, поэтому реальный прирост в 5% '
+    + 'улавливается в 12% случаев при 500 на группу. Цены выглядят как '
+    + 'приличное число, а ведут себя как неприличное.',
 };

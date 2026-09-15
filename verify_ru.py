@@ -335,6 +335,30 @@ for page in sorted(RU.glob("*.html")):
                      f"non-breaking space; it cannot wrap and overflows the column")
 
 print("\n" + "=" * 74)
+print("10. NO DUPLICATE KEYS IN THE STRINGS TABLE")
+print("=" * 74)
+# This one is a genuine blind spot for every other check here: load_strings()
+# runs the file through node, and a JavaScript object literal silently keeps only
+# the LAST of a duplicated key. So a second entry for a key that already exists
+# is invisible after loading -- and if the two translations differed, the first
+# would vanish with no error anywhere. Found exactly that: 'Wait between
+# eruptions' had been added twice, once for typical.js and once for datasets.js.
+# This reads the SOURCE, which is the only place the duplication still exists.
+src = STRINGS.read_text(encoding="utf-8")
+key_lines: list[str] = []
+for m in re.finditer(r"(?m)^  (?:'((?:[^'\\]|\\.)*)'|\"((?:[^\"\\]|\\.)*)\")\s*:", src):
+    key_lines.append(m.group(1) if m.group(1) is not None else m.group(2))
+for m in re.finditer(r"(?m)^  \[([^\]]*)\]\s*:", src):
+    parts = re.findall(r"'((?:[^'\\]|\\.)*)'", m.group(1))
+    key_lines.append("".join(parts))
+dupes = sorted({k for k in key_lines if key_lines.count(k) > 1})
+print(f"  {len(key_lines)} keys in the source, {len(dupes)} duplicated")
+for k in dupes:
+    print(f"   DUPLICATE: {k[:60]!r}")
+    fails.append(f"{k[:50]!r} appears {key_lines.count(k)} times in "
+                 f"ru/strings.js; the object literal keeps only the last")
+
+print("\n" + "=" * 74)
 if fails:
     print("FAILURES:")
     for f_ in fails:

@@ -17,6 +17,7 @@ brought up to standard.
 """
 from __future__ import annotations
 
+import html
 import re
 import sys
 from pathlib import Path
@@ -31,7 +32,7 @@ ENFORCED = {
     "ci.html", "test.html", "regression.html", "overfit.html",
     "diagnostics.html", "classify.html", "simpson.html",
     "ru/index.html", "ru/simpson.html", "ru/intuition.html", "ru/typical.html",
-    "ru/corr.html", "ru/clt.html", "ru/ci.html",
+    "ru/corr.html", "ru/clt.html", "ru/ci.html", "ru/test.html",
 }
 
 EN_BANNED = [
@@ -93,6 +94,22 @@ RU_BANNED = [
 ]
 
 MAX_BOLD = 2   # a term at its point of definition, once or twice per page
+
+# A .formula block does not wrap, so a line wider than the left column is cut
+# off. 44 monospace characters is what 29rem holds at --body size minus the
+# block's own padding; the English pages that fit sit at 32-43.
+MAX_FORMULA = 44
+
+# Pages whose formula blocks fit today, so a regression on them is a failure.
+# The rest are a NAMED BACKLOG, not an exemption: overfit.html (70 chars),
+# clt.html (60) and classify.html (58) each lose the right-hand end of a line
+# and need their formulas reworded, which is prose work on the English pages.
+ENFORCED_FORMULA = {
+    "ci.html", "corr.html", "index.html", "intuition.html", "regression.html",
+    "simpson.html", "test.html", "typical.html", "diagnostics.html",
+    "ru/ci.html", "ru/clt.html", "ru/corr.html", "ru/index.html",
+    "ru/intuition.html", "ru/simpson.html", "ru/test.html", "ru/typical.html",
+}
 
 
 def blocks_of(seg: str) -> list[str]:
@@ -186,17 +203,35 @@ for name, path in pages():
     prose = re.sub(r'<b style="color:[^"]*">', " COLOURKEY ", prose)
     bold = len(re.findall(r"<b\b", prose))
     over = max(0, bold - MAX_BOLD)
-    ok = not hits and not over
+
+    # A .formula block is `white-space: pre; overflow-x: auto`, so a line wider
+    # than the 29rem left column is not wrapped -- it is silently CUT OFF with a
+    # scrollbar a reader will never think to use. Measured: overfit.html loses
+    # "← cannot rise as columns are added" entirely. Only TOP-LEVEL lines count;
+    # a <span> child is a separate, smaller element that wraps normally.
+    widest = 0
+    for fm in re.finditer(r'(?s)<div class="formula">(.*?)</div>', body):
+        inner = re.sub(r"(?s)<span.*?</span>", "", fm.group(1))
+        inner = html.unescape(re.sub(r"<[^>]+>", "", inner))
+        for line in inner.split("\n"):
+            widest = max(widest, len(line.rstrip()))
+    too_wide = widest > MAX_FORMULA
+
+    ok = not hits and not over and not (too_wide and name in ENFORCED_FORMULA)
     tag = "OK  " if ok else ("FAIL" if name in ENFORCED else "todo")
     print(f"  [{tag}] {name:<20} banned {len(hits):>2}   <b> {bold:>2} "
-          f"(limit {MAX_BOLD})")
+          f"(limit {MAX_BOLD})   formula {widest:>2} (limit {MAX_FORMULA})")
     for why, txt_ in hits[:4]:
         print(f"          {why}: {txt_!r}")
     if len(hits) > 4:
         print(f"          … and {len(hits) - 4} more")
+    if too_wide and name not in ENFORCED_FORMULA:
+        backlog.append(f"{name}: formula line {widest} chars > {MAX_FORMULA}, "
+                       f"cut off by the column")
     if not ok:
         msg = (f"{name}: {len(hits)} banned construction(s), "
-               f"{bold} bold span(s)")
+               f"{bold} bold span(s)"
+               + (f", formula line {widest} chars" if too_wide else ""))
         if name in ENFORCED:
             fails.append(msg)
         else:
