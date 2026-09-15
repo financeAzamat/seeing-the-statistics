@@ -31,7 +31,7 @@ ENFORCED = {
     "ci.html", "test.html", "regression.html", "overfit.html",
     "diagnostics.html", "classify.html", "simpson.html",
     "ru/index.html", "ru/simpson.html", "ru/intuition.html", "ru/typical.html",
-    "ru/corr.html", "ru/clt.html",
+    "ru/corr.html", "ru/clt.html", "ru/ci.html",
 }
 
 EN_BANNED = [
@@ -177,7 +177,14 @@ for name, path in pages():
     # therefore structure rather than emphasis. A banned construction is wrong
     # anywhere, so those are still counted across the whole body.
     prose = re.sub(r'<div class="(note|tech)"[\s\S]*?</div>', " ", body)
-    bold = len(re.findall(r"<b>", prose))
+    # `<b style="color:…">` is a COLOUR KEY, not emphasis: it ties a word in the
+    # prose to a colour in the chart beside it ("bars that miss turn red", with
+    # `red` in the chart's red). Those are exempt on purpose. Everything else
+    # counts -- including a `<b>` carrying any other attribute, which the old
+    # bare-`<b>` regex silently ignored, so a decorative `<b class="…">` would
+    # have slipped past the limit unnoticed.
+    prose = re.sub(r'<b style="color:[^"]*">', " COLOURKEY ", prose)
+    bold = len(re.findall(r"<b\b", prose))
     over = max(0, bold - MAX_BOLD)
     ok = not hits and not over
     tag = "OK  " if ok else ("FAIL" if name in ENFORCED else "todo")

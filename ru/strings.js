@@ -577,4 +577,61 @@ window.UDJ_STRINGS = {
     + 'выравниваются только около 66 — поэтому 100 работает, а 30 нет. Это '
     + 'ровно тот случай, о котором на самом деле и говорит принятое в курсе '
     + 'правило «n ≈ 30».',
+
+  /* ================================================================
+     MODULE 6 — confidence intervals (ci.render.js)
+     ================================================================ */
+
+  'The data — <em>{0}, {1} · {2} real records</em>':
+    'Данные — <em>{0}, {1} · {2} реальных записей</em>',
+  'true average {0}': 'истинное среднее {0}',
+
+  /* ---- readouts. 'z = ' and 't = ' stay untranslated in the code: notation. */
+  '{0} pts': '{0} п.п.',
+  '{0} to {1}': 'от {0} до {1}',
+  'contains the true average — you would have been right':
+    'содержит истинное среднее — вы были бы правы',
+  ['does NOT contain the true average — you would have reported this in good '
+   + 'faith']:
+    'НЕ содержит истинное среднее — а вы сообщили бы его добросовестно',
+
+  /* ---- screen-reader announcements on each control */
+  '{0}. True average {1}.': '{0}. Истинное среднее {1}.',
+  'Sample size {0}. Multiplier {1}.':
+    'Размер выборки {0}. Множитель {1}.',
+  'Confidence level {0} percent.': 'Уровень доверия {0} процентов.',
+  ['Using the true spread and z. This is the textbook ideal you never actually '
+   + 'have.']:
+    'Используется истинный разброс и z. Это учебный идеал, которого у вас '
+    + 'никогда нет.',
+  ['Estimating the spread from each sample and using t. This is what you do in '
+   + 'practice.']:
+    'Разброс оценивается по каждой выборке, и используется t. Именно так делают '
+    + 'на практике.',
+  '{0} intervals drawn.': 'Построено интервалов: {0}.',
+
+  /* ---- the three dataset hints for this page */
+  ['The hard case. Order value is badly lopsided, so a sample that misses the '
+   + 'big orders gets both a low average and a small spread — a narrow range in '
+   + 'the wrong place. Ask for 95% here with n = 30 and you get about 86%, and '
+   + 'almost every miss is on the low side. Raise n to 300 and it recovers to '
+   + 'about 94.5%.']:
+    'Трудный случай. Сумма заказа сильно перекошена, поэтому выборка, в которую '
+    + 'не попали крупные заказы, даёт и низкое среднее, и малый разброс — узкий '
+    + 'диапазон в неверном месте. Попросите здесь 95% при n = 30, и вы получите '
+    + 'около 86%, причём почти каждый промах окажется в нижнюю сторону. '
+    + 'Поднимите n до 300, и показатель восстановится примерно до 94,5%.',
+  ['The easy case. This data has two humps but no long tail, so nothing '
+   + 'systematically drags the average down. Ask for 95% and you get about '
+   + '94.7% even at n = 30 — the textbook promise, kept.']:
+    'Простой случай. У этих данных два горба, но нет длинного хвоста, поэтому '
+    + 'ничто систематически не тянет среднее вниз. Попросите 95% — и получите '
+    + 'около 94,7% даже при n = 30: обещание учебника выполнено.',
+  ['In between. A long tail, but not as extreme as the retail orders: 95% '
+   + 'asked, about 93% delivered at n = 30. Enough to matter if you are pricing '
+   + 'something, not enough to be obvious.']:
+    'Промежуточный случай. Длинный хвост есть, но не такой крайний, как у '
+    + 'розничных заказов: просят 95%, а при n = 30 выходит около 93%. '
+    + 'Достаточно, чтобы иметь значение при ценообразовании, и недостаточно, '
+    + 'чтобы броситься в глаза.',
 };

@@ -109,7 +109,13 @@ canvas { display: block; width: 100%; }
   display: flex; flex-wrap: wrap; gap: var(--space-s) var(--gutter); align-items: center;
   padding: var(--space-s) 0; border-bottom: 1px solid var(--line); margin-bottom: var(--space-s);
 }
-.grp { display: flex; align-items: center; gap: .5rem; }
+/* A .grp had no flex-wrap and its children were allowed to shrink, so once a
+   group was wider than the space left on the row the label and the buttons were
+   squeezed until they overlapped — a long translated label printed on top of its
+   own first buttons. Wrapping inside the group, and refusing to shrink its
+   children, keeps every control legible at any label length. */
+.grp { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.grp > * { flex: none; }
 button {
   font-family: var(--font-mono); font-size: var(--micro); letter-spacing: .02em;
   color: var(--muted); background: transparent; border: 1px solid var(--line);

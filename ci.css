@@ -1,16 +1,3 @@
-/* ============================================================
-   Shared page chrome for the course pages.
-   ------------------------------------------------------------
-   Extracted when a sixth page would have meant a sixth copy of
-   the same 200 lines. Everything here is layout and type; the
-   colours all come from tokens.css so a palette change happens
-   in one place.
-
-   The five earlier pages still carry their own inline copies.
-   That is deliberate for now: rewriting a verified page to pull
-   its styling from here risks a visual regression no script
-   checks, and there is no functional gain. New pages use this.
-   ============================================================ */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
@@ -18,12 +5,11 @@ body {
   font-family: var(--font-text); font-size: var(--body); line-height: var(--lh-body);
   -webkit-font-smoothing: antialiased;
 }
-/* two soft corner fields; the only ambient colour on the page */
 body::before {
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background:
     radial-gradient(1100px 700px at 12% -10%, rgba(74,134,200,.14), transparent 60%),
-    radial-gradient(900px 600px at 100% 105%, rgba(138,224,244,.06), transparent 62%);
+    radial-gradient(900px 600px at 100% 105%, rgba(255,107,98,.05), transparent 62%);
 }
 .wrap {
   position: relative; z-index: 1; max-width: var(--max-width); margin: 0 auto;
@@ -46,26 +32,23 @@ h2 {
   letter-spacing: var(--tracking-tight); font-weight: 600; color: var(--ink-2);
   margin: var(--space-m) 0 var(--space-xs);
 }
-.sub {
-  font-family: var(--font-display); font-size: var(--h4); line-height: var(--lh-snug);
-  letter-spacing: var(--tracking-tight); color: var(--accent); font-weight: 500;
-  margin: calc(var(--space-s) * -0.5) 0 var(--space-s);
-}
 .lede { font-size: var(--lede); color: var(--ink); margin: 0 0 var(--space-s); }
 .lede b { color: var(--accent); font-weight: 600; }
 p { margin: 0 0 var(--space-s); color: var(--muted); }
 p b, li b { color: var(--ink); font-weight: 600; }
 a { color: var(--link); text-decoration: none; border-bottom: 1px solid rgba(143,199,255,.33); }
 a:hover { border-bottom-color: var(--link); }
-
-/* a paragraph that carries a statement on its own */
+.sub {
+  font-family: var(--font-display); font-size: var(--h4); line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight); color: var(--accent); font-weight: 500;
+  margin: calc(var(--space-s) * -0.5) 0 var(--space-s);
+}
 .punch {
   font-size: var(--h5); color: var(--ink-2); font-weight: 500;
   border-left: 2px solid var(--gold); padding-left: .85rem; margin: var(--space-s) 0;
 }
+/* the same treatment in red, for the finding that contradicts the textbook */
 .punch.warn { border-left-color: var(--error); }
-
-/* numbered do-this-now steps */
 .try { margin: var(--space-s) 0 0; padding: 0; list-style: none; counter-reset: t; }
 .try li {
   position: relative; padding: .55rem 0 .55rem 2.3rem; border-top: 1px solid var(--line);
@@ -79,15 +62,12 @@ a:hover { border-bottom-color: var(--link); }
   display: grid; place-items: center; font-weight: 700;
 }
 .try b { color: var(--ink-2); }
-
 .uses { margin: var(--space-s) 0; padding: 0; list-style: none; }
 .uses li { padding: .42rem 0 .42rem 1.1rem; position: relative; color: var(--muted); font-size: var(--small); }
 .uses li::before {
   content: ""; position: absolute; left: 0; top: 1.05rem;
   width: 4px; height: 4px; border-radius: 50%; background: var(--accent);
 }
-
-/* the exam-facing block, fenced off from the plain explanation */
 .tech {
   margin-top: var(--space-m); border: 1px solid var(--line);
   border-top: 2px solid var(--accent-deep); padding: var(--space-s);
@@ -103,7 +83,16 @@ a:hover { border-bottom-color: var(--link); }
   position: relative; border: 1px solid var(--line); border-radius: 2px; overflow: hidden;
   background: linear-gradient(180deg, rgba(12,18,31,.55), rgba(5,7,13,.55));
 }
-canvas { display: block; width: 100%; }
+canvas { display: block; width: 100%; height: 62vh; min-height: 470px; }
+@media (max-width: 1080px) { canvas { height: 68vh; } }
+.tagtop, .tagbot {
+  position: absolute; left: 14px; right: 14px;
+  font-size: var(--caption); letter-spacing: var(--tracking-caption);
+  text-transform: uppercase; font-weight: 600; pointer-events: none;
+}
+.tagtop { top: 12px; color: var(--muted); }
+.tagbot { top: 37%; color: var(--accent); }
+.tagtop em, .tagbot em { font-style: normal; color: var(--muted-2); font-weight: 500; }
 
 .bar {
   display: flex; flex-wrap: wrap; gap: var(--space-s) var(--gutter); align-items: center;
@@ -112,8 +101,8 @@ canvas { display: block; width: 100%; }
 /* A .grp had no flex-wrap and its children were allowed to shrink, so once a
    group was wider than the space left on the row the label and the buttons were
    squeezed until they overlapped — a long translated label printed on top of its
-   own first buttons. Wrapping inside the group, and refusing to shrink its
-   children, keeps every control legible at any label length. */
+   own first buttons. This page has four control groups, so it is the most
+   exposed to it. */
 .grp { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
 .grp > * { flex: none; }
 button {
@@ -124,31 +113,25 @@ button {
 }
 button:hover { color: var(--ink); border-color: rgba(150,178,225,.34); }
 button[aria-pressed="true"] { color: var(--paper); background: var(--accent); border-color: var(--accent); font-weight: 700; }
-button.act { color: var(--gold); border-color: rgba(255,196,116,.25); background: rgba(255,196,116,.06); }
-button.act:hover { border-color: var(--gold); }
-button.warnb[aria-pressed="true"] { background: var(--error); border-color: var(--error); }
+button.act { color: var(--accent); border-color: var(--accent-10); background: var(--accent-05); }
+button.act:hover { border-color: var(--accent); }
 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.sl { display: flex; align-items: center; gap: .45rem; }
-.sl label { font-size: var(--caption); letter-spacing: var(--tracking-caption); text-transform: uppercase; color: var(--muted-2); font-weight: 600; }
-input[type=range] { width: 9rem; accent-color: var(--gold); background: transparent; }
-input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 .hint { margin: var(--space-s) 0 0; font-size: var(--small); color: var(--muted); border-left: 2px solid var(--accent); padding-left: .8rem; }
-
-/* the headline strip: what was claimed, what is true, and the gap */
+/* the verdict strip: what you asked for against what you got */
 .verdict {
   margin-top: var(--space-s); border: 1px solid var(--line);
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line);
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--line);
 }
-@media (max-width: 620px) { .verdict { grid-template-columns: 1fr; } }
 .vc { background: var(--paper); padding: .8rem; text-align: center; }
 .vc .k { display: block; font-size: var(--caption); letter-spacing: var(--tracking-caption); text-transform: uppercase; color: var(--muted-2); font-weight: 600; }
-.vc .n { display: block; font-family: var(--font-mono); font-size: 1.6rem; font-variant-numeric: tabular-nums; margin-top: .3rem; line-height: 1.05; color: var(--ink-2); }
+.vc .n { display: block; font-family: var(--font-mono); font-size: 1.75rem; font-variant-numeric: tabular-nums; margin-top: .3rem; line-height: 1; }
+.vc.ask .n { color: var(--accent); }
+.vc.got .n { color: var(--ink-2); }
+.vc.got.bad .n { color: var(--error); }
+.vc.gap .n { color: var(--muted); }
+.vc.gap.bad .n { color: var(--error); }
 .vc .s { display: block; font-size: var(--caption); color: var(--muted-2); margin-top: .3rem; font-family: var(--font-mono); }
-.vc.good .n { color: var(--accent); }
-.vc.bad .n  { color: var(--error); }
-.vc.gold .n { color: var(--gold); }
-.vc .n.sm { font-size: 1.1rem; }
 
 .reads {
   margin-top: var(--space-s); display: grid;
@@ -163,20 +146,8 @@ input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offs
 .rd .v.bad { color: var(--error); }
 .rd .sub { display: block; font-size: var(--caption); color: var(--muted-2); margin-top: .15rem; font-family: var(--font-mono); }
 
-.prov { margin-top: var(--space-s); border: 1px solid var(--line); padding: var(--space-s); }
-.prov p { font-size: var(--small); margin: .45rem 0 0; }
-.prov ul { margin: .55rem 0 0; padding-left: 1.1rem; }
-.prov li { font-size: var(--micro); color: var(--muted-2); margin-bottom: .18rem; font-family: var(--font-mono); }
-/* The provenance line is assembled by the renderers as `<b>label</b> — what
-   <span class="src">…</span><span class="flt">…</span>`. Both classes were
-   emitted by three renderers and styled NOWHERE, so as bare inline spans they
-   ran straight into the preceding sentence: the corr page read
-   "…dataset) · sourceall 53,940 stones" and "for the plot onlyGeyser: all 272".
-   Each gets its own line, in the same mono/micro register as .prov li. */
-.prov .src, .prov .flt { display: block; margin-top: .35rem; font-family: var(--font-mono); font-size: var(--micro); color: var(--muted-2); }
-
 .note { margin-top: var(--space-s); padding-top: var(--space-s); border-top: 1px solid var(--line); font-size: var(--small); color: var(--muted-2); }
-.note code, p code, li code, td code, dd code { font-family: var(--font-mono); font-size: var(--micro); color: var(--accent); background: var(--accent-05); padding: .08rem .3rem; border-radius: 2px; }
+.note code, p code, li code { font-family: var(--font-mono); font-size: var(--micro); color: var(--accent); background: var(--accent-05); padding: .08rem .3rem; border-radius: 2px; }
 .formula {
   font-family: var(--font-mono); font-size: var(--body); color: var(--ink-2);
   background: var(--surface-lift); border-left: 2px solid var(--accent);
